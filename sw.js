@@ -1,4 +1,4 @@
-const CACHE = 'temshiki-v1';
+const CACHE = 'temshiki-v3';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
@@ -16,9 +16,6 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Не кэшируем запросы к Supabase
   if (e.request.url.includes('supabase.co')) return;
-  e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
-  );
+  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
 });
