@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Темщики // darknet.forum</title>
+<meta name="theme-color" content="#00ff41">
+<link rel="manifest" href="./manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -82,6 +84,31 @@
   .post .del { float:right; font-size:0.7rem; cursor:pointer; color:#ff003c; opacity:0.6; }
   .post .del:hover { opacity:1; text-shadow:0 0 8px #ff003c; }
 
+  /* лайки */
+  .post-actions { display:flex; gap:10px; align-items:center; margin-top:10px; font-size:0.8rem; }
+  .react-btn {
+    background:transparent; border:1px solid #00ff41; color:#00ff41;
+    padding:4px 10px; font-family:inherit; font-size:0.8rem; cursor:pointer;
+    letter-spacing:0; text-transform:none;
+  }
+  .react-btn.active-up { background:#00ff41; color:#000; }
+  .react-btn.active-down { background:#ff003c; color:#000; border-color:#ff003c; }
+  .react-btn:hover { box-shadow:0 0 8px currentColor; }
+  .comment-toggle { cursor:pointer; color:#00e5ff; font-size:0.8rem; opacity:0.8; }
+  .comment-toggle:hover { opacity:1; }
+
+  /* комментарии */
+  .comments { margin-top:12px; border-top:1px dashed rgba(0,255,65,0.3); padding-top:10px; }
+  .comment { padding:8px 10px; margin-bottom:8px; background:rgba(0,229,255,0.04); border-left:2px solid #00e5ff; }
+  .comment .meta { font-size:0.7rem; opacity:0.6; margin-bottom:4px; }
+  .comment .author { color:#00e5ff; }
+  .comment .body { font-size:0.85rem; white-space:pre-wrap; }
+  .comment .del { float:right; font-size:0.65rem; cursor:pointer; color:#ff003c; opacity:0.6; }
+  .comment .del:hover { opacity:1; }
+  .comment-form { display:flex; gap:8px; margin-top:8px; }
+  .comment-form input { margin-bottom:0; flex:1; }
+  .comment-form button { padding:8px 14px; font-size:0.8rem; }
+
   .tabs { display:flex; gap:10px; margin-bottom:20px; }
   .tab { flex:1; padding:10px; text-align:center; border:1px solid #00ff41; cursor:pointer; font-size:0.85rem; letter-spacing:1px; opacity:0.5; }
   .tab.active { opacity:1; background:rgba(0,255,65,0.1); box-shadow:0 0 10px rgba(0,255,65,0.3); }
@@ -99,6 +126,13 @@
   @keyframes fade { to{opacity:1} }
 
   footer { text-align:center; font-size:0.7rem; opacity:0.4; padding:30px 0; }
+
+  .install-btn {
+    position:fixed; bottom:16px; right:16px; z-index:200;
+    border:1px solid #00e5ff; color:#00e5ff; background:#000;
+    padding:10px 16px; font-size:0.8rem;
+  }
+  .install-btn:hover { background:#00e5ff; color:#000; box-shadow:0 0 15px #00e5ff; }
 </style>
 </head>
 <body>
@@ -161,6 +195,8 @@
   </div>
 </main>
 
+<button class="install-btn hidden" id="installBtn">[ УСТАНОВИТЬ ]</button>
+
 <footer>// temshiki.supabase.co // никаких логов. никаких следов.</footer>
 
 <script>
@@ -172,6 +208,9 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
 let currentProfile = null;
+let allComments = [];
+let allReactions = [];
+let openComments = new Set(); // какие посты развёрнуты
 
 /* Boot */
 setTimeout(() => { document.getElementById('boot').style.display = 'none'; }, 2200);
@@ -207,17 +246,14 @@ async function doRegister() {
   const btn = document.getElementById('regBtn');
   btn.disabled = true;
 
-  // 1. Создаём auth-пользователя
   const { data: authData, error: authErr } = await db.auth.signUp({ email, password: pass });
   if (authErr) { btn.disabled = false; return showErr('regErr', authErr.message); }
 
-  // 2. Если email-подтверждение включено — сессии нет, предупреждаем
   if (!authData.session) {
     btn.disabled = false;
     return showErr('regErr', 'аккаунт создан. подтверди email и войди.');
   }
 
-  // 3. Создаём профиль с ником
   const { error: profErr } = await db.from('profiles').insert({
     id: authData.user.id,
     username: username
@@ -243,7 +279,7 @@ async function doLogin() {
   const { error } = await db.auth.signInWithPassword({ email, password: pass });
   if (error) {
     btn.disabled = false;
-    return showErr('loginErr', 'доступ запрещён');
+    return showErr('loginErr', error.message);
   }
 
   btn.disabled = false;
@@ -263,9 +299,8 @@ async function enterForum() {
 
   currentUser = user;
 
-  // Получаем профиль
   const { data: profile } = await db.from('profiles').select('username').eq('id', user.id).single();
-  if (!profile) return; // профиль ещё не создан
+  if (!profile) return;
 
   currentProfile = profile;
 
@@ -276,19 +311,28 @@ async function enterForum() {
   info.innerHTML = `[ <span class="blink">●</span> ${profile.username} ]`;
   info.classList.remove('hidden');
 
-  await loadPosts();
+  await loadAll();
   subscribeRealtime();
 }
 
-/* Загрузка постов */
-async function loadPosts() {
-  const { data: posts, error } = await db
-    .from('posts')
-    .select('*')
-    .order('created_at', { ascending: false });
+/* Загрузка постов + комментариев + реакций */
+async function loadAll() {
+  const [postsRes, commentsRes, reactionsRes] = await Promise.all([
+    db.from('posts').select('*').order('created_at', { ascending: false }),
+    db.from('comments').select('*').order('created_at', { ascending: true }),
+    db.from('reactions').select('*')
+  ]);
 
-  if (error) { console.error(error); return; }
+  if (postsRes.error) console.error(postsRes.error);
+  if (commentsRes.error) console.error(commentsRes.error);
+  if (reactionsRes.error) console.error(reactionsRes.error);
 
+  allComments = commentsRes.data || [];
+  allReactions = reactionsRes.data || [];
+  renderPosts(postsRes.data || []);
+}
+
+function renderPosts(posts) {
   document.getElementById('postCount').textContent = posts.length;
   const list = document.getElementById('postsList');
 
@@ -297,15 +341,102 @@ async function loadPosts() {
     return;
   }
 
-  list.innerHTML = posts.map(p => `
-    <div class="post">
-      ${p.author_id === currentUser.id ? `<span class="del" onclick="deletePost(${p.id})">[ x ]</span>` : ''}
-      <div class="meta">
-        <span class="author">@${escapeHtml(p.author_name)}</span> · ${new Date(p.created_at).toLocaleString('ru-RU')}
+  list.innerHTML = posts.map(p => {
+    const likes = allReactions.filter(r => r.post_id === p.id && r.value === 1).length;
+    const dislikes = allReactions.filter(r => r.post_id === p.id && r.value === -1).length;
+    const myReaction = allReactions.find(r => r.post_id === p.id && r.user_id === currentUser.id);
+    const postComments = allComments.filter(c => c.post_id === p.id);
+    const isOpen = openComments.has(p.id);
+
+    const upClass = myReaction && myReaction.value === 1 ? 'active-up' : '';
+    const downClass = myReaction && myReaction.value === -1 ? 'active-down' : '';
+
+    const commentsHtml = postComments.map(c => `
+      <div class="comment">
+        ${c.author_id === currentUser.id ? `<span class="del" onclick="deleteComment(${c.id})">[ x ]</span>` : ''}
+        <div class="meta"><span class="author">@${escapeHtml(c.author_name)}</span> · ${new Date(c.created_at).toLocaleString('ru-RU')}</div>
+        <div class="body">${escapeHtml(c.body)}</div>
       </div>
-      <div class="content"><strong style="color:#00e5ff"># ${escapeHtml(p.title)}</strong><br>${escapeHtml(p.body)}</div>
-    </div>
-  `).join('');
+    `).join('');
+
+    return `
+      <div class="post">
+        ${p.author_id === currentUser.id ? `<span class="del" onclick="deletePost(${p.id})">[ x ]</span>` : ''}
+        <div class="meta">
+          <span class="author">@${escapeHtml(p.author_name)}</span> · ${new Date(p.created_at).toLocaleString('ru-RU')}
+        </div>
+        <div class="content"><strong style="color:#00e5ff"># ${escapeHtml(p.title)}</strong><br>${escapeHtml(p.body)}</div>
+
+        <div class="post-actions">
+          <button class="react-btn ${upClass}" onclick="react(${p.id}, 1)">▲ ${likes}</button>
+          <button class="react-btn ${downClass}" onclick="react(${p.id}, -1)">▼ ${dislikes}</button>
+          <span class="comment-toggle" onclick="toggleComments(${p.id})">
+            [ 💬 ${postComments.length} ${isOpen ? 'скрыть' : 'показать'} ]
+          </span>
+        </div>
+
+        <div class="comments ${isOpen ? '' : 'hidden'}" id="comments-${p.id}">
+          ${commentsHtml || '<div style="opacity:.4;font-size:0.8rem;padding:6px 0">// комментариев нет</div>'}
+          <div class="comment-form">
+            <input type="text" id="cin-${p.id}" placeholder="> твой коммент...">
+            <button onclick="addComment(${p.id})">OK</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleComments(postId) {
+  if (openComments.has(postId)) openComments.delete(postId);
+  else openComments.add(postId);
+  refresh();
+}
+
+async function refresh() {
+  const { data: posts } = await db.from('posts').select('*').order('created_at', { ascending: false });
+  renderPosts(posts || []);
+}
+
+/* Лайк / дизлайк */
+async function react(postId, value) {
+  const existing = allReactions.find(r => r.post_id === postId && r.user_id === currentUser.id);
+  if (existing) {
+    if (existing.value === value) {
+      // повторный клик — снять
+      await db.from('reactions').delete().eq('id', existing.id);
+    } else {
+      // сменить
+      await db.from('reactions').update({ value }).eq('id', existing.id);
+    }
+  } else {
+    await db.from('reactions').insert({ post_id: postId, user_id: currentUser.id, value });
+  }
+  await loadAll();
+}
+
+/* Комментарии */
+async function addComment(postId) {
+  const input = document.getElementById('cin-' + postId);
+  const body = input.value.trim();
+  if (!body) return;
+
+  const { error } = await db.from('comments').insert({
+    post_id: postId,
+    author_id: currentUser.id,
+    author_name: currentProfile.username,
+    body
+  });
+  if (error) return alert('Ошибка: ' + error.message);
+  input.value = '';
+  await loadAll();
+}
+
+async function deleteComment(id) {
+  if (!confirm('Удалить комментарий?')) return;
+  const { error } = await db.from('comments').delete().eq('id', id);
+  if (error) return alert('Ошибка: ' + error.message);
+  await loadAll();
 }
 
 /* Добавление поста */
@@ -330,25 +461,24 @@ async function addPost() {
 
   document.getElementById('postTitle').value = '';
   document.getElementById('postText').value = '';
-  await loadPosts();
+  await loadAll();
 }
 
-/* Удаление */
 async function deletePost(id) {
   if (!confirm('Удалить тему?')) return;
   const { error } = await db.from('posts').delete().eq('id', id);
   if (error) return alert('Ошибка: ' + error.message);
-  await loadPosts();
+  await loadAll();
 }
 
 /* Realtime */
 let realtimeChannel = null;
 function subscribeRealtime() {
   if (realtimeChannel) db.removeChannel(realtimeChannel);
-  realtimeChannel = db.channel('posts-live')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
-      loadPosts();
-    })
+  realtimeChannel = db.channel('forum-live')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, loadAll)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, loadAll)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'reactions' }, loadAll)
     .subscribe();
 }
 
@@ -357,10 +487,36 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-/* Автовход при загрузке */
+/* Автовход */
 window.addEventListener('DOMContentLoaded', async () => {
   const { data: { session } } = await db.auth.getSession();
   if (session) enterForum();
+
+  // PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
+
+  let deferredPrompt = null;
+  const installBtn = document.getElementById('installBtn');
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.classList.remove('hidden');
+  });
+
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    installBtn.classList.add('hidden');
+  });
+
+  window.addEventListener('appinstalled', () => {
+    installBtn.classList.add('hidden');
+  });
 });
 </script>
 </body>
