@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Темщики // darknet.forum</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Courier New', monospace;
+    background:#0a0a0a; color:#00ff41; min-height:100vh;
+    background-image:
+      linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+    overflow-x:hidden;
+  }
+  body::before {
+    content:""; position:fixed; inset:0;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px);
+    pointer-events:none; z-index:9999;
+  }
+  .glitch-title {
+    font-size: 2.4rem; letter-spacing: 4px; text-transform: uppercase;
+    color:#00ff41; text-shadow: 0 0 8px #00ff41, 0 0 20px #00ff41;
+    position:relative;
+  }
+  .glitch-title::before, .glitch-title::after {
+    content: attr(data-text); position:absolute; left:0; top:0; width:100%;
+  }
+  .glitch-title::before { color:#ff003c; animation: glitch1 2.5s infinite; clip-path: inset(0 0 60% 0); }
+  .glitch-title::after  { color:#00e5ff; animation: glitch2 3s infinite; clip-path: inset(60% 0 0 0); }
+  @keyframes glitch1 { 0%,100%{transform:translate(0)} 20%{transform:translate(-3px,1px)} 40%{transform:translate(2px,-1px)} 60%{transform:translate(-2px,0)} }
+  @keyframes glitch2 { 0%,100%{transform:translate(0)} 30%{transform:translate(3px,-1px)} 50%{transform:translate(-2px,1px)} 70%{transform:translate(1px,0)} }
+
+  header {
+    border-bottom:1px solid #00ff41; padding:20px;
+    display:flex; justify-content:space-between; align-items:center;
+    background:rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+    position:sticky; top:0; z-index:100;
+  }
+  .status { font-size:0.75rem; color:#0f0; opacity:0.7; }
+  .blink { animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50%{opacity:0} }
+
+  main { max-width:900px; margin:30px auto; padding:0 15px; }
+
+  .panel {
+    border:1px solid #00ff41; background:rgba(0,20,5,0.6);
+    padding:24px;
+    box-shadow: 0 0 20px rgba(0,255,65,0.15), inset 0 0 30px rgba(0,255,65,0.03);
+    margin-bottom:24px;
+  }
+  .panel h2 { font-size:1rem; letter-spacing:2px; margin-bottom:16px; color:#00ff41; }
+
+  input, textarea {
+    width:100%; background:#000; border:1px solid #00ff41;
+    color:#00ff41; padding:10px 12px; font-family:inherit;
+    margin-bottom:12px; outline:none; transition:box-shadow .2s;
+  }
+  input:focus, textarea:focus { box-shadow:0 0 10px #00ff41; }
+  input::placeholder, textarea::placeholder { color:rgba(0,255,65,0.35); }
+
+  button {
+    background:#00ff41; color:#000; border:none; padding:10px 20px;
+    font-family:inherit; font-weight:bold; letter-spacing:1px; cursor:pointer;
+    text-transform:uppercase; transition:all .2s;
+  }
+  button:hover { background:#000; color:#00ff41; box-shadow:0 0 15px #00ff41; border:1px solid #00ff41; }
+  button:disabled { opacity:0.4; cursor:not-allowed; }
+  .danger { border:1px solid #ff003c; color:#ff003c; background:transparent; }
+  .danger:hover { background:#ff003c; color:#000; box-shadow:0 0 15px #ff003c; }
+
+  .post {
+    border-left:3px solid #00ff41; padding:12px 16px;
+    margin-bottom:14px; background:rgba(0,255,65,0.03);
+  }
+  .post .meta { font-size:0.75rem; opacity:0.6; margin-bottom:6px; }
+  .post .author { color:#00e5ff; }
+  .post .content { white-space:pre-wrap; line-height:1.5; }
+  .post .del { float:right; font-size:0.7rem; cursor:pointer; color:#ff003c; opacity:0.6; }
+  .post .del:hover { opacity:1; text-shadow:0 0 8px #ff003c; }
+
+  .tabs { display:flex; gap:10px; margin-bottom:20px; }
+  .tab { flex:1; padding:10px; text-align:center; border:1px solid #00ff41; cursor:pointer; font-size:0.85rem; letter-spacing:1px; opacity:0.5; }
+  .tab.active { opacity:1; background:rgba(0,255,65,0.1); box-shadow:0 0 10px rgba(0,255,65,0.3); }
+
+  .hidden { display:none; }
+  .userbar { display:flex; gap:12px; align-items:center; font-size:0.85rem; }
+  .err { color:#ff003c; font-size:0.8rem; margin-bottom:10px; }
+
+  .boot {
+    position:fixed; inset:0; background:#000; z-index:10000;
+    display:flex; align-items:center; justify-content:center;
+    flex-direction:column; gap:8px; font-size:0.85rem;
+  }
+  .boot .line { opacity:0; animation: fade .3s forwards; }
+  @keyframes fade { to{opacity:1} }
+
+  footer { text-align:center; font-size:0.7rem; opacity:0.4; padding:30px 0; }
+</style>
+</head>
+<body>
+
+<div class="boot" id="boot">
+  <div class="line" style="animation-delay:.1s">[ OK ] Инициализация ядра...</div>
+  <div class="line" style="animation-delay:.5s">[ OK ] Маскировка MAC-адреса...</div>
+  <div class="line" style="animation-delay:.9s">[ OK ] Подключение к onion-ноде...</div>
+  <div class="line" style="animation-delay:1.3s">[ OK ] Синхронизация с Supabase...</div>
+  <div class="line" style="animation-delay:1.7s">[ !! ] ДОСТУП РАЗРЕШЁН.</div>
+</div>
+
+<header>
+  <div class="glitch-title" data-text="ТЕМЩИКИ">ТЕМЩИКИ</div>
+  <div class="userbar">
+    <span class="status"><span class="blink">●</span> ONLINE</span>
+    <div id="userInfo" class="hidden"></div>
+  </div>
+</header>
+
+<main>
+  <div id="authPanel">
+    <div class="tabs">
+      <div class="tab active" data-tab="login">ВХОД</div>
+      <div class="tab" data-tab="reg">РЕГИСТРАЦИЯ</div>
+    </div>
+
+    <div class="panel" id="loginForm">
+      <h2>// АВТОРИЗАЦИЯ</h2>
+      <div class="err hidden" id="loginErr"></div>
+      <input type="email" id="loginEmail" placeholder="> email">
+      <input type="password" id="loginPass" placeholder="> пароль" autocomplete="current-password">
+      <button id="loginBtn" onclick="doLogin()">Войти</button>
+    </div>
+
+    <div class="panel hidden" id="regForm">
+      <h2>// СОЗДАНИЕ АККАУНТА</h2>
+      <div class="err hidden" id="regErr"></div>
+      <input type="text" id="regUser" placeholder="> ник (латиница, мин. 3)">
+      <input type="email" id="regEmail" placeholder="> email">
+      <input type="password" id="regPass" placeholder="> пароль (мин. 6)" autocomplete="new-password">
+      <button id="regBtn" onclick="doRegister()">Зарегистрироваться</button>
+    </div>
+  </div>
+
+  <div id="forumPanel" class="hidden">
+    <div class="panel">
+      <h2>// НОВАЯ ТЕМА</h2>
+      <input type="text" id="postTitle" placeholder="> заголовок темы">
+      <textarea id="postText" rows="4" placeholder="> сообщение..."></textarea>
+      <button id="postBtn" onclick="addPost()">Отправить в эфир</button>
+    </div>
+
+    <div class="panel">
+      <h2>// ЛЕНТА // <span id="postCount">0</span> ЗАПИСЕЙ</h2>
+      <div id="postsList"></div>
+    </div>
+
+    <button class="danger" onclick="logout()">[ ВЫЙТИ ]</button>
+  </div>
+</main>
+
+<footer>// temshiki.supabase.co // никаких логов. никаких следов.</footer>
+
+<script>
+const SUPABASE_URL = 'https://ТВОЙ-ПРОЕКТ.supabase.co';
+const SUPABASE_KEY = 'ТВОЙ-ANON-KEY';
+
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let currentProfile = null;
+
+/* Boot */
+setTimeout(() => { document.getElementById('boot').style.display = 'none'; }, 2200);
+
+/* Tabs */
+document.querySelectorAll('.tab').forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('loginForm').classList.toggle('hidden', t.dataset.tab !== 'login');
+    document.getElementById('regForm').classList.toggle('hidden', t.dataset.tab !== 'reg');
+  };
+});
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = '> ' + msg;
+  el.classList.remove('hidden');
+}
+function hideErr(id) { document.getElementById(id).classList.add('hidden'); }
+
+/* Регистрация */
+async function doRegister() {
+  hideErr('regErr');
+  const username = document.getElementById('regUser').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPass').value;
+
+  if (username.length < 3) return showErr('regErr', 'ник слишком короткий');
+  if (!email.includes('@')) return showErr('regErr', 'неверный email');
+  if (pass.length < 6) return showErr('regErr', 'пароль слишком короткий');
+
+  const btn = document.getElementById('regBtn');
+  btn.disabled = true;
+
+  // 1. Создаём auth-пользователя
+  const { data: authData, error: authErr } = await db.auth.signUp({ email, password: pass });
+  if (authErr) { btn.disabled = false; return showErr('regErr', authErr.message); }
+
+  // 2. Если email-подтверждение включено — сессии нет, предупреждаем
+  if (!authData.session) {
+    btn.disabled = false;
+    return showErr('regErr', 'аккаунт создан. подтверди email и войди.');
+  }
+
+  // 3. Создаём профиль с ником
+  const { error: profErr } = await db.from('profiles').insert({
+    id: authData.user.id,
+    username: username
+  });
+  if (profErr) {
+    btn.disabled = false;
+    return showErr('regErr', 'ник занят или ошибка: ' + profErr.message);
+  }
+
+  btn.disabled = false;
+  await enterForum();
+}
+
+/* Вход */
+async function doLogin() {
+  hideErr('loginErr');
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+
+  const { error } = await db.auth.signInWithPassword({ email, password: pass });
+  if (error) {
+    btn.disabled = false;
+    return showErr('loginErr', 'доступ запрещён');
+  }
+
+  btn.disabled = false;
+  await enterForum();
+}
+
+/* Выход */
+async function logout() {
+  await db.auth.signOut();
+  location.reload();
+}
+
+/* Вход в форум */
+async function enterForum() {
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return;
+
+  currentUser = user;
+
+  // Получаем профиль
+  const { data: profile } = await db.from('profiles').select('username').eq('id', user.id).single();
+  if (!profile) return; // профиль ещё не создан
+
+  currentProfile = profile;
+
+  document.getElementById('authPanel').classList.add('hidden');
+  document.getElementById('forumPanel').classList.remove('hidden');
+
+  const info = document.getElementById('userInfo');
+  info.innerHTML = `[ <span class="blink">●</span> ${profile.username} ]`;
+  info.classList.remove('hidden');
+
+  await loadPosts();
+  subscribeRealtime();
+}
+
+/* Загрузка постов */
+async function loadPosts() {
+  const { data: posts, error } = await db
+    .from('posts')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) { console.error(error); return; }
+
+  document.getElementById('postCount').textContent = posts.length;
+  const list = document.getElementById('postsList');
+
+  if (!posts.length) {
+    list.innerHTML = '<div class="post"><div class="content" style="opacity:.5">// пока тихо. создай первую тему.</div></div>';
+    return;
+  }
+
+  list.innerHTML = posts.map(p => `
+    <div class="post">
+      ${p.author_id === currentUser.id ? `<span class="del" onclick="deletePost(${p.id})">[ x ]</span>` : ''}
+      <div class="meta">
+        <span class="author">@${escapeHtml(p.author_name)}</span> · ${new Date(p.created_at).toLocaleString('ru-RU')}
+      </div>
+      <div class="content"><strong style="color:#00e5ff"># ${escapeHtml(p.title)}</strong><br>${escapeHtml(p.body)}</div>
+    </div>
+  `).join('');
+}
+
+/* Добавление поста */
+async function addPost() {
+  const title = document.getElementById('postTitle').value.trim();
+  const text = document.getElementById('postText').value.trim();
+  if (!title || !text) return alert('Заполни заголовок и текст');
+  if (!currentUser || !currentProfile) return;
+
+  const btn = document.getElementById('postBtn');
+  btn.disabled = true;
+
+  const { error } = await db.from('posts').insert({
+    author_id: currentUser.id,
+    author_name: currentProfile.username,
+    title,
+    body: text
+  });
+
+  btn.disabled = false;
+  if (error) return alert('Ошибка: ' + error.message);
+
+  document.getElementById('postTitle').value = '';
+  document.getElementById('postText').value = '';
+  await loadPosts();
+}
+
+/* Удаление */
+async function deletePost(id) {
+  if (!confirm('Удалить тему?')) return;
+  const { error } = await db.from('posts').delete().eq('id', id);
+  if (error) return alert('Ошибка: ' + error.message);
+  await loadPosts();
+}
+
+/* Realtime */
+let realtimeChannel = null;
+function subscribeRealtime() {
+  if (realtimeChannel) db.removeChannel(realtimeChannel);
+  realtimeChannel = db.channel('posts-live')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
+      loadPosts();
+    })
+    .subscribe();
+}
+
+/* Escape */
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* Автовход при загрузке */
+window.addEventListener('DOMContentLoaded', async () => {
+  const { data: { session } } = await db.auth.getSession();
+  if (session) enterForum();
+});
+</script>
+</body>
+</html>
