@@ -146,7 +146,7 @@
     padding: 10px;
     margin-bottom: 10px;
     background: rgba(0,255,65,0.03);
-    word-break: break-all; /* Принудительный перенос */
+    word-break: break-all;
     overflow-wrap: anywhere;
     width: 100%;
   }
@@ -333,7 +333,6 @@ let currentPage = 1;
 const PAGE_SIZE = 10;
 let totalPosts = 0;
 
-// Принудительное скрытие экрана загрузки через 3 секунды
 setTimeout(() => { 
   const boot = document.getElementById('boot');
   if (boot) boot.style.display = 'none'; 
@@ -585,15 +584,22 @@ async function addPost() {
   const btn = document.getElementById('postBtn');
   btn.disabled = true;
 
+  // Отправляем пост с явным указанием is_pinned
   const { error } = await db.from('posts').insert({
     author_id: currentUser.id,
     author_name: currentProfile.username,
-    title,
-    body: text
+    title: title,
+    body: text,
+    is_pinned: false
   });
 
   btn.disabled = false;
-  if (error) return alert('Ошибка: ' + error.message);
+  
+  if (error) {
+    // Если ошибка — показываем её на экране, чтобы понять причину
+    alert('ОШИБКА БАЗЫ ДАННЫХ:\n' + error.message + '\n\nКод: ' + error.code);
+    return;
+  }
 
   document.getElementById('postTitle').value = '';
   document.getElementById('postText').value = '';
