@@ -208,13 +208,6 @@
 
   footer { text-align: center; font-size: 0.7rem; opacity: 0.4; padding: 20px 0; width: 100%; }
 
-  .install-btn {
-    position: fixed; bottom: 80px; right: 15px; z-index: 200;
-    border: 1px solid #00e5ff; color: #00e5ff; background: #000;
-    padding: 8px 12px; font-size: 0.8rem; width: auto; margin-bottom: 0;
-  }
-  .install-btn:hover { background: #00e5ff; color: #000; box-shadow: 0 0 15px #00e5ff; }
-
   .ad-banner {
     width: 100vw;
     max-width: 100vw;
@@ -238,9 +231,6 @@
   .ad-banner.bottom { border-left: none; border-right: none; border-bottom: none; position: fixed; bottom: 0; left: 0; z-index: 150; }
   .ad-banner span { color: #00e5ff; text-shadow: 0 0 8px #00e5ff; }
   @keyframes adBlink { 0%,100%{opacity:1;text-shadow:0 0 6px #ff003c} 50%{opacity:0.25;text-shadow:none} }
-
-  #pagination { display: flex; gap: 10px; justify-content: center; align-items: center; margin-top: 15px; width: 100%; flex-wrap: wrap; }
-  #pagination button { width: auto; margin-bottom: 0; }
 </style>
 </head>
 <body>
@@ -300,17 +290,13 @@
     <div class="panel">
       <h2>// ЛЕНТА // <span id="postCount">0</span> ЗАПИСЕЙ</h2>
       <div id="postsList"></div>
-      <div id="pagination"></div>
     </div>
 
     <div style="display:flex; gap:10px; flex-wrap:wrap;">
       <button class="danger" onclick="logout()" style="flex:1;">[ ВЫЙТИ ]</button>
-      <button id="pushBtn" style="border:1px solid #00e5ff; color:#00e5ff; background:transparent; flex:1;" onclick="enablePush()">[ УВЕДОМЛЕНИЯ ]</button>
     </div>
   </div>
 </main>
-
-<button class="install-btn hidden" id="installBtn">[ УСТАНОВИТЬ ]</button>
 
 <footer>// temshiki.supabase.co // никаких логов. никаких следов.</footer>
 
@@ -319,7 +305,6 @@
 <script>
 const SUPABASE_URL = 'https://geauicuahldmglatmtrv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_dyMpzlPmu53ZDo3rJS7-Lw_IIY_COdj';
-const VAPID_PUBLIC_KEY = 'BKR1g-Xtm9XEzTw1HlINWyoBWHRq_lwkQjC8OT1ntaxiKnW81G68dfrQ3U_V52s_ppHCf5RrJYhSy5O44f6EO7k';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -329,14 +314,11 @@ let currentProfile = null;
 let allComments = [];
 let allReactions = [];
 let openComments = new Set();
-let currentPage = 1;
-const PAGE_SIZE = 10;
-let totalPosts = 0;
 
 setTimeout(() => { 
   const boot = document.getElementById('boot');
   if (boot) boot.style.display = 'none'; 
-}, 3000);
+}, 2500);
 
 document.querySelectorAll('.tab').forEach(t => {
   t.onclick = () => {
@@ -407,8 +389,6 @@ async function doLogin() {
 }
 
 async function logout() {
-  document.getElementById('adTop').classList.add('hidden');
-  document.getElementById('adBottom').classList.add('hidden');
   await db.auth.signOut();
   location.reload();
 }
@@ -420,65 +400,51 @@ async function enterForum() {
   currentUser = user;
 
   const { data: profile } = await db.from('profiles').select('username, is_admin').eq('id', user.id).single();
-  if (!profile) return;
-
-  currentProfile = profile;
+  if (!profile) {
+    // Если профиля нет, создаем его на лету
+    const { data: newProfile } = await db.from('profiles').insert({ id: user.id, username: user.email.split('@')[0] }).select().single();
+    currentProfile = newProfile;
+  } else {
+    currentProfile = profile;
+  }
+  
+  if (!currentProfile) return;
 
   document.getElementById('authPanel').classList.add('hidden');
   document.getElementById('forumPanel').classList.remove('hidden');
 
   const info = document.getElementById('userInfo');
-  info.innerHTML = `[ <span class="blink">●</span> ${profile.username}${profile.is_admin ? ' ★' : ''} ]`;
+  info.innerHTML = `[ <span class="blink">●</span> ${currentProfile.username}${currentProfile.is_admin ? ' ★' : ''} ]`;
   info.classList.remove('hidden');
 
   document.getElementById('adTop').classList.remove('hidden');
   document.getElementById('adBottom').classList.remove('hidden');
 
   await loadAll();
-  subscribeRealtime();
 }
 
 async function loadAll() {
-  const from = (currentPage - 1) * PAGE_SIZE;
-  const to = from + PAGE_SIZE - 1;
+  const { data: posts, error: postsErr } = await db.from('posts')
+    .select('*')
+    .order('is_pinned', { ascending: false })
+    .order('created_at', { ascending: false });
 
-  const [postsRes, commentsRes, reactionsRes] = await Promise.all([
-    db.from('posts').select('*', { count: 'exact' })
-      .order('is_pinned', { ascending: false })
-      .order('created_at', { ascending: false })
-      .range(from, to),
-    db.from('comments').select('*').order('created_at', { ascending: true }),
-    db.from('reactions').select('*')
-  ]);
+  if (postsErr) {
+    alert('Ошибка загрузки постов: ' + postsErr.message);
+    return;
+  }
 
-  if (postsRes.error) console.error(postsRes.error);
-  totalPosts = postsRes.count || 0;
-  allComments = commentsRes.data || [];
-  allReactions = reactionsRes.data || [];
-  renderPosts(postsRes.data || []);
-  renderPagination();
-}
+  const { data: comments } = await db.from('comments').select('*').order('created_at', { ascending: true });
+  const { data: reactions } = await db.from('reactions').select('*');
 
-function renderPagination() {
-  const totalPages = Math.ceil(totalPosts / PAGE_SIZE);
-  const el = document.getElementById('pagination');
-  if (totalPages <= 1) { el.innerHTML = ''; return; }
-
-  let html = '';
-  if (currentPage > 1) html += `<button onclick="goPage(${currentPage - 1})">← НАЗАД</button>`;
-  html += `<span style="padding:10px; opacity:0.7;">${currentPage} / ${totalPages}</span>`;
-  if (currentPage < totalPages) html += `<button onclick="goPage(${currentPage + 1})">ВПЕРЁД →</button>`;
-  el.innerHTML = html;
-}
-
-function goPage(page) {
-  currentPage = page;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  loadAll();
+  allComments = comments || [];
+  allReactions = reactions || [];
+  
+  renderPosts(posts || []);
 }
 
 function renderPosts(posts) {
-  document.getElementById('postCount').textContent = totalPosts;
+  document.getElementById('postCount').textContent = posts.length;
   const list = document.getElementById('postsList');
 
   if (!posts.length) {
@@ -495,6 +461,8 @@ function renderPosts(posts) {
 
     const upClass = myReaction && myReaction.value === 1 ? 'active-up' : '';
     const downClass = myReaction && myReaction.value === -1 ? 'active-down' : '';
+    
+    // Проверяем, может ли текущий пользователь удалить пост
     const canDelete = p.author_id === currentUser.id || currentProfile.is_admin;
 
     const commentsHtml = postComments.map(c => `
@@ -512,7 +480,7 @@ function renderPosts(posts) {
         <div class="meta">
           <span class="author">@${escapeHtml(p.author_name)}</span> · ${new Date(p.created_at).toLocaleString('ru-RU')}
         </div>
-        <div class="content" style="word-break: break-all; overflow-wrap: anywhere;"><strong style="color:#00e5ff"># ${escapeHtml(p.title)}</strong><br>${escapeHtml(p.body)}</div>
+        <div class="content"><strong style="color:#00e5ff"># ${escapeHtml(p.title)}</strong><br>${escapeHtml(p.body)}</div>
 
         <div class="post-actions">
           <button class="react-btn ${upClass}" onclick="react(${p.id}, 1)">▲ ${likes}</button>
@@ -571,7 +539,7 @@ async function addComment(postId) {
 async function deleteComment(id) {
   if (!confirm('Удалить комментарий?')) return;
   const { error } = await db.from('comments').delete().eq('id', id);
-  if (error) return alert('Ошибка: ' + error.message);
+  if (error) return alert('Ошибка при удалении: ' + error.message);
   await loadAll();
 }
 
@@ -579,12 +547,10 @@ async function addPost() {
   const title = document.getElementById('postTitle').value.trim();
   const text = document.getElementById('postText').value.trim();
   if (!title || !text) return alert('Заполни заголовок и текст');
-  if (!currentUser || !currentProfile) return;
 
   const btn = document.getElementById('postBtn');
   btn.disabled = true;
 
-  // Отправляем пост с явным указанием is_pinned
   const { error } = await db.from('posts').insert({
     author_id: currentUser.id,
     author_name: currentProfile.username,
@@ -594,78 +560,25 @@ async function addPost() {
   });
 
   btn.disabled = false;
-  
-  if (error) {
-    // Если ошибка — показываем её на экране, чтобы понять причину
-    alert('ОШИБКА БАЗЫ ДАННЫХ:\n' + error.message + '\n\nКод: ' + error.code);
-    return;
-  }
+  if (error) return alert('Ошибка при отправке: ' + error.message);
 
   document.getElementById('postTitle').value = '';
   document.getElementById('postText').value = '';
-  currentPage = 1;
   await loadAll();
 }
 
 async function deletePost(id) {
   if (!confirm('Удалить тему?')) return;
   const { error } = await db.from('posts').delete().eq('id', id);
-  if (error) return alert('Ошибка: ' + error.message);
+  if (error) return alert('Ошибка при удалении: ' + error.message);
   await loadAll();
 }
 
 async function togglePin(id, currentlyPinned) {
   if (!currentProfile.is_admin) return;
   const { error } = await db.from('posts').update({ is_pinned: !currentlyPinned }).eq('id', id);
-  if (error) return alert('Ошибка: ' + error.message);
+  if (error) return alert('Ошибка при закреплении: ' + error.message);
   await loadAll();
-}
-
-let realtimeChannel = null;
-function subscribeRealtime() {
-  if (realtimeChannel) db.removeChannel(realtimeChannel);
-  realtimeChannel = db.channel('forum-live')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, loadAll)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, loadAll)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'reactions' }, loadAll)
-    .subscribe();
-}
-
-async function enablePush() {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-    return alert('Браузер не поддерживает push');
-  }
-  const perm = await Notification.requestPermission();
-  if (perm !== 'granted') return alert('Разрешение не выдано');
-
-  try {
-    const reg = await navigator.serviceWorker.ready;
-    const sub = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-    });
-
-    const json = sub.toJSON();
-    const { error } = await db.from('push_subscriptions').upsert({
-      user_id: currentUser.id,
-      endpoint: json.endpoint,
-      p256dh: json.keys.p256dh,
-      auth: json.keys.auth
-    }, { onConflict: 'user_id,endpoint' });
-
-    if (error) return alert('Ошибка: ' + error.message);
-    alert('Уведомления включены');
-    document.getElementById('pushBtn').textContent = '[ УВЕДОМЛЕНИЯ ВКЛЮЧЕНЫ ]';
-  } catch (e) {
-    alert('Ошибка подписки: ' + e.message);
-  }
-}
-
-function urlBase64ToUint8Array(base64String) {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const raw = atob(base64);
-  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 }
 
 function escapeHtml(s) {
@@ -675,31 +588,6 @@ function escapeHtml(s) {
 window.addEventListener('DOMContentLoaded', async () => {
   const { data: { session } } = await db.auth.getSession();
   if (session) enterForum();
-
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  }
-
-  let deferredPrompt = null;
-  const installBtn = document.getElementById('installBtn');
-
-  window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBtn.classList.remove('hidden');
-  });
-
-  installBtn.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    installBtn.classList.add('hidden');
-  });
-
-  window.addEventListener('appinstalled', () => {
-    installBtn.classList.add('hidden');
-  });
 });
 </script>
 </body>
