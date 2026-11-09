@@ -14,7 +14,7 @@
   html, body {
     width: 100%;
     max-width: 100vw;
-    overflow-x: hidden; /* Блокирует появление горизонтальной прокрутки */
+    overflow-x: hidden; 
   }
 
   body {
@@ -26,10 +26,10 @@
       linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px),
       linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px);
     background-size: 30px 30px;
-    padding-bottom: 60px; /* Место под нижний баннер */
+    padding-bottom: 60px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Центрирование контента */
+    align-items: center;
   }
 
   body::before {
@@ -41,7 +41,6 @@
     z-index: 9999;
   }
 
-  /* ШАПКА */
   header {
     width: 100%;
     border-bottom: 1px solid #00ff41;
@@ -90,7 +89,6 @@
   @keyframes blink { 50%{opacity:0} }
   .userbar { display: flex; gap: 10px; align-items: center; font-size: 0.85rem; }
 
-  /* ОСНОВНОЙ КОНТЕНТ */
   main {
     width: 100%;
     max-width: 900px;
@@ -118,7 +116,7 @@
     font-family: inherit;
     margin-bottom: 12px;
     outline: none;
-    font-size: 16px; /* Защита от авто-зума на iOS */
+    font-size: 16px;
   }
   input:focus, textarea:focus { box-shadow: 0 0 10px #00ff41; }
   input::placeholder, textarea::placeholder { color: rgba(0,255,65,0.35); }
@@ -143,13 +141,12 @@
   .danger { border: 1px solid #ff003c; color: #ff003c; background: transparent; }
   .danger:hover { background: #ff003c; color: #000; box-shadow: 0 0 15px #ff003c; }
 
-  /* ПОСТЫ */
   .post {
     border-left: 3px solid #00ff41;
     padding: 10px;
     margin-bottom: 10px;
     background: rgba(0,255,65,0.03);
-    word-break: break-all; /* Перенос длинных слов */
+    word-break: break-all; /* Принудительный перенос */
     overflow-wrap: anywhere;
     width: 100%;
   }
@@ -182,7 +179,6 @@
   .comment-toggle { cursor: pointer; color: #00e5ff; font-size: 0.8rem; opacity: 0.8; }
   .comment-toggle:hover { opacity: 1; }
 
-  /* КОММЕНТАРИИ */
   .comments { margin-top: 12px; border-top: 1px dashed rgba(0,255,65,0.3); padding-top: 10px; }
   .comment { padding: 8px; margin-bottom: 8px; background: rgba(0,229,255,0.04); border-left: 2px solid #00e5ff; word-break: break-all; }
   .comment .meta { font-size: 0.7rem; opacity: 0.6; margin-bottom: 4px; }
@@ -195,7 +191,6 @@
   .comment-form input { margin-bottom: 0; flex: 1; }
   .comment-form button { padding: 8px; font-size: 0.8rem; width: 100%; margin-bottom: 0; }
 
-  /* ВКЛАДКИ И ПРОЧЕЕ */
   .tabs { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
   .tab { flex: 1; padding: 10px; text-align: center; border: 1px solid #00ff41; cursor: pointer; font-size: 0.85rem; opacity: 0.5; }
   .tab.active { opacity: 1; background: rgba(0,255,65,0.1); box-shadow: 0 0 10px rgba(0,255,65,0.3); }
@@ -220,9 +215,8 @@
   }
   .install-btn:hover { background: #00e5ff; color: #000; box-shadow: 0 0 15px #00e5ff; }
 
-  /* БАННЕРЫ */
   .ad-banner {
-    width: 100vw; /* Жестко по ширине экрана */
+    width: 100vw;
     max-width: 100vw;
     text-align: center; 
     padding: 8px 10px;
@@ -240,23 +234,8 @@
     word-wrap: break-word;
   }
   
-  .ad-banner.top { 
-    margin-top: 10px; 
-    border-left: none; 
-    border-right: none; 
-    border-bottom: none; 
-  }
-  
-  .ad-banner.bottom { 
-    border-left: none; 
-    border-right: none; 
-    border-bottom: none; 
-    position: fixed; 
-    bottom: 0; 
-    left: 0; 
-    z-index: 150; 
-  }
-  
+  .ad-banner.top { margin-top: 10px; border-left: none; border-right: none; border-bottom: none; }
+  .ad-banner.bottom { border-left: none; border-right: none; border-bottom: none; position: fixed; bottom: 0; left: 0; z-index: 150; }
   .ad-banner span { color: #00e5ff; text-shadow: 0 0 8px #00e5ff; }
   @keyframes adBlink { 0%,100%{opacity:1;text-shadow:0 0 6px #ff003c} 50%{opacity:0.25;text-shadow:none} }
 
@@ -354,7 +333,11 @@ let currentPage = 1;
 const PAGE_SIZE = 10;
 let totalPosts = 0;
 
-setTimeout(() => { document.getElementById('boot').style.display = 'none'; }, 2200);
+// Принудительное скрытие экрана загрузки через 3 секунды
+setTimeout(() => { 
+  const boot = document.getElementById('boot');
+  if (boot) boot.style.display = 'none'; 
+}, 3000);
 
 document.querySelectorAll('.tab').forEach(t => {
   t.onclick = () => {
