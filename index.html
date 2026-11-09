@@ -6,6 +6,7 @@
 <title>Темщики // darknet.forum</title>
 <meta name="theme-color" content="#00ff41">
 <link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="./icon-192.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -44,10 +45,7 @@
     background:rgba(0,0,0,0.7); backdrop-filter: blur(4px);
     position:sticky; top:0; z-index:100;
   }
-  .header-top {
-    display:flex; justify-content:space-between; align-items:center;
-    width:100%;
-  }
+  .header-top { display:flex; justify-content:space-between; align-items:center; width:100%; }
   .status { font-size:0.75rem; color:#0f0; opacity:0.7; }
   .blink { animation: blink 1s steps(2) infinite; }
   @keyframes blink { 50%{opacity:0} }
@@ -138,7 +136,6 @@
   }
   .install-btn:hover { background:#00e5ff; color:#000; box-shadow:0 0 15px #00e5ff; }
 
-  /* ===== БАННЕРЫ ===== */
   .ad-banner {
     width:100%; text-align:center; padding:8px 10px;
     font-family:'Courier New', monospace; font-size:0.85rem;
@@ -147,19 +144,12 @@
     color:#ff003c; animation: adBlink 1.2s steps(2) infinite;
     position:relative; z-index:150; user-select:none;
   }
-  .ad-banner.top {
-    margin-top: 14px;
-    border-left:none; border-right:none; border-bottom:none;
-  }
-  .ad-banner.bottom {
-    border-left:none; border-right:none; border-bottom:none;
-    position:fixed; bottom:0; left:0; z-index:150;
-  }
+  .ad-banner.top { margin-top:14px; border-left:none; border-right:none; border-bottom:none; }
+  .ad-banner.bottom { border-left:none; border-right:none; border-bottom:none; position:fixed; bottom:0; left:0; z-index:150; }
   .ad-banner span { color:#00e5ff; text-shadow:0 0 8px #00e5ff; }
-  @keyframes adBlink {
-    0%, 100% { opacity:1; text-shadow:0 0 6px #ff003c; }
-    50%      { opacity:0.25; text-shadow:none; }
-  }
+  @keyframes adBlink { 0%,100%{opacity:1;text-shadow:0 0 6px #ff003c} 50%{opacity:0.25;text-shadow:none} }
+
+  #pagination { display:flex; gap:10px; justify-content:center; align-items:center; margin-top:20px; }
 </style>
 </head>
 <body>
@@ -219,9 +209,13 @@
     <div class="panel">
       <h2>// ЛЕНТА // <span id="postCount">0</span> ЗАПИСЕЙ</h2>
       <div id="postsList"></div>
+      <div id="pagination"></div>
     </div>
 
-    <button class="danger" onclick="logout()">[ ВЫЙТИ ]</button>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="danger" onclick="logout()">[ ВЫЙТИ ]</button>
+      <button id="pushBtn" style="border:1px solid #00e5ff; color:#00e5ff; background:transparent;" onclick="enablePush()">[ ВКЛЮЧИТЬ УВЕДОМЛЕНИЯ ]</button>
+    </div>
   </div>
 </main>
 
@@ -234,6 +228,7 @@
 <script>
 const SUPABASE_URL = 'https://geauicuahldmglatmtrv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_dyMpzlPmu53ZDo3rJS7-Lw_IIY_COdj';
+const VAPID_PUBLIC_KEY = 'ВСТАВЬ_СЮДА_СВОЙ_VAPID_PUBLIC_KEY';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -243,6 +238,9 @@ let currentProfile = null;
 let allComments = [];
 let allReactions = [];
 let openComments = new Set();
+let currentPage = 1;
+const PAGE_SIZE = 10;
+let totalPosts = 0;
 
 setTimeout(() => { document.getElementById('boot').style.display = 'none'; }, 2200);
 
@@ -328,7 +326,7 @@ async function enterForum() {
 
   currentUser = user;
 
-  const { data: profile } = await db.from('profiles').select('username').eq('id', user.id).single();
+  const { data: profile } = await db.from('profiles').select('username, is_admin').eq('id', user.id).single();
   if (!profile) return;
 
   currentProfile = profile;
@@ -337,10 +335,9 @@ async function enterForum() {
   document.getElementById('forumPanel').classList.remove('hidden');
 
   const info = document.getElementById('userInfo');
-  info.innerHTML = `[ <span class="blink">●</span> ${profile.username} ]`;
+  info.innerHTML = `[ <span class="blink">●</span> ${profile.username}${profile.is_admin ? ' ★' : ''} ]`;
   info.classList.remove('hidden');
 
-  // показываем баннеры только после входа
   document.getElementById('adTop').classList.remove('hidden');
   document.getElementById('adBottom').classList.remove('hidden');
   document.body.classList.add('has-banner');
@@ -350,23 +347,43 @@ async function enterForum() {
 }
 
 async function loadAll() {
+  const from = (currentPage - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+
   const [postsRes, commentsRes, reactionsRes] = await Promise.all([
-    db.from('posts').select('*').order('created_at', { ascending: false }),
+    db.from('posts').select('*', { count: 'exact' }).order('created_at', { ascending: false }).range(from, to),
     db.from('comments').select('*').order('created_at', { ascending: true }),
     db.from('reactions').select('*')
   ]);
 
   if (postsRes.error) console.error(postsRes.error);
-  if (commentsRes.error) console.error(commentsRes.error);
-  if (reactionsRes.error) console.error(reactionsRes.error);
-
+  totalPosts = postsRes.count || 0;
   allComments = commentsRes.data || [];
   allReactions = reactionsRes.data || [];
   renderPosts(postsRes.data || []);
+  renderPagination();
+}
+
+function renderPagination() {
+  const totalPages = Math.ceil(totalPosts / PAGE_SIZE);
+  const el = document.getElementById('pagination');
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+
+  let html = '';
+  if (currentPage > 1) html += `<button onclick="goPage(${currentPage - 1})">← НАЗАД</button>`;
+  html += `<span style="padding:10px; opacity:0.7;">${currentPage} / ${totalPages}</span>`;
+  if (currentPage < totalPages) html += `<button onclick="goPage(${currentPage + 1})">ВПЕРЁД →</button>`;
+  el.innerHTML = html;
+}
+
+function goPage(page) {
+  currentPage = page;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  loadAll();
 }
 
 function renderPosts(posts) {
-  document.getElementById('postCount').textContent = posts.length;
+  document.getElementById('postCount').textContent = totalPosts;
   const list = document.getElementById('postsList');
 
   if (!posts.length) {
@@ -383,10 +400,11 @@ function renderPosts(posts) {
 
     const upClass = myReaction && myReaction.value === 1 ? 'active-up' : '';
     const downClass = myReaction && myReaction.value === -1 ? 'active-down' : '';
+    const canDelete = p.author_id === currentUser.id || currentProfile.is_admin;
 
     const commentsHtml = postComments.map(c => `
       <div class="comment">
-        ${c.author_id === currentUser.id ? `<span class="del" onclick="deleteComment(${c.id})">[ x ]</span>` : ''}
+        ${(c.author_id === currentUser.id || currentProfile.is_admin) ? `<span class="del" onclick="deleteComment(${c.id})">[ x ]</span>` : ''}
         <div class="meta"><span class="author">@${escapeHtml(c.author_name)}</span> · ${new Date(c.created_at).toLocaleString('ru-RU')}</div>
         <div class="body">${escapeHtml(c.body)}</div>
       </div>
@@ -394,7 +412,7 @@ function renderPosts(posts) {
 
     return `
       <div class="post">
-        ${p.author_id === currentUser.id ? `<span class="del" onclick="deletePost(${p.id})">[ x ]</span>` : ''}
+        ${canDelete ? `<span class="del" onclick="deletePost(${p.id})">[ x ]</span>` : ''}
         <div class="meta">
           <span class="author">@${escapeHtml(p.author_name)}</span> · ${new Date(p.created_at).toLocaleString('ru-RU')}
         </div>
@@ -423,22 +441,14 @@ function renderPosts(posts) {
 function toggleComments(postId) {
   if (openComments.has(postId)) openComments.delete(postId);
   else openComments.add(postId);
-  refresh();
-}
-
-async function refresh() {
-  const { data: posts } = await db.from('posts').select('*').order('created_at', { ascending: false });
-  renderPosts(posts || []);
+  loadAll();
 }
 
 async function react(postId, value) {
   const existing = allReactions.find(r => r.post_id === postId && r.user_id === currentUser.id);
   if (existing) {
-    if (existing.value === value) {
-      await db.from('reactions').delete().eq('id', existing.id);
-    } else {
-      await db.from('reactions').update({ value }).eq('id', existing.id);
-    }
+    if (existing.value === value) await db.from('reactions').delete().eq('id', existing.id);
+    else await db.from('reactions').update({ value }).eq('id', existing.id);
   } else {
     await db.from('reactions').insert({ post_id: postId, user_id: currentUser.id, value });
   }
@@ -458,6 +468,7 @@ async function addComment(postId) {
   });
   if (error) return alert('Ошибка: ' + error.message);
   input.value = '';
+  openComments.add(postId);
   await loadAll();
 }
 
@@ -489,6 +500,7 @@ async function addPost() {
 
   document.getElementById('postTitle').value = '';
   document.getElementById('postText').value = '';
+  currentPage = 1;
   await loadAll();
 }
 
@@ -507,6 +519,48 @@ function subscribeRealtime() {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, loadAll)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'reactions' }, loadAll)
     .subscribe();
+}
+
+/* ===== PUSH ===== */
+async function enablePush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    return alert('Браузер не поддерживает push');
+  }
+  if (!VAPID_PUBLIC_KEY || VAPID_PUBLIC_KEY.startsWith('ВСТАВЬ')) {
+    return alert('VAPID_PUBLIC_KEY не настроен в коде');
+  }
+
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') return alert('Разрешение не выдано');
+
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+    });
+
+    const json = sub.toJSON();
+    const { error } = await db.from('push_subscriptions').upsert({
+      user_id: currentUser.id,
+      endpoint: json.endpoint,
+      p256dh: json.keys.p256dh,
+      auth: json.keys.auth
+    }, { onConflict: 'user_id,endpoint' });
+
+    if (error) return alert('Ошибка: ' + error.message);
+    alert('Уведомления включены');
+    document.getElementById('pushBtn').textContent = '[ УВЕДОМЛЕНИЯ ВКЛЮЧЕНЫ ]';
+  } catch (e) {
+    alert('Ошибка подписки: ' + e.message);
+  }
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 }
 
 function escapeHtml(s) {
