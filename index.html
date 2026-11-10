@@ -85,7 +85,10 @@
   .ad-banner span { color: #00e5ff; text-shadow: 0 0 8px #00e5ff; }
   @keyframes adBlink { 0%,100%{opacity:1;text-shadow:0 0 6px #ff003c} 50%{opacity:0.25;text-shadow:none} }
 
-  /* СТИЛИ ДЛЯ МЕССЕНДЖЕРА */
+  #pagination { display: flex; gap: 10px; justify-content: center; align-items: center; margin-top: 15px; width: 100%; flex-wrap: wrap; }
+  #pagination button { width: auto; margin-bottom: 0; }
+
+  /* МЕССЕНДЖЕР */
   #messengerOverlay {
     position: fixed; inset: 0; background: #0a0a0a; z-index: 20000;
     display: flex; flex-direction: column; overflow: hidden;
@@ -121,7 +124,7 @@
   <div class="line" style="animation-delay:1s">[ !! ] ДОСТУП РАЗРЕШЁН.</div>
 </div>
 
-<!-- МЕССЕНДЖЕР (скрыт по умолчанию) -->
+<!-- МЕССЕНДЖЕР -->
 <div id="messengerOverlay" class="hidden">
   <div class="tm-header">
     <div style="font-weight:bold; letter-spacing:2px;">ТМ // МЕССЕНДЖЕР</div>
@@ -142,10 +145,13 @@
     </div>
 
     <div class="tm-chat-area" id="tmChatArea">
+      
+      <!-- Экран "Выбери чат" -->
       <div id="tmNoChat" style="flex:1; display:flex; align-items:center; justify-content:center; opacity:0.5; text-align:center; padding:20px;">
         // выбери чат или найди пользователя
       </div>
       
+      <!-- Экран переписки -->
       <div id="tmActiveChat" class="hidden" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
         <div style="padding:15px; border-bottom:1px solid #00ff41; background:rgba(0,0,0,0.9); display:flex; justify-content:space-between; align-items:center;">
           <span id="tmChatName" style="font-weight:bold; color:#00e5ff;">@user</span>
@@ -158,6 +164,7 @@
         </div>
       </div>
 
+      <!-- Экран настроек -->
       <div id="tmSettings" class="hidden" style="flex:1; padding:20px; overflow-y:auto;">
         <h2>// НАСТРОЙКИ ПРОФИЛЯ</h2>
         <div style="margin-top:20px;">
@@ -212,7 +219,6 @@
 
   <div id="forumPanel" class="hidden">
     
-    <!-- КНОПКА МЕССЕНДЖЕРА СРАЗУ ПОД ШАПКОЙ -->
     <div class="panel" style="border-color:#00e5ff; padding:10px;">
       <button onclick="openMessenger()" style="background:transparent; border:1px solid #00e5ff; color:#00e5ff; margin:0;">[ ОТКРЫТЬ ТМ МЕССЕНДЖЕР ]</button>
     </div>
@@ -227,9 +233,9 @@
     <div class="panel">
       <h2>// ЛЕНТА // <span id="postCount">0</span> ЗАПИСЕЙ</h2>
       <div id="postsList"></div>
+      <div id="pagination"></div>
     </div>
     
-    <!-- КНОПКИ ВЫЙТИ И УВЕДОМЛЕНИЯ ВОЗВРАЩЕНЫ НА МЕСТО -->
     <div style="display:flex; gap:10px; flex-wrap:wrap;">
       <button class="danger" onclick="logout()" style="flex:1;">[ ВЫЙТИ ]</button>
       <button id="pushBtn" style="border:1px solid #00e5ff; color:#00e5ff; background:transparent; flex:1;" onclick="enablePush()">[ УВЕДОМЛЕНИЯ ]</button>
@@ -252,6 +258,10 @@ let currentUser = null;
 let currentProfile = null;
 let allComments = [], allReactions = [], openComments = new Set();
 let activeChatId = null, activeChatPeerName = null, tmChannel = null;
+
+let currentPage = 1;
+const PAGE_SIZE = 10;
+let totalPosts = 0;
 
 setTimeout(() => { document.getElementById('boot').style.display = 'none'; }, 2000);
 
@@ -313,15 +323,47 @@ async function enterForum() {
 
 // --- ФОРУМ ---
 async function loadAll() {
-  const { data: posts } = await db.from('posts').select('*').order('is_pinned', { ascending: false }).order('created_at', { ascending: false });
-  const { data: comments } = await db.from('comments').select('*').order('created_at', { ascending: true });
-  const { data: reactions } = await db.from('reactions').select('*');
-  allComments = comments || []; allReactions = reactions || [];
-  renderPosts(posts || []);
+  const from = (currentPage - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+
+  const [postsRes, commentsRes, reactionsRes] = await Promise.all([
+    db.from('posts').select('*', { count: 'exact' })
+      .order('is_pinned', { ascending: false })
+      .order('created_at', { ascending: false })
+      .range(from, to),
+    db.from('comments').select('*').order('created_at', { ascending: true }),
+    db.from('reactions').select('*')
+  ]);
+
+  if (postsRes.error) console.error(postsRes.error);
+  totalPosts = postsRes.count || 0;
+  allComments = commentsRes.data || [];
+  allReactions = reactionsRes.data || [];
+  
+  renderPosts(postsRes.data || []);
+  renderPagination();
+}
+
+function renderPagination() {
+  const totalPages = Math.ceil(totalPosts / PAGE_SIZE);
+  const el = document.getElementById('pagination');
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+
+  let html = '';
+  if (currentPage > 1) html += `<button onclick="goPage(${currentPage - 1})">← НАЗАД</button>`;
+  html += `<span style="padding:10px; opacity:0.7;">${currentPage} / ${totalPages}</span>`;
+  if (currentPage < totalPages) html += `<button onclick="goPage(${currentPage + 1})">ВПЕРЁД →</button>`;
+  el.innerHTML = html;
+}
+
+function goPage(page) {
+  currentPage = page;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  loadAll();
 }
 
 function renderPosts(posts) {
-  document.getElementById('postCount').textContent = posts.length;
+  document.getElementById('postCount').textContent = totalPosts;
   const list = document.getElementById('postsList');
   if (!posts.length) { list.innerHTML = '<div class="post">// пока тихо</div>'; return; }
 
@@ -369,6 +411,7 @@ async function addPost() {
   const { error } = await db.from('posts').insert({ author_id: currentUser.id, author_name: currentProfile.username, title: t, body: b, is_pinned: false });
   if (error) return alert(error.message);
   document.getElementById('postTitle').value = ''; document.getElementById('postText').value = '';
+  currentPage = 1;
   loadAll();
 }
 
@@ -422,9 +465,16 @@ function urlBase64ToUint8Array(base64String) {
 // --- МЕССЕНДЖЕР ---
 function openMessenger() {
   document.getElementById('messengerOverlay').classList.remove('hidden');
+  // Сбрасываем экраны при открытии
+  document.getElementById('tmNoChat').classList.remove('hidden');
+  document.getElementById('tmActiveChat').classList.add('hidden');
+  document.getElementById('tmSettings').classList.add('hidden');
+  document.getElementById('tmChatArea').classList.remove('active');
+  
   loadChats();
   document.getElementById('setUsername').textContent = currentProfile.username;
 }
+
 function closeMessenger() {
   document.getElementById('messengerOverlay').classList.add('hidden');
   if(tmChannel) { db.removeChannel(tmChannel); tmChannel = null; }
@@ -487,9 +537,11 @@ async function openChat(chatId, peerName) {
   activeChatId = chatId;
   activeChatPeerName = peerName;
   
+  // СКРЫВАЕМ НАСТРОЙКИ И "НЕТ ЧАТА", ПОКАЗЫВАЕМ ЧАТ
   document.getElementById('tmNoChat').classList.add('hidden');
-  document.getElementById('tmActiveChat').classList.remove('hidden');
   document.getElementById('tmSettings').classList.add('hidden');
+  document.getElementById('tmActiveChat').classList.remove('hidden');
+  
   document.getElementById('tmChatName').textContent = '@' + peerName;
 
   if(window.innerWidth <= 600) {
@@ -534,16 +586,30 @@ function closeChatMobile() {
   document.getElementById('tmChatArea').classList.remove('active');
 }
 
+// --- НАСТРОЙКИ (ИСПРАВЛЕНО) ---
 function showSettings() {
+  // Принудительно скрываем все остальные экраны
   document.getElementById('tmNoChat').classList.add('hidden');
   document.getElementById('tmActiveChat').classList.add('hidden');
+  
+  // Показываем настройки
   document.getElementById('tmSettings').classList.remove('hidden');
   document.getElementById('settingsMsg').textContent = '';
   document.getElementById('newPass').value = '';
+
+  // На мобилке выдвигаем правую панель
+  if(window.innerWidth <= 600) {
+    document.getElementById('tmChatArea').classList.add('active');
+  }
 }
+
 function hideSettings() {
   document.getElementById('tmSettings').classList.add('hidden');
   document.getElementById('tmNoChat').classList.remove('hidden');
+  
+  if(window.innerWidth <= 600) {
+    document.getElementById('tmChatArea').classList.remove('active');
+  }
 }
 
 async function changePassword() {
