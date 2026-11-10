@@ -6,6 +6,7 @@
 <title>Темщики // darknet.forum</title>
 <meta name="theme-color" content="#00ff41">
 <link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="./icon-192.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -127,7 +128,6 @@
     <button onclick="closeMessenger()" style="width:auto; margin:0; padding:5px 10px;">[ ЗАКРЫТЬ ]</button>
   </div>
   <div class="tm-body">
-    <!-- Левая панель: поиск, чаты, настройки -->
     <div class="tm-sidebar">
       <div style="padding:10px; border-bottom:1px solid rgba(0,255,65,0.3);">
         <input type="text" id="tmSearch" placeholder="> поиск по нику..." oninput="searchUsers()" style="margin-bottom:0;">
@@ -141,7 +141,6 @@
       </div>
     </div>
 
-    <!-- Правая панель: переписка -->
     <div class="tm-chat-area" id="tmChatArea">
       <div id="tmNoChat" style="flex:1; display:flex; align-items:center; justify-content:center; opacity:0.5; text-align:center; padding:20px;">
         // выбери чат или найди пользователя
@@ -159,7 +158,6 @@
         </div>
       </div>
 
-      <!-- Настройки -->
       <div id="tmSettings" class="hidden" style="flex:1; padding:20px; overflow-y:auto;">
         <h2>// НАСТРОЙКИ ПРОФИЛЯ</h2>
         <div style="margin-top:20px;">
@@ -213,21 +211,28 @@
   </div>
 
   <div id="forumPanel" class="hidden">
+    
+    <!-- КНОПКА МЕССЕНДЖЕРА СРАЗУ ПОД ШАПКОЙ -->
+    <div class="panel" style="border-color:#00e5ff; padding:10px;">
+      <button onclick="openMessenger()" style="background:transparent; border:1px solid #00e5ff; color:#00e5ff; margin:0;">[ ОТКРЫТЬ ТМ МЕССЕНДЖЕР ]</button>
+    </div>
+
     <div class="panel">
       <h2>// НОВАЯ ТЕМА</h2>
       <input type="text" id="postTitle" placeholder="> заголовок темы">
       <textarea id="postText" rows="4" placeholder="> сообщение..."></textarea>
       <button id="postBtn" onclick="addPost()">Отправить в эфир</button>
     </div>
+
     <div class="panel">
       <h2>// ЛЕНТА // <span id="postCount">0</span> ЗАПИСЕЙ</h2>
       <div id="postsList"></div>
     </div>
     
-    <!-- КНОПКИ УПРАВЛЕНИЯ -->
+    <!-- КНОПКИ ВЫЙТИ И УВЕДОМЛЕНИЯ ВОЗВРАЩЕНЫ НА МЕСТО -->
     <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      <button onclick="openMessenger()" style="flex:1; border:1px solid #00e5ff; color:#00e5ff; background:transparent;">[ ТМ МЕССЕНДЖЕР ]</button>
       <button class="danger" onclick="logout()" style="flex:1;">[ ВЫЙТИ ]</button>
+      <button id="pushBtn" style="border:1px solid #00e5ff; color:#00e5ff; background:transparent; flex:1;" onclick="enablePush()">[ УВЕДОМЛЕНИЯ ]</button>
     </div>
   </div>
 </main>
@@ -238,6 +243,8 @@
 <script>
 const SUPABASE_URL = 'https://geauicuahldmglatmtrv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_dyMpzlPmu53ZDo3rJS7-Lw_IIY_COdj';
+const VAPID_PUBLIC_KEY = 'BKR1g-Xtm9XEzTw1HlINWyoBWHRq_lwkQjC8OT1ntaxiKnW81G68dfrQ3U_V52s_ppHCf5RrJYhSy5O44f6EO7k';
+
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -382,6 +389,36 @@ async function addComment(id) {
 }
 async function deleteComment(id) { if(confirm('Удалить?')) { await db.from('comments').delete().eq('id', id); loadAll(); } }
 
+// --- УВЕДОМЛЕНИЯ ---
+async function enablePush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return alert('Браузер не поддерживает push');
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') return alert('Разрешение не выдано');
+
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+    });
+
+    const json = sub.toJSON();
+    const { error } = await db.from('push_subscriptions').upsert({
+      user_id: currentUser.id, endpoint: json.endpoint, p256dh: json.keys.p256dh, auth: json.keys.auth
+    }, { onConflict: 'user_id,endpoint' });
+
+    if (error) return alert('Ошибка: ' + error.message);
+    alert('Уведомления включены');
+    document.getElementById('pushBtn').textContent = '[ ВКЛЮЧЕНЫ ]';
+  } catch (e) { alert('Ошибка подписки: ' + e.message); }
+}
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
 // --- МЕССЕНДЖЕР ---
 function openMessenger() {
   document.getElementById('messengerOverlay').classList.remove('hidden');
@@ -393,7 +430,6 @@ function closeMessenger() {
   if(tmChannel) { db.removeChannel(tmChannel); tmChannel = null; }
 }
 
-// Поиск пользователей
 async function searchUsers() {
   const q = document.getElementById('tmSearch').value.trim();
   const resBox = document.getElementById('tmSearchResults');
@@ -409,12 +445,10 @@ async function searchUsers() {
   `).join('');
 }
 
-// Начать чат
 async function startChat(peerId, peerName) {
   document.getElementById('tmSearch').value = '';
   document.getElementById('tmSearchResults').innerHTML = '';
 
-  // Проверяем, есть ли уже чат
   const { data: existing } = await db.from('chats').select('id').or(`and(user1_id.eq.${currentUser.id},user2_id.eq.${peerId}),and(user1_id.eq.${peerId},user2_id.eq.${currentUser.id})`).single();
   
   let chatId;
@@ -428,14 +462,12 @@ async function startChat(peerId, peerName) {
   openChat(chatId, peerName);
 }
 
-// Загрузка списка чатов
 async function loadChats() {
   const { data: chats } = await db.from('chats').select('*').or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`);
   const list = document.getElementById('tmChatList');
   
   if (!chats || !chats.length) { list.innerHTML = '<div style="padding:15px; opacity:0.5;">// нет активных чатов</div>'; return; }
 
-  // Получаем ники собеседников
   const peerIds = chats.map(c => c.user1_id === currentUser.id ? c.user2_id : c.user1_id);
   const { data: peers } = await db.from('profiles').select('id, username').in('id', peerIds);
   
@@ -451,7 +483,6 @@ async function loadChats() {
   }).join('');
 }
 
-// Открыть конкретный чат
 async function openChat(chatId, peerName) {
   activeChatId = chatId;
   activeChatPeerName = peerName;
@@ -468,7 +499,6 @@ async function openChat(chatId, peerName) {
 
   loadMessages();
 
-  // Подписка на новые сообщения в этом чате
   if (tmChannel) db.removeChannel(tmChannel);
   tmChannel = db.channel('chat-' + chatId)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, () => {
@@ -504,7 +534,6 @@ function closeChatMobile() {
   document.getElementById('tmChatArea').classList.remove('active');
 }
 
-// Настройки
 function showSettings() {
   document.getElementById('tmNoChat').classList.add('hidden');
   document.getElementById('tmActiveChat').classList.add('hidden');
