@@ -314,7 +314,6 @@ async function doRegister() {
   const email = document.getElementById('regEmail').value.trim();
   const pass = document.getElementById('regPass').value;
 
-  // Проверка на запрещенные слова
   if (username.toLowerCase().includes('админ') || username.toLowerCase().includes('admin')) {
     return alert('Ошибка: Ник не может содержать слово "Админ" или "Admin".');
   }
@@ -346,7 +345,6 @@ async function enterForum() {
   loadChats();
 }
 
-// БЕЙДЖ ТОЛЬКО ДЛЯ АДМИНОВ (ПО ID ИЗ БАЗЫ)
 function getStatusBadge(authorId) {
   if (adminIds.has(authorId)) return `<span class="status-badge status-admin">ADMIN</span>`;
   return '';
@@ -368,10 +366,9 @@ async function loadAll() {
     query.range(from, to),
     db.from('comments').select('*').order('created_at', { ascending: true }),
     db.from('reactions').select('*'),
-    db.from('profiles').select('id, is_admin') // Получаем список всех админов
+    db.from('profiles').select('id, is_admin')
   ]);
 
-  // Запоминаем айдишники админов
   adminIds.clear();
   (profilesRes.data || []).forEach(p => { if (p.is_admin) adminIds.add(p.id); });
 
@@ -521,7 +518,7 @@ async function enablePush() {
 
 function openMessenger() {
   document.getElementById('messengerOverlay').classList.remove('hidden');
-  document.getElementById('tmNoChat').classList.remove('hidden');
+  document.getElementById('tmNoChat').classList.add('hidden');
   document.getElementById('tmActiveChat').classList.add('hidden');
   document.getElementById('tmSettings').classList.add('hidden');
   loadChats();
@@ -681,7 +678,6 @@ async function changeUsername() {
   
   if (newName.length < 3) { msg.style.color = '#ff003c'; msg.textContent = 'Ник слишком короткий'; return; }
   
-  // Проверка на запрещенные слова в клиенте
   if (newName.toLowerCase().includes('админ') || newName.toLowerCase().includes('admin')) {
     msg.style.color = '#ff003c'; 
     msg.textContent = 'Ник не может содержать слово "Админ" или "Admin".';
@@ -704,7 +700,9 @@ async function changeUsername() {
     document.getElementById('setUsername').textContent = newName;
     document.getElementById('newUsername').value = '';
     document.getElementById('userInfo').innerHTML = `[ ${newName}${currentProfile.is_admin ? ' ★' : ''} ]`;
-    loadAll();
+    
+    // Принудительно обновляем ленту
+    await loadAll();
   }
 }
 
