@@ -97,14 +97,14 @@
   .tm-input-area { padding: 15px; border-top: 1px solid #00ff41; display: flex; gap: 10px; background: rgba(0,0,0,0.9); }
   .badge { background: #ff003c; color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; margin-left: 5px; display: inline-block; vertical-align: middle; }
   
-  /* КНОПКА УСТАНОВКИ PWA */
   .install-btn {
-    position: fixed; bottom: 60px; right: 15px; z-index: 200;
-    border: 1px solid #00e5ff; color: #00e5ff; background: #000;
-    padding: 8px 12px; font-size: 0.8rem; width: auto; margin-bottom: 0;
-    box-shadow: 0 0 15px rgba(0,229,255,0.3);
+    position: fixed; bottom: 25px; right: 15px; z-index: 200;
+    border: 1px solid rgba(0, 229, 255, 0.6); color: #00e5ff; 
+    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
+    padding: 6px 10px; font-size: 0.75rem; width: auto; margin-bottom: 0;
+    opacity: 0.7; transition: all 0.2s ease;
   }
-  .install-btn:hover { background: #00e5ff; color: #000; box-shadow: 0 0 25px #00e5ff; }
+  .install-btn:hover { opacity: 1; background: rgba(0, 229, 255, 0.9); color: #000; box-shadow: 0 0 20px #00e5ff; border-color: #00e5ff; }
 
   @media (max-width: 600px) {
     .tm-body { flex-direction: column; }
@@ -295,9 +295,16 @@ async function doRegister() {
   const username = document.getElementById('regUser').value.trim();
   const email = document.getElementById('regEmail').value.trim();
   const pass = document.getElementById('regPass').value;
+  
   const { data: authData, error: authErr } = await db.auth.signUp({ email, password: pass });
   if (authErr) return alert(authErr.message);
-  await db.from('profiles').insert({ id: authData.user.id, username });
+
+  // Создаем профиль
+  const { error: profErr } = await db.from('profiles').insert({ id: authData.user.id, username: username });
+  if (profErr) {
+    return alert('Ошибка при создании профиля: ' + profErr.message + '\nПопробуйте другой ник или проверьте права в базе.');
+  }
+  
   enterForum();
 }
 
@@ -307,7 +314,20 @@ async function enterForum() {
   const { data: { user } } = await db.auth.getUser();
   if (!user) return;
   currentUser = user;
-  let { data: profile } = await db.from('profiles').select('*').eq('id', user.id).single();
+  
+  let { data: profile, error } = await db.from('profiles').select('*').eq('id', user.id).single();
+  
+  // Если профиля нет (например, при сбое регистрации), создаем его
+  if (!profile) {
+    const defaultName = user.email.split('@')[0];
+    const { data: newProfile, error: createErr } = await db.from('profiles').insert({ id: user.id, username: defaultName }).select().single();
+    if (createErr) {
+      alert('Не удалось загрузить профиль. Ошибка: ' + createErr.message);
+      return;
+    }
+    profile = newProfile;
+  }
+  
   currentProfile = profile;
 
   document.getElementById('authPanel').classList.add('hidden');
@@ -642,42 +662,28 @@ function setupGlobalListeners() {
 
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-// --- ЛОГИКА PWA (УСТАНОВКА) ---
+// --- ЛОГИКА PWA ---
 let deferredPrompt;
 const installBtn = document.getElementById('installBtn');
 
 window.addEventListener('beforeinstallprompt', (e) => {
-  // Предотвращаем автоматическое мини-уведомление
   e.preventDefault();
-  // Сохраняем событие
   deferredPrompt = e;
-  // Показываем кнопку
   installBtn.classList.remove('hidden');
 });
 
 installBtn.addEventListener('click', async () => {
   if (!deferredPrompt) return;
-  // Показываем окно установки
   deferredPrompt.prompt();
-  // Ждем выбора пользователя
-  const { outcome } = await deferredPrompt.userChoice;
-  if (outcome === 'accepted') {
-    console.log('Пользователь установил PWA');
-  } else {
-    console.log('Пользователь отклонил установку');
-  }
-  // Сбрасываем событие
+  await deferredPrompt.userChoice;
   deferredPrompt = null;
-  // Скрываем кнопку
   installBtn.classList.add('hidden');
 });
 
 window.addEventListener('appinstalled', () => {
   installBtn.classList.add('hidden');
-  console.log('PWA установлено');
 });
 
-// Регистрация Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW error:', err));
