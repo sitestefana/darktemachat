@@ -8,15 +8,11 @@
 <link rel="manifest" href="./manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+  /* ... (СТИЛИ ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ, Я ИХ НЕ ТРОГАЛ) ... */
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 100%; max-width: 100vw; overflow-x: hidden; }
-  body {
-    font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff41; min-height: 100vh;
-    background-image: linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px);
-    background-size: 30px 30px; padding-bottom: 60px; display: flex; flex-direction: column; align-items: center;
-  }
+  body { font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff41; min-height: 100vh; background-image: linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px); background-size: 30px 30px; padding-bottom: 60px; display: flex; flex-direction: column; align-items: center; }
   body::before { content: ""; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px); pointer-events: none; z-index: 9999; }
-  
   header { width: 100%; border-bottom: 1px solid #00ff41; padding: 15px 10px; background: rgba(0,0,0,0.85); position: sticky; top: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; }
   .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 900px; flex-wrap: wrap; gap: 10px; }
   .glitch-title { font-size: 1.8rem; letter-spacing: 2px; text-transform: uppercase; color: #00ff41; text-shadow: 0 0 8px #00ff41, 0 0 20px #00ff41; position: relative; }
@@ -25,27 +21,22 @@
   .glitch-title::after  { color: #00e5ff; animation: glitch2 3s infinite; clip-path: inset(60% 0 0 0); }
   @keyframes glitch1 { 0%,100%{transform:translate(0)} 20%{transform:translate(-3px,1px)} 40%{transform:translate(2px,-1px)} 60%{transform:translate(-2px,0)} }
   @keyframes glitch2 { 0%,100%{transform:translate(0)} 30%{transform:translate(3px,-1px)} 50%{transform:translate(-2px,1px)} 70%{transform:translate(1px,0)} }
-
   .status { font-size: 0.75rem; color: #0f0; opacity: 0.7; }
   .blink { animation: blink 1s steps(2) infinite; }
   @keyframes blink { 50%{opacity:0} }
   .userbar { display: flex; gap: 10px; align-items: center; font-size: 0.85rem; }
-
   main { width: 100%; max-width: 900px; padding: 15px 10px; display: flex; flex-direction: column; gap: 15px; }
   .panel { border: 1px solid #00ff41; background: rgba(0, 20, 5, 0.7); padding: 15px; box-shadow: 0 0 15px rgba(0,255,65,0.15); width: 100%; }
   .panel h2 { font-size: 1rem; letter-spacing: 2px; margin-bottom: 15px; color: #00ff41; }
-
   input, textarea, select { width: 100%; background: #000; border: 1px solid #00ff41; color: #00ff41; padding: 10px; font-family: inherit; margin-bottom: 12px; outline: none; font-size: 16px; }
   input:focus, textarea:focus, select:focus { box-shadow: 0 0 10px #00ff41; }
   input::placeholder, textarea::placeholder { color: rgba(0,255,65,0.35); }
   select option { background: #000; color: #00ff41; }
-
   button { background: #00ff41; color: #000; border: none; padding: 10px 15px; font-family: inherit; font-weight: bold; letter-spacing: 1px; cursor: pointer; text-transform: uppercase; width: 100%; margin-bottom: 10px; transition: all .2s; }
   button:hover { background: #000; color: #00ff41; box-shadow: 0 0 15px #00ff41; border: 1px solid #00ff41; }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   .danger { border: 1px solid #ff003c; color: #ff003c; background: transparent; }
   .danger:hover { background: #ff003c; color: #000; box-shadow: 0 0 15px #ff003c; }
-
   .post { border-left: 3px solid #00ff41; padding: 10px; margin-bottom: 10px; background: rgba(0,255,65,0.03); word-break: break-all; overflow-wrap: anywhere; width: 100%; }
   .post.pinned { border-left-color: #ffd700; background: rgba(255,215,0,0.05); }
   .post .pin { float: right; margin-right: 8px; cursor: pointer; opacity: 0.6; font-size: 0.9rem; }
@@ -59,7 +50,6 @@
   .react-btn.active-up { background: #00ff41; color: #000; }
   .react-btn.active-down { background: #ff003c; color: #000; border-color: #ff003c; }
   .comment-toggle { cursor: pointer; color: #00e5ff; font-size: 0.8rem; opacity: 0.8; }
-  
   .comments { margin-top: 12px; border-top: 1px dashed rgba(0,255,65,0.3); padding-top: 10px; }
   .comment { padding: 8px; margin-bottom: 8px; background: rgba(0,229,255,0.04); border-left: 2px solid #00e5ff; word-break: break-all; }
   .comment .meta { font-size: 0.7rem; opacity: 0.6; margin-bottom: 4px; display: flex; justify-content: space-between; }
@@ -70,16 +60,13 @@
   .comment-form input { margin-bottom: 0; flex: 1; }
   .comment-form button { padding: 8px; font-size: 0.8rem; width: 100%; margin-bottom: 0; }
   .load-more-btn { background: transparent; border: 1px dashed #00e5ff; color: #00e5ff; margin-top: 5px; font-size: 0.75rem; padding: 5px; }
-
   .tabs { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
   .tab { flex: 1; padding: 10px; text-align: center; border: 1px solid #00ff41; cursor: pointer; font-size: 0.85rem; opacity: 0.5; }
   .tab.active { opacity: 1; background: rgba(0,255,65,0.1); box-shadow: 0 0 10px rgba(0,255,65,0.3); }
-
   .filters { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; width: 100%; scrollbar-width: none; }
   .filters::-webkit-scrollbar { display: none; }
   .filter-btn { flex: 0 0 auto; background: transparent; border: 1px solid #00ff41; color: #00ff41; padding: 5px 12px; font-size: 0.75rem; cursor: pointer; border-radius: 15px; width: auto; margin: 0; text-transform: none; }
   .filter-btn.active { background: #00ff41; color: #000; }
-
   .hidden { display: none !important; }
   .boot { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; font-size: 0.85rem; }
   .boot .line { opacity: 0; animation: fade .3s forwards; }
@@ -90,13 +77,9 @@
   .ad-banner.bottom { border-left: none; border-right: none; border-bottom: none; position: fixed; bottom: 0; left: 0; z-index: 150; }
   .ad-banner span { color: #00e5ff; text-shadow: 0 0 8px #00e5ff; }
   @keyframes adBlink { 0%,100%{opacity:1;text-shadow:0 0 6px #ff003c} 50%{opacity:0.25;text-shadow:none} }
-
   #pagination { display: flex; gap: 10px; justify-content: center; align-items: center; margin-top: 15px; width: 100%; flex-wrap: wrap; }
   #pagination button { width: auto; margin-bottom: 0; }
-
   #userPopup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #000; border: 1px solid #00e5ff; padding: 20px; z-index: 30000; text-align: center; box-shadow: 0 0 30px rgba(0,229,255,0.3); width: 250px; }
-
-  /* МЕССЕНДЖЕР */
   #messengerOverlay { position: fixed; inset: 0; background: #0a0a0a; z-index: 20000; display: flex; flex-direction: column; overflow: hidden; background-image: linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px); background-size: 30px 30px; }
   .tm-header { padding: 15px; border-bottom: 1px solid #00ff41; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.9); }
   .tm-body { display: flex; flex: 1; overflow: hidden; }
@@ -107,15 +90,12 @@
   .tm-chat-item:hover, .tm-chat-item.active { background: rgba(0,255,65,0.1); }
   .tm-chat-name { font-weight: bold; color: #00e5ff; }
   .unread-dot { width: 8px; height: 8px; background: #00ff41; border-radius: 50%; box-shadow: 0 0 8px #00ff41; }
-  
   .tm-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
   .msg { max-width: 80%; padding: 10px; border: 1px solid #00ff41; background: rgba(0,20,5,0.9); word-break: break-all; }
   .msg.me { align-self: flex-end; border-color: #00e5ff; color: #00e5ff; }
   .msg.them { align-self: flex-start; }
   .tm-input-area { padding: 15px; border-top: 1px solid #00ff41; display: flex; gap: 10px; background: rgba(0,0,0,0.9); }
-
   .badge { background: #ff003c; color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; margin-left: 5px; display: inline-block; vertical-align: middle; }
-  
   @media (max-width: 600px) {
     .tm-body { flex-direction: column; }
     .tm-sidebar { max-width: 100%; border-right: none; border-bottom: 1px solid #00ff41; max-height: 40vh; }
@@ -159,7 +139,6 @@
       <div id="tmNoChat" style="flex:1; display:flex; align-items:center; justify-content:center; opacity:0.5; text-align:center; padding:20px;">
         // выбери чат или найди пользователя
       </div>
-      
       <div id="tmActiveChat" class="hidden" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
         <div style="padding:15px; border-bottom:1px solid #00ff41; background:rgba(0,0,0,0.9); display:flex; justify-content:space-between; align-items:center;">
           <span id="tmChatName" style="font-weight:bold; color:#00e5ff;">@user</span>
@@ -174,7 +153,6 @@
           <button onclick="sendMessage()" style="width:auto; margin:0;">ОТПР</button>
         </div>
       </div>
-
       <div id="tmSettings" class="hidden" style="flex:1; padding:20px; overflow-y:auto;">
         <h2>// НАСТРОЙКИ</h2>
         <p style="margin:10px 0; color:#00e5ff;">@<span id="setUsername"></span></p>
@@ -220,7 +198,6 @@
   </div>
 
   <div id="forumPanel" class="hidden">
-    
     <div class="panel" style="border-color:#00e5ff; padding:10px; position:relative;">
       <button onclick="openMessenger()" style="background:transparent; border:1px solid #00e5ff; color:#00e5ff; margin:0;">
         [ ОТКРЫТЬ ТМ МЕССЕНДЖЕР ] <span id="globalUnreadBadge" class="badge hidden">0</span>
@@ -245,7 +222,6 @@
 
     <div class="panel">
       <h2>// ЛЕНТА // <span id="postCount">0</span> ЗАПИСЕЙ</h2>
-      
       <div class="filters" id="filters">
         <button class="filter-btn active" onclick="setFilter('общее', this)">общее</button>
         <button class="filter-btn" onclick="setFilter('куплю/продам', this)">куплю/продам</button>
@@ -256,7 +232,6 @@
         <button class="filter-btn" onclick="setFilter('общение', this)">общение</button>
         <button class="filter-btn" onclick="setFilter('темщики', this)">темщики</button>
       </div>
-
       <div id="postsList"></div>
       <div id="pagination"></div>
     </div>
@@ -334,7 +309,6 @@ async function enterForum() {
   setupGlobalListeners();
 }
 
-// --- ФОРУМ ---
 function setFilter(cat, btn) {
   currentFilter = cat; currentPage = 1;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -452,6 +426,7 @@ async function addPost() {
   btn.disabled = false;
   if (error) {
     if (error.message.includes('Лимит')) return alert('Вы можете создавать только одну тему в сутки!');
+    if (error.message.includes('запрещенное слово')) return alert(error.message);
     return alert('Ошибка: ' + error.message);
   }
   document.getElementById('postTitle').value = ''; document.getElementById('postText').value = '';
@@ -474,19 +449,21 @@ async function toggleComments(id) {
 async function addComment(id) {
   const inp = document.getElementById('cin-' + id);
   if(!inp.value.trim()) return;
-  await db.from('comments').insert({ post_id: id, author_id: currentUser.id, author_name: currentProfile.username, body: inp.value.trim() });
+  const { error } = await db.from('comments').insert({ post_id: id, author_id: currentUser.id, author_name: currentProfile.username, body: inp.value.trim() });
+  if (error) {
+    if (error.message.includes('запрещенное слово')) return alert(error.message);
+    return alert('Ошибка: ' + error.message);
+  }
   inp.value = ''; commentsDisplayLimit[id] = 10; loadAll();
 }
 async function deleteComment(id) { if(confirm('Удалить коммент?')) { await db.from('comments').delete().eq('id', id); loadAll(); } }
 
-// --- УВЕДОМЛЕНИЯ ---
 async function enablePush() {
   const perm = await Notification.requestPermission();
   if (perm !== 'granted') return alert('Разрешение не выдано');
   alert('Уведомления включены (демо)');
 }
 
-// --- МЕССЕНДЖЕР ---
 function openMessenger() {
   document.getElementById('messengerOverlay').classList.remove('hidden');
   document.getElementById('tmNoChat').classList.remove('hidden');
@@ -522,12 +499,11 @@ async function loadChats() {
   const { data: chats } = await db.from('chats').select('*').or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`);
   chatsData = chats || [];
   const list = document.getElementById('tmChatList');
-  if (!chatsData.length) { list.innerHTML = '<div style="padding:15px; opacity:0.5;">// нет чатов</div>'; return; }
+  if (!chatsData.length) { list.innerHTML = '<div style="padding:15px; opacity:0.5;">// нет чатов</div>'; updateGlobalUnreadBadge(0); return; }
 
   const peerIds = chatsData.map(c => c.user1_id === currentUser.id ? c.user2_id : c.user1_id);
   const { data: peers } = await db.from('profiles').select('id, username').in('id', peerIds);
   
-  // Считаем непрочитанные
   const unreadStatus = await Promise.all(chatsData.map(async c => {
     const isU1 = c.user1_id === currentUser.id;
     const myLastRead = isU1 ? c.last_read_user1 : c.last_read_user2;
@@ -590,7 +566,11 @@ async function sendMessage() {
   const body = inp.value.trim();
   if (!body || !activeChatId) return;
   inp.value = '';
-  await db.from('messages').insert({ chat_id: activeChatId, sender_id: currentUser.id, body });
+  const { error } = await db.from('messages').insert({ chat_id: activeChatId, sender_id: currentUser.id, body });
+  if (error) {
+    if (error.message.includes('запрещенное слово')) return alert(error.message);
+    return alert('Ошибка: ' + error.message);
+  }
   loadMessages();
 }
 
@@ -630,14 +610,10 @@ async function changePassword() {
   else { msg.style.color = '#00ff41'; msg.textContent = 'Пароль изменен!'; document.getElementById('newPass').value = ''; }
 }
 
-// --- ГЛОБАЛЬНЫЕ СЛУШАТЕЛИ ---
 function setupGlobalListeners() {
-  // Слушаем новые сообщения, чтобы обновлять счетчик
   globalMsgChannel = db.channel('global-msg-listener').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
-    if (currentUser) loadChats(); // Обновляем список чатов и индикаторы при любом новом сообщении
+    if (currentUser) loadChats();
   }).subscribe();
-
-  // Слушаем новые чаты (например, приветствие от админа)
   chatsRefreshChannel = db.channel('global-chats-listener').on('postgres_changes', { event: '*', schema: 'public', table: 'chats' }, () => {
     if (currentUser) loadChats();
   }).subscribe();
