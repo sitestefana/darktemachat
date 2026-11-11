@@ -97,7 +97,6 @@
   .tm-input-area { padding: 15px; border-top: 1px solid #00ff41; display: flex; gap: 10px; background: rgba(0,0,0,0.9); }
   .badge { background: #ff003c; color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; margin-left: 5px; display: inline-block; vertical-align: middle; }
 
-  /* СТАТУСЫ */
   .status-badge {
     display: inline-block; padding: 1px 6px; font-size: 0.6rem; 
     border-radius: 3px; margin-right: 5px; font-weight: bold;
@@ -172,7 +171,6 @@
         </div>
       </div>
       
-      <!-- НАСТРОЙКИ -->
       <div id="tmSettings" class="hidden" style="flex:1; padding:20px; overflow-y:auto;">
         <h2>// НАСТРОЙКИ</h2>
         <p style="margin:10px 0; color:#00e5ff;">Текущий ник: @<span id="setUsername"></span></p>
@@ -285,7 +283,7 @@ const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null, currentProfile = null;
-let allComments = [], allReactions = [], chatsData = [];
+let allComments = [], allReactions = [], chatsData = [], adminIds = new Set();
 let activeChatId = null, activeChatPeerName = null, activeChatPeerId = null;
 let tmChannel = null, globalMsgChannel = null;
 
@@ -315,6 +313,12 @@ async function doRegister() {
   const username = document.getElementById('regUser').value.trim();
   const email = document.getElementById('regEmail').value.trim();
   const pass = document.getElementById('regPass').value;
+
+  // Проверка на запрещенные слова
+  if (username.toLowerCase().includes('админ') || username.toLowerCase().includes('admin')) {
+    return alert('Ошибка: Ник не может содержать слово "Админ" или "Admin".');
+  }
+
   const { data: authData, error: authErr } = await db.auth.signUp({ email, password: pass });
   if (authErr) return alert(authErr.message);
   await db.from('profiles').insert({ id: authData.user.id, username });
@@ -342,9 +346,9 @@ async function enterForum() {
   loadChats();
 }
 
-// ФУНКЦИЯ БЕЙДЖЕЙ (ТЕПЕРЬ ТОЛЬКО АДМИН)
-function getStatusBadge(username, isAdmin) {
-  if (isAdmin) return `<span class="status-badge status-admin">ADMIN</span>`;
+// БЕЙДЖ ТОЛЬКО ДЛЯ АДМИНОВ (ПО ID ИЗ БАЗЫ)
+function getStatusBadge(authorId) {
+  if (adminIds.has(authorId)) return `<span class="status-badge status-admin">ADMIN</span>`;
   return '';
 }
 
@@ -360,11 +364,16 @@ async function loadAll() {
   let query = db.from('posts').select('*', { count: 'exact' }).order('is_pinned', { ascending: false }).order('created_at', { ascending: false });
   if (currentFilter !== 'общее') query = query.eq('category', currentFilter);
   
-  const [postsRes, commentsRes, reactionsRes] = await Promise.all([
+  const [postsRes, commentsRes, reactionsRes, profilesRes] = await Promise.all([
     query.range(from, to),
     db.from('comments').select('*').order('created_at', { ascending: true }),
-    db.from('reactions').select('*')
+    db.from('reactions').select('*'),
+    db.from('profiles').select('id, is_admin') // Получаем список всех админов
   ]);
+
+  // Запоминаем айдишники админов
+  adminIds.clear();
+  (profilesRes.data || []).forEach(p => { if (p.is_admin) adminIds.add(p.id); });
 
   totalPosts = postsRes.count || 0;
   allComments = commentsRes.data || [];
@@ -417,8 +426,8 @@ function renderPosts(posts) {
     const commentsHtml = visibleComments.map(c => `
       <div class="comment">
         <div class="meta">
-          <div>
-            ${getStatusBadge(c.author_name, false)}
+          <div style="display:flex; align-items:center; gap:5px;">
+            ${getStatusBadge(c.author_id)}
             <span class="author" onclick="openUserPopup('${c.author_id}', '${c.author_name}')">@${escapeHtml(c.author_name)}</span>
           </div>
           ${(c.author_id === currentUser.id || currentProfile.is_admin) ? `<span class="del" onclick="deleteComment(${c.id})">[ x ]</span>` : ''}
@@ -434,7 +443,7 @@ function renderPosts(posts) {
         ${canDelete ? `<span class="del" onclick="deletePost(${p.id})">[ x ]</span>` : ''}
         <div class="meta">
           <div style="display:flex; align-items:center; gap:5px;">
-            ${getStatusBadge(p.author_name, p.author_name === 'Admin' || p.author_name === 'admin')} 
+            ${getStatusBadge(p.author_id)} 
             <span class="author" onclick="openUserPopup('${p.author_id}', '${p.author_name}')">@${escapeHtml(p.author_name)}</span>
           </div>
           · ${new Date(p.created_at).toLocaleString('ru-RU')}
@@ -671,6 +680,14 @@ async function changeUsername() {
   const msg = document.getElementById('nameChangeMsg');
   
   if (newName.length < 3) { msg.style.color = '#ff003c'; msg.textContent = 'Ник слишком короткий'; return; }
+  
+  // Проверка на запрещенные слова в клиенте
+  if (newName.toLowerCase().includes('админ') || newName.toLowerCase().includes('admin')) {
+    msg.style.color = '#ff003c'; 
+    msg.textContent = 'Ник не может содержать слово "Админ" или "Admin".';
+    return;
+  }
+
   if (newName === currentProfile.username) { msg.style.color = '#ff003c'; msg.textContent = 'Это твой текущий ник'; return; }
 
   msg.style.color = '#00e5ff'; msg.textContent = 'Обновление...';
