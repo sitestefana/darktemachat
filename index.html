@@ -124,11 +124,14 @@
   </div>
   <div class="tm-body">
     <div class="tm-sidebar">
+      <!-- ПОИСК ВОЗВРАЩЕН СЮДА -->
       <div style="padding:10px; border-bottom:1px solid rgba(0,255,65,0.3);">
         <input type="text" id="tmSearch" placeholder="> поиск по нику..." oninput="searchUsers()" style="margin-bottom:0;">
         <div id="tmSearchResults" style="margin-top:10px; max-height:150px; overflow-y:auto;"></div>
       </div>
+      
       <div class="tm-chat-list" id="tmChatList"></div>
+      
       <div style="padding:10px; border-top:1px solid rgba(0,255,65,0.3);">
         <button onclick="showSettings()" style="margin-bottom:0; font-size:0.8rem;">[ НАСТРОЙКИ ]</button>
       </div>
@@ -136,7 +139,7 @@
 
     <div class="tm-chat-area" id="tmChatArea">
       <div id="tmNoChat" style="flex:1; display:flex; align-items:center; justify-content:center; opacity:0.5; text-align:center; padding:20px;">
-        // выбери чат или найди пользователя
+        // выбери чат или найди пользователя через поиск
       </div>
       <div id="tmActiveChat" class="hidden" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
         <div style="padding:15px; border-bottom:1px solid #00ff41; background:rgba(0,0,0,0.9); display:flex; justify-content:space-between; align-items:center;">
@@ -428,7 +431,6 @@ async function addPost() {
   
   btn.disabled = false;
   if (error) {
-    // Выводим точную ошибку от базы (антиспам или лимит)
     alert('ОШИБКА: ' + error.message);
     return;
   }
@@ -480,7 +482,7 @@ function openMessenger() {
 function closeMessenger() {
   document.getElementById('messengerOverlay').classList.add('hidden');
   if(tmChannel) { db.removeChannel(tmChannel); tmChannel = null; }
-  loadChats(); // Обновляем бейдж при закрытии
+  loadChats();
 }
 
 async function searchUsers() {
@@ -511,9 +513,7 @@ async function loadChats() {
   const { data: peers } = await db.from('profiles').select('id, username').in('id', peerIds);
   
   const unreadStatus = await Promise.all(chatsData.map(async c => {
-    // Если чат открыт прямо сейчас, считаем его прочитанным
     if (c.id === activeChatId) return { id: c.id, unread: false };
-    
     const isU1 = c.user1_id === currentUser.id;
     const myLastRead = isU1 ? c.last_read_user1 : c.last_read_user2;
     const { count } = await db.from('messages').select('*', { count: 'exact', head: true }).eq('chat_id', c.id).gt('created_at', myLastRead || '1970-01-01').neq('sender_id', currentUser.id);
@@ -553,7 +553,7 @@ async function openChat(chatId, peerName, peerId) {
   const isU1 = chatsData.find(c => c.id === chatId)?.user1_id === currentUser.id;
   await db.from('chats').update(isU1 ? { last_read_user1: new Date() } : { last_read_user2: new Date() }).eq('id', chatId);
 
-  loadChats(); // Обновляем бейдж, чтобы убрать точку
+  loadChats();
   loadMessages();
   
   if (tmChannel) db.removeChannel(tmChannel);
@@ -624,19 +624,10 @@ async function changePassword() {
 }
 
 function setupGlobalListeners() {
-  // Слушаем ВСЕ новые сообщения
   globalMsgChannel = db.channel('global-msg-listener').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
-    if (currentUser) {
-      // Если это сообщение от меня, оно не должно увеличивать бейдж
-      if (payload.new.sender_id === currentUser.id) return;
-      
-      // Если мессенджер открыт — обновляем список чатов
-      if (!document.getElementById('messengerOverlay').classList.contains('hidden')) {
-        loadChats();
-      } else {
-        // Если закрыт — просто обновляем бейдж (запускаем loadChats в фоне)
-        loadChats(); 
-      }
+    if (currentUser && payload.new.sender_id !== currentUser.id) {
+      if (!document.getElementById('messengerOverlay').classList.contains('hidden')) loadChats();
+      else loadChats(); 
     }
   }).subscribe();
 }
