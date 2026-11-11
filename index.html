@@ -8,7 +8,7 @@
 <link rel="manifest" href="./manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  /* ... (СТИЛИ ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ, Я ИХ НЕ ТРОГАЛ) ... */
+  /* СТИЛИ ОСТАВЛЯЕМ БЕЗ ИЗМЕНЕНИЙ (ОНИ РАБОТАЮТ) */
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 100%; max-width: 100vw; overflow-x: hidden; }
   body { font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff41; min-height: 100vh; background-image: linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px); background-size: 30px 30px; padding-bottom: 60px; display: flex; flex-direction: column; align-items: center; }
@@ -255,7 +255,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null, currentProfile = null;
 let allComments = [], allReactions = [], chatsData = [];
 let activeChatId = null, activeChatPeerName = null, activeChatPeerId = null;
-let tmChannel = null, globalMsgChannel = null, chatsRefreshChannel = null;
+let tmChannel = null, globalMsgChannel = null;
 
 let currentPage = 1, PAGE_SIZE = 10, totalPosts = 0, currentFilter = 'общее';
 let commentsDisplayLimit = {}, popupTargetUser = null;
@@ -307,7 +307,12 @@ async function enterForum() {
 
   await loadAll();
   setupGlobalListeners();
+  // Первичная загрузка чатов, чтобы узнать, есть ли непрочитанные
+  loadChats();
 }
+
+// --- ФОРУМ ---
+// ... (функции loadAll, renderPagination, goPage, openUserPopup, popupWrite, renderPosts, loadMoreComments, addPost, deletePost, togglePin, react, toggleComments, addComment, deleteComment, enablePush остаются без изменений) ...
 
 function setFilter(cat, btn) {
   currentFilter = cat; currentPage = 1;
@@ -464,6 +469,7 @@ async function enablePush() {
   alert('Уведомления включены (демо)');
 }
 
+// --- МЕССЕНДЖЕР ---
 function openMessenger() {
   document.getElementById('messengerOverlay').classList.remove('hidden');
   document.getElementById('tmNoChat').classList.remove('hidden');
@@ -504,7 +510,11 @@ async function loadChats() {
   const peerIds = chatsData.map(c => c.user1_id === currentUser.id ? c.user2_id : c.user1_id);
   const { data: peers } = await db.from('profiles').select('id, username').in('id', peerIds);
   
+  // Считаем непрочитанные только для тех чатов, которые НЕ открыты прямо сейчас
   const unreadStatus = await Promise.all(chatsData.map(async c => {
+    // Если этот чат сейчас открыт, считаем его прочитанным
+    if (c.id === activeChatId) return { id: c.id, unread: false };
+
     const isU1 = c.user1_id === currentUser.id;
     const myLastRead = isU1 ? c.last_read_user1 : c.last_read_user2;
     const { count } = await db.from('messages').select('*', { count: 'exact', head: true }).eq('chat_id', c.id).gt('created_at', myLastRead || '1970-01-01').neq('sender_id', currentUser.id);
@@ -519,7 +529,8 @@ async function loadChats() {
     return `<div class="tm-chat-item" onclick="openChat(${c.id}, '${name}', '${pId}')"><div class="tm-chat-name">@${name}</div>${hasUnread ? '<div class="unread-dot"></div>' : ''}</div>`;
   }).join('');
 
-  updateGlobalUnreadBadge(unreadStatus.filter(u => u.unread).length);
+  const totalUnread = unreadStatus.filter(u => u.unread).length;
+  updateGlobalUnreadBadge(totalUnread);
 }
 
 function updateGlobalUnreadBadge(count) {
@@ -540,12 +551,20 @@ async function openChat(chatId, peerName, peerId) {
     document.getElementById('tmBackBtn').style.display = 'block';
   }
 
+  // Помечаем прочитанным в БД
   const isU1 = chatsData.find(c => c.id === chatId)?.user1_id === currentUser.id;
   await db.from('chats').update(isU1 ? { last_read_user1: new Date() } : { last_read_user2: new Date() }).eq('id', chatId);
 
+  // Принудительно обновляем список чатов и бейдж, чтобы убрать точку у этого чата
+  loadChats();
   loadMessages();
+  
   if (tmChannel) db.removeChannel(tmChannel);
-  tmChannel = db.channel('chat-' + chatId).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, () => { loadMessages(); }).subscribe();
+  tmChannel = db.channel('chat-' + chatId).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, () => { 
+    loadMessages(); 
+    // Если пришло сообщение в открытый чат, помечаем прочитанным
+    db.from('chats').update(isU1 ? { last_read_user1: new Date() } : { last_read_user2: new Date() }).eq('id', chatId);
+  }).subscribe();
 }
 
 async function loadMessages() {
@@ -612,10 +631,16 @@ async function changePassword() {
 
 function setupGlobalListeners() {
   globalMsgChannel = db.channel('global-msg-listener').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
-    if (currentUser) loadChats();
-  }).subscribe();
-  chatsRefreshChannel = db.channel('global-chats-listener').on('postgres_changes', { event: '*', schema: 'public', table: 'chats' }, () => {
-    if (currentUser) loadChats();
+    if (currentUser) {
+      // Если мессенджер открыт, обновляем список
+      if (!document.getElementById('messengerOverlay').classList.contains('hidden')) {
+        loadChats();
+      } else {
+        // Если закрыт, можно просто обновить счетчик (без перерисовки списка)
+        // Для простоты просто обновляем бейдж (считаем непрочитанные)
+        loadChats(); // Для простоты обновляем всё, чтобы бейдж был актуален
+      }
+    }
   }).subscribe();
 }
 
