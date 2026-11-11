@@ -94,12 +94,7 @@
   #pagination { display: flex; gap: 10px; justify-content: center; align-items: center; margin-top: 15px; width: 100%; flex-wrap: wrap; }
   #pagination button { width: auto; margin-bottom: 0; }
 
-  /* Всплывающее окно профиля */
-  #userPopup {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    background: #000; border: 1px solid #00e5ff; padding: 20px; z-index: 30000;
-    text-align: center; box-shadow: 0 0 30px rgba(0,229,255,0.3); width: 250px;
-  }
+  #userPopup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #000; border: 1px solid #00e5ff; padding: 20px; z-index: 30000; text-align: center; box-shadow: 0 0 30px rgba(0,229,255,0.3); width: 250px; }
 
   /* МЕССЕНДЖЕР */
   #messengerOverlay { position: fixed; inset: 0; background: #0a0a0a; z-index: 20000; display: flex; flex-direction: column; overflow: hidden; background-image: linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px); background-size: 30px 30px; }
@@ -118,6 +113,8 @@
   .msg.me { align-self: flex-end; border-color: #00e5ff; color: #00e5ff; }
   .msg.them { align-self: flex-start; }
   .tm-input-area { padding: 15px; border-top: 1px solid #00ff41; display: flex; gap: 10px; background: rgba(0,0,0,0.9); }
+
+  .badge { background: #ff003c; color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; margin-left: 5px; display: inline-block; vertical-align: middle; }
   
   @media (max-width: 600px) {
     .tm-body { flex-direction: column; }
@@ -135,14 +132,12 @@
   <div class="line" style="animation-delay:1s">[ !! ] ДОСТУП РАЗРЕШЁН.</div>
 </div>
 
-<!-- Мини-профиль -->
 <div id="userPopup" class="hidden">
   <h3 style="color:#00e5ff; margin-bottom:15px;">@<span id="popupUser"></span></h3>
   <button onclick="popupWrite()" style="margin-bottom:10px;">НАПИСАТЬ В ТМ</button>
   <button class="danger" onclick="document.getElementById('userPopup').classList.add('hidden')">ЗАКРЫТЬ</button>
 </div>
 
-<!-- МЕССЕНДЖЕР -->
 <div id="messengerOverlay" class="hidden">
   <div class="tm-header">
     <div style="font-weight:bold; letter-spacing:2px;">ТМ // МЕССЕНДЖЕР</div>
@@ -192,7 +187,6 @@
   </div>
 </div>
 
-<!-- ОСНОВНОЙ ФОРУМ -->
 <header>
   <div class="header-top">
     <div class="glitch-title" data-text="ТЕМЩИКИ">ТЕМЩИКИ</div>
@@ -227,8 +221,10 @@
 
   <div id="forumPanel" class="hidden">
     
-    <div class="panel" style="border-color:#00e5ff; padding:10px;">
-      <button onclick="openMessenger()" style="background:transparent; border:1px solid #00e5ff; color:#00e5ff; margin:0;">[ ОТКРЫТЬ ТМ МЕССЕНДЖЕР ]</button>
+    <div class="panel" style="border-color:#00e5ff; padding:10px; position:relative;">
+      <button onclick="openMessenger()" style="background:transparent; border:1px solid #00e5ff; color:#00e5ff; margin:0;">
+        [ ОТКРЫТЬ ТМ МЕССЕНДЖЕР ] <span id="globalUnreadBadge" class="badge hidden">0</span>
+      </button>
     </div>
 
     <div class="panel">
@@ -250,7 +246,6 @@
     <div class="panel">
       <h2>// ЛЕНТА // <span id="postCount">0</span> ЗАПИСЕЙ</h2>
       
-      <!-- ФИЛЬТРЫ -->
       <div class="filters" id="filters">
         <button class="filter-btn active" onclick="setFilter('общее', this)">общее</button>
         <button class="filter-btn" onclick="setFilter('куплю/продам', this)">куплю/продам</button>
@@ -279,27 +274,19 @@
 <script>
 const SUPABASE_URL = 'https://geauicuahldmglatmtrv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_dyMpzlPmu53ZDo3rJS7-Lw_IIY_COdj';
-const VAPID_PUBLIC_KEY = 'BKR1g-Xtm9XEzTw1HlINWyoBWHRq_lwkQjC8OT1ntaxiKnW81G68dfrQ3U_V52s_ppHCf5RrJYhSy5O44f6EO7k';
-
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let currentUser = null;
-let currentProfile = null;
+let currentUser = null, currentProfile = null;
 let allComments = [], allReactions = [], chatsData = [];
-let activeChatId = null, activeChatPeerName = null, activeChatPeerId = null, tmChannel = null, globalChannel = null;
+let activeChatId = null, activeChatPeerName = null, activeChatPeerId = null;
+let tmChannel = null, globalMsgChannel = null, chatsRefreshChannel = null;
 
-let currentPage = 1;
-const PAGE_SIZE = 10;
-let totalPosts = 0;
-let currentFilter = 'общее';
-
-let commentsDisplayLimit = {};
-let popupTargetUser = null;
+let currentPage = 1, PAGE_SIZE = 10, totalPosts = 0, currentFilter = 'общее';
+let commentsDisplayLimit = {}, popupTargetUser = null;
 
 setTimeout(() => { document.getElementById('boot').style.display = 'none'; }, 2000);
 
-// --- АВТОРИЗАЦИЯ ---
 document.querySelectorAll('.tab').forEach(t => {
   t.onclick = () => {
     document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
@@ -344,22 +331,19 @@ async function enterForum() {
   document.getElementById('adBottom').classList.remove('hidden');
 
   await loadAll();
-  setupGlobalChatListener();
+  setupGlobalListeners();
 }
 
 // --- ФОРУМ ---
 function setFilter(cat, btn) {
-  currentFilter = cat;
-  currentPage = 1;
+  currentFilter = cat; currentPage = 1;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   loadAll();
 }
 
 async function loadAll() {
-  const from = (currentPage - 1) * PAGE_SIZE;
-  const to = from + PAGE_SIZE - 1;
-
+  const from = (currentPage - 1) * PAGE_SIZE, to = from + PAGE_SIZE - 1;
   let query = db.from('posts').select('*', { count: 'exact' }).order('is_pinned', { ascending: false }).order('created_at', { ascending: false });
   if (currentFilter !== 'общее') query = query.eq('category', currentFilter);
   
@@ -372,7 +356,6 @@ async function loadAll() {
   totalPosts = postsRes.count || 0;
   allComments = commentsRes.data || [];
   allReactions = reactionsRes.data || [];
-  
   renderPosts(postsRes.data || []);
   renderPagination();
 }
@@ -388,11 +371,7 @@ function renderPagination() {
   el.innerHTML = html;
 }
 
-function goPage(page) {
-  currentPage = page;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  loadAll();
-}
+function goPage(page) { currentPage = page; window.scrollTo({ top: 0, behavior: 'smooth' }); loadAll(); }
 
 function openUserPopup(userId, userName) {
   popupTargetUser = { id: userId, name: userName };
@@ -400,7 +379,7 @@ function openUserPopup(userId, userName) {
   document.getElementById('userPopup').classList.remove('hidden');
 }
 
-async function popupWrite() {
+function popupWrite() {
   document.getElementById('userPopup').classList.add('hidden');
   openMessenger();
   startChat(popupTargetUser.id, popupTargetUser.name);
@@ -418,7 +397,6 @@ function renderPosts(posts) {
     const postComments = allComments.filter(c => c.post_id === p.id);
     const isOpen = commentsDisplayLimit[p.id] !== undefined;
     const limit = commentsDisplayLimit[p.id] || 10;
-    
     const visibleComments = postComments.slice(0, limit);
     const hasMore = postComments.length > limit;
     const canDelete = p.author_id === currentUser.id || currentProfile.is_admin;
@@ -461,39 +439,23 @@ function renderPosts(posts) {
   }).join('');
 }
 
-function loadMoreComments(postId) {
-  commentsDisplayLimit[postId] = (commentsDisplayLimit[postId] || 10) + 10;
-  loadAll();
-}
+function loadMoreComments(postId) { commentsDisplayLimit[postId] = (commentsDisplayLimit[postId] || 10) + 10; loadAll(); }
 
 async function addPost() {
   const t = document.getElementById('postTitle').value.trim();
   const b = document.getElementById('postText').value.trim();
   const cat = document.getElementById('postCategory').value;
   if (!t || !b) return alert('Заполни поля');
-  
   const btn = document.getElementById('postBtn');
   btn.disabled = true;
-
-  const { error } = await db.from('posts').insert({ 
-    author_id: currentUser.id, 
-    author_name: currentProfile.username, 
-    title: t, 
-    body: b, 
-    category: cat,
-    is_pinned: false 
-  });
-
+  const { error } = await db.from('posts').insert({ author_id: currentUser.id, author_name: currentProfile.username, title: t, body: b, category: cat, is_pinned: false });
   btn.disabled = false;
   if (error) {
     if (error.message.includes('Лимит')) return alert('Вы можете создавать только одну тему в сутки!');
     return alert('Ошибка: ' + error.message);
   }
-  
-  document.getElementById('postTitle').value = ''; 
-  document.getElementById('postText').value = '';
-  currentPage = 1;
-  loadAll();
+  document.getElementById('postTitle').value = ''; document.getElementById('postText').value = '';
+  currentPage = 1; loadAll();
 }
 
 async function deletePost(id) { if(confirm('Удалить тему?')) { await db.from('posts').delete().eq('id', id); loadAll(); } }
@@ -545,9 +507,7 @@ async function searchUsers() {
   if (q.length < 2) { resBox.innerHTML = ''; return; }
   const { data } = await db.from('profiles').select('id, username').ilike('username', `%${q}%`).neq('id', currentUser.id).limit(5);
   if (!data || !data.length) { resBox.innerHTML = '<div style="opacity:0.5;font-size:0.8rem;">не найдено</div>'; return; }
-  resBox.innerHTML = data.map(u => `
-    <div style="padding:8px; border:1px solid rgba(0,229,255,0.3); margin-bottom:5px; cursor:pointer; color:#00e5ff;" onclick="startChat('${u.id}', '${u.username}')">@${u.username}</div>
-  `).join('');
+  resBox.innerHTML = data.map(u => `<div style="padding:8px; border:1px solid rgba(0,229,255,0.3); margin-bottom:5px; cursor:pointer; color:#00e5ff;" onclick="startChat('${u.id}', '${u.username}')">@${u.username}</div>`).join('');
 }
 
 async function startChat(peerId, peerName) {
@@ -567,7 +527,7 @@ async function loadChats() {
   const peerIds = chatsData.map(c => c.user1_id === currentUser.id ? c.user2_id : c.user1_id);
   const { data: peers } = await db.from('profiles').select('id, username').in('id', peerIds);
   
-  // Проверяем непрочитанные для каждого чата
+  // Считаем непрочитанные
   const unreadStatus = await Promise.all(chatsData.map(async c => {
     const isU1 = c.user1_id === currentUser.id;
     const myLastRead = isU1 ? c.last_read_user1 : c.last_read_user2;
@@ -580,14 +540,16 @@ async function loadChats() {
     const peer = peers.find(p => p.id === pId);
     const name = peer ? peer.username : 'Unknown';
     const hasUnread = unreadStatus.find(u => u.id === c.id)?.unread;
-    
-    return `
-      <div class="tm-chat-item" onclick="openChat(${c.id}, '${name}', '${pId}')">
-        <div class="tm-chat-name">@${name}</div>
-        ${hasUnread ? '<div class="unread-dot"></div>' : ''}
-      </div>
-    `;
+    return `<div class="tm-chat-item" onclick="openChat(${c.id}, '${name}', '${pId}')"><div class="tm-chat-name">@${name}</div>${hasUnread ? '<div class="unread-dot"></div>' : ''}</div>`;
   }).join('');
+
+  updateGlobalUnreadBadge(unreadStatus.filter(u => u.unread).length);
+}
+
+function updateGlobalUnreadBadge(count) {
+  const badge = document.getElementById('globalUnreadBadge');
+  if (count > 0) { badge.textContent = count; badge.classList.remove('hidden'); }
+  else { badge.classList.add('hidden'); }
 }
 
 async function openChat(chatId, peerName, peerId) {
@@ -602,7 +564,6 @@ async function openChat(chatId, peerName, peerId) {
     document.getElementById('tmBackBtn').style.display = 'block';
   }
 
-  // Отмечаем прочитанным
   const isU1 = chatsData.find(c => c.id === chatId)?.user1_id === currentUser.id;
   await db.from('chats').update(isU1 ? { last_read_user1: new Date() } : { last_read_user2: new Date() }).eq('id', chatId);
 
@@ -669,15 +630,16 @@ async function changePassword() {
   else { msg.style.color = '#00ff41'; msg.textContent = 'Пароль изменен!'; document.getElementById('newPass').value = ''; }
 }
 
-// Глобальный слушатель для индикаторов
-function setupGlobalChatListener() {
-  if (globalChannel) db.removeChannel(globalChannel);
-  globalChannel = db.channel('global-chat-listener').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
-    // Если мессенджер открыт, обновляем список чатов
-    if (!document.getElementById('messengerOverlay').classList.contains('hidden')) {
-      loadChats();
-    }
-    // Если открыт не тот чат, можно показать пуш или звук, но пока просто обновим индикаторы
+// --- ГЛОБАЛЬНЫЕ СЛУШАТЕЛИ ---
+function setupGlobalListeners() {
+  // Слушаем новые сообщения, чтобы обновлять счетчик
+  globalMsgChannel = db.channel('global-msg-listener').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
+    if (currentUser) loadChats(); // Обновляем список чатов и индикаторы при любом новом сообщении
+  }).subscribe();
+
+  // Слушаем новые чаты (например, приветствие от админа)
+  chatsRefreshChannel = db.channel('global-chats-listener').on('postgres_changes', { event: '*', schema: 'public', table: 'chats' }, () => {
+    if (currentUser) loadChats();
   }).subscribe();
 }
 
