@@ -1,4 +1,4 @@
-const CACHE = 'temshiki-v16';
+const CACHE = 'temshiki-v19';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
@@ -20,11 +20,9 @@ self.addEventListener('fetch', e => {
   e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
 });
 
-/* ===== PUSH ===== */
 self.addEventListener('push', e => {
   let data = { title: 'Темщики', body: 'Новое сообщение', url: './' };
   try { data = e.data.json(); } catch (_) {}
-
   e.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
