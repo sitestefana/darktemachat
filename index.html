@@ -320,7 +320,17 @@ async function doRegister() {
 
   const { data: authData, error: authErr } = await db.auth.signUp({ email, password: pass });
   if (authErr) return alert(authErr.message);
-  await db.from('profiles').insert({ id: authData.user.id, username });
+  
+  // Пытаемся создать профиль
+  const { error: profErr } = await db.from('profiles').insert({ id: authData.user.id, username });
+  
+  // Если профиль не создался (например, ник занят), заходим с ником по умолчанию
+  if (profErr) {
+    console.error(profErr);
+    // Даем шанс войти, создав ник из email
+    await db.from('profiles').insert({ id: authData.user.id, username: email.split('@')[0] + Math.floor(Math.random() * 1000) });
+  }
+  
   enterForum();
 }
 
@@ -330,7 +340,20 @@ async function enterForum() {
   const { data: { user } } = await db.auth.getUser();
   if (!user) return;
   currentUser = user;
-  let { data: profile } = await db.from('profiles').select('*').eq('id', user.id).single();
+  
+  let { data: profile, error: profError } = await db.from('profiles').select('*').eq('id', user.id).single();
+  
+  // Если профиль не найден, создаем его "на лету"
+  if (!profile) {
+    const defaultName = user.email.split('@')[0] + Math.floor(Math.random() * 1000);
+    const { data: newProfile, error: createErr } = await db.from('profiles').insert({ id: user.id, username: defaultName }).select().single();
+    if (createErr) {
+      alert('Критическая ошибка профиля: ' + createErr.message);
+      return;
+    }
+    profile = newProfile;
+  }
+  
   currentProfile = profile;
 
   document.getElementById('authPanel').classList.add('hidden');
@@ -701,7 +724,6 @@ async function changeUsername() {
     document.getElementById('newUsername').value = '';
     document.getElementById('userInfo').innerHTML = `[ ${newName}${currentProfile.is_admin ? ' ★' : ''} ]`;
     
-    // Принудительно обновляем ленту
     await loadAll();
   }
 }
