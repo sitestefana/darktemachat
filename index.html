@@ -1093,6 +1093,13 @@ async function kickMember() {
   const { error } = await db.from('group_members').delete().eq('group_id', activeGroupId).eq('user_id', actionTargetMember.id);
   if (error) return alert(error.message);
   document.getElementById('groupActionModal').classList.add('hidden');
+  
+  if (actionTargetMember.id === currentUser.id) {
+    activeGroupId = null;
+    document.getElementById('tmActiveGroup').classList.add('hidden');
+    document.getElementById('tmNoChat').classList.remove('hidden');
+    loadGroups();
+  }
 }
 
 async function sendGroupMessage() {
@@ -1107,11 +1114,25 @@ async function sendGroupMessage() {
 
 async function leaveGroupPrompt() {
   if (!confirm('Выйти из беседы?')) return;
+  
   await db.from('group_members').delete().eq('group_id', activeGroupId).eq('user_id', currentUser.id);
+  
   activeGroupId = null;
+  activeGroupName = null;
+  activeGroupCreatorId = null;
+  
   document.getElementById('tmActiveGroup').classList.add('hidden');
+  document.getElementById('tmActiveChat').classList.add('hidden');
+  document.getElementById('tmSettings').classList.add('hidden');
   document.getElementById('tmNoChat').classList.remove('hidden');
-  loadGroups();
+  
+  if (window.innerWidth <= 600) {
+    document.getElementById('tmChatArea').classList.remove('active');
+  }
+  
+  await loadGroups();
+  await loadChats();
+  updateGlobalUnreadBadge();
 }
 
 // --- ОБЩИЕ ФУНКЦИИ ---
