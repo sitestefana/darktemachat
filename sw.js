@@ -1,4 +1,4 @@
-const CACHE = 'temshiki-v30';
+const CACHE = 'temshiki-v31';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
