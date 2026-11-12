@@ -311,7 +311,6 @@
           </div>
         </div>
         
-        <!-- БАННЕР -->
         <div id="groupBannerDisplay" class="banner-display hidden"></div>
 
         <div class="tm-messages" id="tmGroupMessages"></div>
@@ -440,7 +439,7 @@
 
 <script>
 const SUPABASE_URL = 'https://geauicuahldmglatmtrv.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_dyMpzlPmu53ZDo3rJS7-Lw_IIY_COdj';
+const SUPABASE_KEY = 'sb_publishable_dyMpzlPmu53ZDo3rJS7Lw_IIY_COdj';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -772,16 +771,44 @@ async function loadChats() {
 
   if (chatsData.length > chatLimit) btnMore.classList.remove('hidden');
   else btnMore.classList.add('hidden');
-
-  const totalUnread = unreadStatus.filter(u => u.unread).length;
-  updateGlobalUnreadBadge(totalUnread + (groupsData.filter(g => g.hasUnread).length || 0)); // Суммируем с беседами (упрощенно)
+  
+  updateGlobalUnreadBadge();
 }
 
 function showMoreChats() { chatLimit += 5; loadChats(); }
 
-function updateGlobalUnreadBadge(count) {
+async function updateGlobalUnreadBadge() {
+  let totalUnread = 0;
+  
+  // Считаем непрочитанные в личках
+  if (chatsData.length) {
+    const peerIds = chatsData.map(c => c.user1_id === currentUser.id ? c.user2_id : c.user1_id);
+    const { data: peers } = await db.from('profiles').select('id, username').in('id', peerIds);
+    
+    const chatUnread = await Promise.all(chatsData.map(async c => {
+      if (c.id === activeChatId) return false;
+      const isU1 = c.user1_id === currentUser.id;
+      const myLastRead = isU1 ? c.last_read_user1 : c.last_read_user2;
+      const { count } = await db.from('messages').select('*', { count: 'exact', head: true }).eq('chat_id', c.id).gt('created_at', myLastRead || '1970-01-01').neq('sender_id', currentUser.id);
+      return count > 0;
+    }));
+    totalUnread += chatUnread.filter(u => u).length;
+  }
+
+  // Считаем непрочитанные в беседах
+  if (groupsData.length) {
+    const groupUnread = await Promise.all(groupsData.map(async g => {
+      if (g.id === activeGroupId) return false;
+      const { data: member } = await db.from('group_members').select('last_read_at').eq('group_id', g.id).eq('user_id', currentUser.id).single();
+      const myLastRead = member ? member.last_read_at : '1970-01-01';
+      const { count } = await db.from('group_messages').select('*', { count: 'exact', head: true }).eq('group_id', g.id).gt('created_at', myLastRead).neq('sender_id', currentUser.id);
+      return count > 0;
+    }));
+    totalUnread += groupUnread.filter(u => u).length;
+  }
+
   const badge = document.getElementById('globalUnreadBadge');
-  if (count > 0) { badge.textContent = count; badge.classList.remove('hidden'); }
+  if (totalUnread > 0) { badge.textContent = totalUnread; badge.classList.remove('hidden'); }
   else { badge.classList.add('hidden'); }
 }
 
@@ -862,11 +889,12 @@ async function deleteChatPrompt() {
 // --- БЕСЕДЫ ---
 async function loadGroups() {
   if (!currentUser) return;
-  const { data: memberships } = await db.from('group_members').select('group_id').eq('user_id', currentUser.id);
+  const { data: memberships } = await db.from('group_members').select('group_id, last_read_at').eq('user_id', currentUser.id);
   if (!memberships || !memberships.length) { 
     groupsData = []; 
     document.getElementById('tmGroupList').innerHTML = '<div style="padding:10px; opacity:0.5; text-align:center;">// пусто</div>';
     document.getElementById('btnShowMoreGroups').classList.add('hidden');
+    updateGlobalUnreadBadge();
     return; 
   }
 
@@ -874,26 +902,26 @@ async function loadGroups() {
   const { data: groups } = await db.from('group_chats').select('*').in('id', groupIds);
   groupsData = groups || [];
   
-  // Проверка непрочитанных в беседах
-  const unreadCounts = await Promise.all(groupsData.map(async g => {
-    if (g.id === activeGroupId) return { id: g.id, unread: false };
-    const { data: lastMsg } = await db.from('group_messages').select('created_at').eq('group_id', g.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
-    if (!lastMsg) return { id: g.id, unread: false };
-    const { data: lastRead } = await db.from('group_members').select('joined_at').eq('group_id', g.id).eq('user_id', currentUser.id).single();
-    // Упрощенная логика: если последнее сообщение после присоединения (в реальности нужно поле last_read в group_members)
-    return { id: g.id, unread: false }; 
-  }));
-
   const list = document.getElementById('tmGroupList');
   const btnMore = document.getElementById('btnShowMoreGroups');
   
   const visibleGroups = groupsData.slice(0, groupLimit);
-  list.innerHTML = visibleGroups.map(g => {
-    return `<div class="tm-chat-item" onclick="openGroup(${g.id}, '${g.title}', '${g.creator_id}')"><div class="tm-group-name">${g.title}</div></div>`;
-  }).join('');
+  
+  // Проверяем непрочитанные для каждой беседы
+  const groupItemsHtml = await Promise.all(visibleGroups.map(async g => {
+    const member = memberships.find(m => m.group_id === g.id);
+    const myLastRead = member ? member.last_read_at : '1970-01-01';
+    const { count } = await db.from('group_messages').select('*', { count: 'exact', head: true }).eq('group_id', g.id).gt('created_at', myLastRead).neq('sender_id', currentUser.id);
+    const hasUnread = count > 0 && g.id !== activeGroupId;
+    return `<div class="tm-chat-item" onclick="openGroup(${g.id}, '${g.title}', '${g.creator_id}')"><div class="tm-group-name">${g.title}</div>${hasUnread ? '<div class="unread-dot"></div>' : ''}</div>`;
+  }));
+  
+  list.innerHTML = groupItemsHtml.join('');
 
   if (groupsData.length > groupLimit) btnMore.classList.remove('hidden');
   else btnMore.classList.add('hidden');
+  
+  updateGlobalUnreadBadge();
 }
 
 function showMoreGroups() { groupLimit += 5; loadGroups(); }
@@ -917,7 +945,16 @@ async function searchGroupMembers(mode) {
   if (mode === 'create') {
     resBox.innerHTML = data.map(u => `<div style="padding:8px; border:1px solid rgba(0,229,255,0.3); margin-bottom:5px; cursor:pointer; color:#00e5ff;" onclick="addGroupMember('${u.id}', '${u.username}')">@${u.username}</div>`).join('');
   } else {
-    resBox.innerHTML = data.map(u => `<div style="padding:8px; border:1px solid rgba(0,229,255,0.3); margin-bottom:5px; cursor:pointer; color:#00e5ff;" onclick="inviteGroupMember('${u.id}', '${u.username}')">@${u.username}</div>`).join('');
+    // Для инвайта: проверяем, есть ли уже в беседе
+    const { data: existingMembers } = await db.from('group_members').select('user_id').eq('group_id', activeGroupId);
+    const existingIds = new Set((existingMembers || []).map(m => m.user_id));
+    
+    resBox.innerHTML = data.map(u => {
+      if (existingIds.has(u.id)) {
+        return `<div style="padding:8px; border:1px solid rgba(255,255,255,0.1); margin-bottom:5px; color:#666; cursor:not-allowed;">@${u.username} (уже в беседе)</div>`;
+      }
+      return `<div style="padding:8px; border:1px solid rgba(0,229,255,0.3); margin-bottom:5px; cursor:pointer; color:#00e5ff;" onclick="inviteGroupMember('${u.id}', '${u.username}')">@${u.username}</div>`;
+    }).join('');
   }
 }
 
@@ -925,6 +962,9 @@ function addGroupMember(id, name) {
   if (!selectedGroupMembers.find(m => m.id === id)) {
     selectedGroupMembers.push({ id, name });
     document.getElementById('createSelectedMembers').innerHTML = 'Участники: ' + selectedGroupMembers.map(m => '@' + m.name).join(', ');
+    // СБРОС ПОИСКА
+    document.getElementById('groupMemberSearch').value = '';
+    document.getElementById('createMemberResults').innerHTML = '';
   }
 }
 
@@ -968,13 +1008,20 @@ async function openGroup(groupId, groupName, creatorId) {
     document.getElementById('tmGroupBackBtn').style.display = 'block';
   }
 
+  // Обновляем время прочтения
+  await db.from('group_members').update({ last_read_at: new Date() }).eq('group_id', groupId).eq('user_id', currentUser.id);
+
   await loadGroupBanner();
   loadGroupMessages();
   
   if (groupChannel) db.removeChannel(groupChannel);
   groupChannel = db.channel('group-' + groupId).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_messages', filter: `group_id=eq.${groupId}` }, () => { 
     loadGroupMessages(); 
+    // Обновляем прочтение при новом сообщении, если мы в чате
+    db.from('group_members').update({ last_read_at: new Date() }).eq('group_id', groupId).eq('user_id', currentUser.id);
   }).subscribe();
+  
+  loadGroups(); // Перерисовываем список, чтобы убрать точку
 }
 
 async function loadGroupBanner() {
@@ -1011,6 +1058,7 @@ async function inviteGroupMember(id, name) {
   if (error) return alert(error.message);
   document.getElementById('groupInviteModal').classList.add('hidden');
   alert('Пользователь @' + name + ' добавлен в беседу');
+  loadGroupMessages(); // Обновить список, если нужно
 }
 
 async function loadGroupMessages() {
@@ -1041,7 +1089,7 @@ async function loadGroupMessages() {
 }
 
 function openGroupActionModal(userId, userName) {
-  if (currentUser.id !== activeGroupCreatorId || userId === currentUser.id) return; // Только создатель и не на себя
+  if (currentUser.id !== activeGroupCreatorId || userId === currentUser.id) return;
   actionTargetMember = { id: userId, name: userName };
   document.getElementById('actionTargetName').textContent = userName;
   document.getElementById('groupActionModal').classList.remove('hidden');
@@ -1052,6 +1100,7 @@ async function kickMember() {
   const { error } = await db.from('group_members').delete().eq('group_id', activeGroupId).eq('user_id', actionTargetMember.id);
   if (error) return alert(error.message);
   document.getElementById('groupActionModal').classList.add('hidden');
+  // Если мы выгнали себя (не должно быть), закрываем. Если другого - просто закрываем окно.
 }
 
 async function sendGroupMessage() {
@@ -1145,10 +1194,10 @@ function setupGlobalListeners() {
     }
   }).subscribe();
 
-  // Слушаем новые сообщения в беседах (для счетчика, если реализуем)
+  // Слушаем новые сообщения в беседах
   groupListChannel = db.channel('global-group-listener').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_messages' }, (payload) => {
      if (currentUser && payload.new.sender_id !== currentUser.id) {
-        loadGroups(); // Перезагружаем список, чтобы обновить потенциальные индикаторы
+        loadGroups(); 
      }
   }).subscribe();
 }
