@@ -4,6 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Темщики // darknet.forum</title>
+
+<!-- SEO МЕТА-ТЕГИ -->
+<meta name="description" content="Темщики — анонимный форум для общения, обмена опытом и поиска единомышленников. Темы: услуги, работа, гарант, знакомства.">
+<meta name="keywords" content="темщики, форум, анонимный форум, общение, услуги, работа, гарант, знакомства, darknet">
+<meta name="robots" content="index, follow">
+<meta name="author" content="Темщики">
+<link rel="canonical" href="https://sitetestefana.github.io/">
+
+<!-- OPEN GRAPH (для соцсетей) -->
+<meta property="og:title" content="Темщики // darknet.forum">
+<meta property="og:description" content="Анонимный форум для общения и поиска единомышленников. Залетай через VPN.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sitetestefana.github.io/">
+<meta property="og:image" content="https://sitetestefana.github.io/icon-512.png">
+
 <meta name="theme-color" content="#00ff41">
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="./icon-192.png">
@@ -37,8 +52,14 @@
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   .danger { border: 1px solid #ff003c; color: #ff003c; background: transparent; }
   .danger:hover { background: #ff003c; color: #000; box-shadow: 0 0 15px #ff003c; }
+  
+  /* СТИЛИ ДЛЯ ПОСТОВ */
   .post { border-left: 3px solid #00ff41; padding: 10px; margin-bottom: 10px; background: rgba(0,255,65,0.03); word-break: break-all; overflow-wrap: anywhere; width: 100%; }
   .post.pinned { border-left-color: #ffd700; background: rgba(255,215,0,0.05); }
+  .post.scam { border: 1px solid #ff003c; border-left: 4px solid #ff003c; background: rgba(255,0,60,0.05); }
+  .post.scam .content strong { color: #ff003c; }
+  .post.scam .author { color: #ff003c; }
+  
   .post .pin { float: right; margin-right: 8px; cursor: pointer; opacity: 0.6; font-size: 0.9rem; }
   .post .meta { font-size: 0.75rem; opacity: 0.6; margin-bottom: 6px; display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
   .post .author { color: #00e5ff; cursor: pointer; text-decoration: underline; }
@@ -60,13 +81,53 @@
   .comment-form input { margin-bottom: 0; flex: 1; }
   .comment-form button { padding: 8px; font-size: 0.8rem; width: 100%; margin-bottom: 0; }
   .load-more-btn { background: transparent; border: 1px dashed #00e5ff; color: #00e5ff; margin-top: 5px; font-size: 0.75rem; padding: 5px; }
+  
   .tabs { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
   .tab { flex: 1; padding: 10px; text-align: center; border: 1px solid #00ff41; cursor: pointer; font-size: 0.85rem; opacity: 0.5; }
   .tab.active { opacity: 1; background: rgba(0,255,65,0.1); box-shadow: 0 0 10px rgba(0,255,65,0.3); }
+  
   .filters { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; width: 100%; scrollbar-width: none; }
   .filters::-webkit-scrollbar { display: none; }
   .filter-btn { flex: 0 0 auto; background: transparent; border: 1px solid #00ff41; color: #00ff41; padding: 5px 12px; font-size: 0.75rem; cursor: pointer; border-radius: 15px; width: auto; margin: 0; text-transform: none; }
   .filter-btn.active { background: #00ff41; color: #000; }
+  .filter-btn.scam-filter { border-color: #ff003c; color: #ff003c; }
+  .filter-btn.scam-filter.active { background: #ff003c; color: #000; }
+
+  /* КНОПКА ПРАВИЛ */
+  .rules-btn {
+    width: 100%;
+    padding: 12px;
+    background: rgba(0, 229, 255, 0.05);
+    border: 1px solid #00e5ff;
+    color: #00e5ff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+  .rules-btn:hover { background: rgba(0, 229, 255, 0.2); box-shadow: 0 0 15px rgba(0,229,255,0.4); }
+
+  /* МОДАЛЬНОЕ ОКНО ПРАВИЛ */
+  #rulesModal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 40000;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+    backdrop-filter: blur(5px);
+  }
+  .rules-content {
+    background: #000; border: 1px solid #00e5ff; max-width: 600px; width: 100%;
+    max-height: 80vh; overflow-y: auto; padding: 25px;
+    box-shadow: 0 0 40px rgba(0,229,255,0.2);
+    font-size: 0.9rem; line-height: 1.6;
+  }
+  .rules-content h1 { font-size: 1.2rem; color: #ff003c; margin-bottom: 15px; text-align: center; border-bottom: 1px dashed #ff003c; padding-bottom: 10px; }
+  .rules-content h2 { font-size: 1rem; color: #00e5ff; margin-top: 20px; margin-bottom: 10px; }
+  .rules-content p { margin-bottom: 10px; opacity: 0.9; }
+  .rules-content ul { margin-left: 20px; margin-bottom: 15px; }
+  .rules-content li { margin-bottom: 5px; }
+  .rules-content .highlight { color: #ffd700; font-weight: bold; }
+  
   .hidden { display: none !important; }
   .boot { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; font-size: 0.85rem; }
   .boot .line { opacity: 0; animation: fade .3s forwards; }
@@ -127,6 +188,35 @@
   <div class="line" style="animation-delay:.1s">[ OK ] Загрузка ТМ...</div>
   <div class="line" style="animation-delay:.5s">[ OK ] Шифрование каналов...</div>
   <div class="line" style="animation-delay:1s">[ !! ] ДОСТУП РАЗРЕШЁН.</div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО ПРАВИЛ -->
+<div id="rulesModal" class="hidden">
+  <div class="rules-content">
+    <h1>!!!!! ОБЯЗАТЕЛЬНО ПОЛЬЗУЕМСЯ ФОРУМОМ С ПОМОЩЬЮ VPN/PROXY !!!!!</h1>
+    
+    <h2>Йоу, народ! 👋</h2>
+    <p>Добро пожаловать на <span class="highlight">Темщики</span> — теневой форум для своих. Мы тут не для галочки, а для реального движа. Если ты здесь, значит, тебе есть что сказать или ты ищешь полезные контакты.</p>
+    
+    <h2>Кто мы такие? 🕶</h2>
+    <p>Мы — сообщество, которое ценит <span class="highlight">анонимность</span> и свободу общения. Никаких следов, никаких лишних глаз. Мы не собираем твои данные, не следим за тобой и не сдаем тебя. Твой ник — твоя маска. Надевай и общайся.</p>
+    
+    <h2>Инструкция по использованию 📖</h2>
+    <ul>
+      <li><strong>Регистрация:</strong> Вводи ник, почту и пароль. Ник не должен содержать слово "Админ" (мы это блокируем, чтобы никто не выдавал себя за админа).</li>
+      <li><strong>Создание темы:</strong> Выбери категорию (новости, вопросы, скам-лист и т.д.), напиши заголовок и текст. Помни: одна тема в сутки для новичков, чтобы не спамили.</li>
+      <li><strong>Общение:</strong> Ставь лайки, пиши комменты, закрепляй темы (если ты админ).</li>
+      <li><strong>ТМ Мессенджер:</strong> Нажми на кнопку ТМ, найди пользователя по нику и пиши в личку. Индикаторы непрочитанных сообщений всегда покажут, кто тебе написал.</li>
+    </ul>
+    
+    <h2>Антиспам и безопасность 🛡</h2>
+    <p>У нас работает жесткий фильтр. Если ты пытаешься протащить запрещенную тему — система тебя заблокирует. Мы не предупреждаем, мы просто не даем это выложить. Также у нас есть защита от спама: не пытайся создать несколько тем подряд за день, это не пройдет.</p>
+    
+    <h2>Заключение 🖤</h2>
+    <p>Спасибо, что ты с нами. Спасибо, что ты с семьей. Приятного пользования! Если что-то сломалось или есть идеи — пиши админу в ТМ.</p>
+    
+    <button onclick="document.getElementById('rulesModal').classList.add('hidden')" style="margin-top:20px;">[ ПОНЯЛ, ЗАКРЫТЬ ]</button>
+  </div>
 </div>
 
 <div id="userPopup" class="hidden">
@@ -236,6 +326,9 @@
       <h2>// НОВАЯ ТЕМА</h2>
       <input type="text" id="postTitle" placeholder="> заголовок темы">
       <select id="postCategory">
+        <option value="новости">Новости</option>
+        <option value="вопросы">Вопросы</option>
+        <option value="скам-лист">Скам-лист</option>
         <option value="куплю/продам">Куплю/Продам</option>
         <option value="услуги">Услуги</option>
         <option value="работа">Работа</option>
@@ -252,6 +345,9 @@
       <h2>// ЛЕНТА // <span id="postCount">0</span> ЗАПИСЕЙ</h2>
       <div class="filters" id="filters">
         <button class="filter-btn active" onclick="setFilter('общее', this)">общее</button>
+        <button class="filter-btn" onclick="setFilter('новости', this)">новости</button>
+        <button class="filter-btn" onclick="setFilter('вопросы', this)">вопросы</button>
+        <button class="filter-btn scam-filter" onclick="setFilter('скам-лист', this)">скам-лист</button>
         <button class="filter-btn" onclick="setFilter('куплю/продам', this)">куплю/продам</button>
         <button class="filter-btn" onclick="setFilter('услуги', this)">услуги</button>
         <button class="filter-btn" onclick="setFilter('работа', this)">работа</button>
@@ -263,6 +359,11 @@
       <div id="postsList"></div>
       <div id="pagination"></div>
     </div>
+
+    <!-- КНОПКА ПРАВИЛ -->
+    <button class="rules-btn" onclick="document.getElementById('rulesModal').classList.remove('hidden')">
+      [ ПРАВИЛА СООБЩЕСТВА ]
+    </button>
     
     <div style="display:flex; gap:10px; flex-wrap:wrap;">
       <button class="danger" onclick="logout()" style="flex:1;">[ ВЫЙТИ ]</button>
@@ -321,16 +422,10 @@ async function doRegister() {
   const { data: authData, error: authErr } = await db.auth.signUp({ email, password: pass });
   if (authErr) return alert(authErr.message);
   
-  // Пытаемся создать профиль
   const { error: profErr } = await db.from('profiles').insert({ id: authData.user.id, username });
-  
-  // Если профиль не создался (например, ник занят), заходим с ником по умолчанию
   if (profErr) {
-    console.error(profErr);
-    // Даем шанс войти, создав ник из email
     await db.from('profiles').insert({ id: authData.user.id, username: email.split('@')[0] + Math.floor(Math.random() * 1000) });
   }
-  
   enterForum();
 }
 
@@ -341,16 +436,10 @@ async function enterForum() {
   if (!user) return;
   currentUser = user;
   
-  let { data: profile, error: profError } = await db.from('profiles').select('*').eq('id', user.id).single();
-  
-  // Если профиль не найден, создаем его "на лету"
+  let { data: profile } = await db.from('profiles').select('*').eq('id', user.id).single();
   if (!profile) {
     const defaultName = user.email.split('@')[0] + Math.floor(Math.random() * 1000);
-    const { data: newProfile, error: createErr } = await db.from('profiles').insert({ id: user.id, username: defaultName }).select().single();
-    if (createErr) {
-      alert('Критическая ошибка профиля: ' + createErr.message);
-      return;
-    }
+    const { data: newProfile } = await db.from('profiles').insert({ id: user.id, username: defaultName }).select().single();
     profile = newProfile;
   }
   
@@ -442,6 +531,9 @@ function renderPosts(posts) {
     const visibleComments = postComments.slice(0, limit);
     const hasMore = postComments.length > limit;
     const canDelete = p.author_id === currentUser.id || currentProfile.is_admin;
+    
+    // Класс для скам-листа
+    const scamClass = p.category === 'скам-лист' ? 'scam' : '';
 
     const commentsHtml = visibleComments.map(c => `
       <div class="comment">
@@ -458,7 +550,7 @@ function renderPosts(posts) {
     const loadMoreHtml = hasMore ? `<button class="load-more-btn" onclick="loadMoreComments(${p.id})">Показать еще (${postComments.length - limit})</button>` : '';
 
     return `
-      <div class="post ${p.is_pinned ? 'pinned' : ''}">
+      <div class="post ${p.is_pinned ? 'pinned' : ''} ${scamClass}">
         ${currentProfile.is_admin ? `<span class="pin" onclick="togglePin(${p.id}, ${p.is_pinned})">${p.is_pinned ? '📌' : '📍'}</span>` : ''}
         ${canDelete ? `<span class="del" onclick="deletePost(${p.id})">[ x ]</span>` : ''}
         <div class="meta">
