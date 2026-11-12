@@ -4,21 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Темщики // darknet.forum</title>
-
-<!-- SEO МЕТА-ТЕГИ -->
-<meta name="description" content="Темщики — анонимный форум для общения, обмена опытом и поиска единомышленников. Темы: услуги, работа, гарант, знакомства.">
-<meta name="keywords" content="темщики, форум, анонимный форум, общение, услуги, работа, гарант, знакомства, darknet">
-<meta name="robots" content="index, follow">
-<meta name="author" content="Темщики">
-<link rel="canonical" href="https://sitetestefana.github.io/">
-
-<!-- OPEN GRAPH -->
-<meta property="og:title" content="Темщики // darknet.forum">
-<meta property="og:description" content="Анонимный форум для общения и поиска единомышленников. Залетай через VPN.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://sitetestefana.github.io/">
-<meta property="og:image" content="https://sitetestefana.github.io/icon-512.png">
-
 <meta name="theme-color" content="#00ff41">
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="./icon-192.png">
@@ -53,7 +38,6 @@
   .danger { border: 1px solid #ff003c; color: #ff003c; background: transparent; }
   .danger:hover { background: #ff003c; color: #000; box-shadow: 0 0 15px #ff003c; }
   
-  /* ПОСТЫ */
   .post { border-left: 3px solid #00ff41; padding: 10px; margin-bottom: 10px; background: rgba(0,255,65,0.03); word-break: break-all; overflow-wrap: anywhere; width: 100%; }
   .post.pinned { border-left-color: #ffd700; background: rgba(255,215,0,0.05); }
   .post.scam { border: 1px solid #ff003c; border-left: 4px solid #ff003c; background: rgba(255,0,60,0.05); }
@@ -93,34 +77,16 @@
   .filter-btn.scam-filter { border-color: #ff003c; color: #ff003c; }
   .filter-btn.scam-filter.active { background: #ff003c; color: #000; }
 
-  /* КНОПКА ПРАВИЛ (ТОНКАЯ И КРАСНАЯ) */
   .rules-btn {
-    width: 100%;
-    padding: 5px; /* Тонкая */
-    background: rgba(255, 0, 60, 0.05);
-    border: 1px solid #ff003c;
-    color: #ff003c;
-    font-size: 0.8rem;
-    cursor: pointer;
-    margin-bottom: 0; /* Убираем отступ, так как она внутри panel */
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: all 0.2s;
+    width: 100%; padding: 5px; background: rgba(255, 0, 60, 0.05);
+    border: 1px solid #ff003c; color: #ff003c; font-size: 0.8rem;
+    cursor: pointer; margin-bottom: 0; text-transform: uppercase;
+    letter-spacing: 1px; transition: all 0.2s;
   }
   .rules-btn:hover { background: rgba(255, 0, 60, 0.2); box-shadow: 0 0 15px rgba(255,0,60,0.4); }
 
-  /* МОДАЛЬНОЕ ОКНО ПРАВИЛ */
-  #rulesModal {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 40000;
-    display: flex; align-items: center; justify-content: center; padding: 20px;
-    backdrop-filter: blur(5px);
-  }
-  .rules-content {
-    background: #000; border: 1px solid #00e5ff; max-width: 600px; width: 100%;
-    max-height: 80vh; overflow-y: auto; padding: 25px;
-    box-shadow: 0 0 40px rgba(0,229,255,0.2);
-    font-size: 0.9rem; line-height: 1.6;
-  }
+  #rulesModal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 40000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+  .rules-content { background: #000; border: 1px solid #00e5ff; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; padding: 25px; box-shadow: 0 0 40px rgba(0,229,255,0.2); font-size: 0.9rem; line-height: 1.6; }
   .rules-content h1 { font-size: 1.2rem; color: #ff003c; margin-bottom: 15px; text-align: center; border-bottom: 1px dashed #ff003c; padding-bottom: 10px; }
   .rules-content h2 { font-size: 1rem; color: #00e5ff; margin-top: 20px; margin-bottom: 10px; }
   .rules-content p { margin-bottom: 10px; opacity: 0.9; }
@@ -141,42 +107,45 @@
   #pagination { display: flex; gap: 10px; justify-content: center; align-items: center; margin-top: 15px; width: 100%; flex-wrap: wrap; }
   #pagination button { width: auto; margin-bottom: 0; }
   #userPopup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #000; border: 1px solid #00e5ff; padding: 20px; z-index: 30000; text-align: center; box-shadow: 0 0 30px rgba(0,229,255,0.3); width: 250px; }
+  
+  /* МЕССЕНДЖЕР */
   #messengerOverlay { position: fixed; inset: 0; background: #0a0a0a; z-index: 20000; display: flex; flex-direction: column; overflow: hidden; background-image: linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px); background-size: 30px 30px; }
   .tm-header { padding: 15px; border-bottom: 1px solid #00ff41; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.9); }
   .tm-body { display: flex; flex: 1; overflow: hidden; }
   .tm-sidebar { width: 100%; max-width: 300px; border-right: 1px solid #00ff41; display: flex; flex-direction: column; background: rgba(0,10,2,0.8); }
   .tm-chat-area { flex: 1; display: flex; flex-direction: column; position: relative; }
-  .tm-chat-list { flex: 1; overflow-y: auto; }
-  .tm-chat-item { padding: 15px; border-bottom: 1px solid rgba(0,255,65,0.2); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  
+  .list-header { padding: 5px 10px; font-size: 0.7rem; opacity: 0.5; border-bottom: 1px solid rgba(0,255,65,0.1); text-transform: uppercase; margin-top: 10px; }
+  .tm-chat-list { max-height: 250px; overflow-y: auto; border-bottom: 1px solid rgba(0,255,65,0.2); }
+  .tm-chat-item { padding: 10px; border-bottom: 1px solid rgba(0,255,65,0.1); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
   .tm-chat-item:hover, .tm-chat-item.active { background: rgba(0,255,65,0.1); }
-  .tm-chat-name { font-weight: bold; color: #00e5ff; }
+  .tm-chat-name { font-weight: bold; color: #00e5ff; font-size: 0.85rem; }
+  .tm-group-name { font-weight: bold; color: #ffd700; font-size: 0.85rem; }
   .unread-dot { width: 8px; height: 8px; background: #00ff41; border-radius: 50%; box-shadow: 0 0 8px #00ff41; }
+  .show-more-btn { background: transparent; border: none; color: #00e5ff; font-size: 0.7rem; text-align: left; padding: 5px 10px; cursor: pointer; width: 100%; opacity: 0.7; }
+  .show-more-btn:hover { opacity: 1; }
+  
   .tm-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
   .msg { max-width: 80%; padding: 10px; border: 1px solid #00ff41; background: rgba(0,20,5,0.9); word-break: break-all; }
   .msg.me { align-self: flex-end; border-color: #00e5ff; color: #00e5ff; }
   .msg.them { align-self: flex-start; }
+  
+  /* НИКИ И СТАТУСЫ В МЕССЕНДЖЕРЕ */
+  .msg-meta { font-size: 0.65rem; opacity: 0.8; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
+  .status-badge-msg { display: inline-block; padding: 0 4px; font-size: 0.55rem; border-radius: 2px; border: 1px solid #ffd700; color: #ffd700; text-shadow: 0 0 3px rgba(255,215,0,0.5); font-weight: bold; }
+
   .tm-input-area { padding: 15px; border-top: 1px solid #00ff41; display: flex; gap: 10px; background: rgba(0,0,0,0.9); }
   .badge { background: #ff003c; color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; margin-left: 5px; display: inline-block; vertical-align: middle; }
 
-  .status-badge {
-    display: inline-block; padding: 1px 6px; font-size: 0.6rem; 
-    border-radius: 3px; margin-right: 5px; font-weight: bold;
-    text-transform: uppercase; opacity: 0.7;
-  }
+  .status-badge { display: inline-block; padding: 1px 6px; font-size: 0.6rem; border-radius: 3px; margin-right: 5px; font-weight: bold; text-transform: uppercase; opacity: 0.7; }
   .status-admin { border: 1px solid #ffd700; color: #ffd700; text-shadow: 0 0 5px rgba(255,215,0,0.5); }
 
-  .install-btn {
-    position: fixed; bottom: 25px; right: 15px; z-index: 200;
-    border: 1px solid rgba(0, 229, 255, 0.6); color: #00e5ff; 
-    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
-    padding: 6px 10px; font-size: 0.75rem; width: auto; margin-bottom: 0;
-    opacity: 0.7; transition: all 0.2s ease;
-  }
+  .install-btn { position: fixed; bottom: 25px; right: 15px; z-index: 200; border: 1px solid rgba(0, 229, 255, 0.6); color: #00e5ff; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); padding: 6px 10px; font-size: 0.75rem; width: auto; margin-bottom: 0; opacity: 0.7; transition: all 0.2s ease; }
   .install-btn:hover { opacity: 1; background: rgba(0, 229, 255, 0.9); color: #000; box-shadow: 0 0 20px #00e5ff; border-color: #00e5ff; }
 
   @media (max-width: 600px) {
     .tm-body { flex-direction: column; }
-    .tm-sidebar { max-width: 100%; border-right: none; border-bottom: 1px solid #00ff41; max-height: 40vh; }
+    .tm-sidebar { max-width: 100%; border-right: none; border-bottom: 1px solid #00ff41; max-height: 50vh; }
     .tm-chat-area { display: none; }
     .tm-chat-area.active { display: flex; position: absolute; inset: 0; background: #0a0a0a; z-index: 10; }
   }
@@ -190,31 +159,24 @@
   <div class="line" style="animation-delay:1s">[ !! ] ДОСТУП РАЗРЕШЁН.</div>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО ПРАВИЛ -->
 <div id="rulesModal" class="hidden">
   <div class="rules-content">
     <h1>!!!!! ОБЯЗАТЕЛЬНО ПОЛЬЗУЕМСЯ ФОРУМОМ С ПОМОЩЬЮ VPN/PROXY !!!!!</h1>
-    
     <h2>Йоу, народ! 👋</h2>
-    <p>Добро пожаловать на <span class="highlight">Темщики</span> — теневой форум для своих. Мы тут не для галочки, а для реального движа. Если ты здесь, значит, тебе есть что сказать или ты ищешь полезные контакты.</p>
-    
+    <p>Добро пожаловать на <span class="highlight">Темщики</span> — теневой форум для своих. Мы тут не для галочки, а для реального движа.</p>
     <h2>Кто мы такие? 🕶</h2>
-    <p>Мы — сообщество, которое ценит <span class="highlight">анонимность</span> и свободу общения. Никаких следов, никаких лишних глаз. Мы не собираем твои данные, не следим за тобой и не сдаем тебя. Твой ник — твоя маска. Надевай и общайся.</p>
-    
+    <p>Мы — сообщество, которое ценит <span class="highlight">анонимность</span> и свободу общения. Никаких следов, никаких лишних глаз.</p>
     <h2>Инструкция по использованию 📖</h2>
     <ul>
-      <li><strong>Регистрация:</strong> Вводи ник, почту и пароль. Ник не должен содержать слово "Админ" (мы это блокируем, чтобы никто не выдавал себя за админа).</li>
-      <li><strong>Создание темы:</strong> Выбери категорию (новости, вопросы, скам-лист и т.д.), напиши заголовок и текст. Помни: одна тема в сутки для новичков, чтобы не спамили.</li>
+      <li><strong>Регистрация:</strong> Вводи ник, почту и пароль. Ник не должен содержать слово "Админ".</li>
+      <li><strong>Создание темы:</strong> Выбери категорию (новости, вопросы, скам-лист и т.д.), напиши заголовок и текст. Одна тема в сутки.</li>
       <li><strong>Общение:</strong> Ставь лайки, пиши комменты, закрепляй темы (если ты админ).</li>
-      <li><strong>ТМ Мессенджер:</strong> Нажми на кнопку ТМ, найди пользователя по нику и пиши в личку. Индикаторы непрочитанных сообщений всегда покажут, кто тебе написал.</li>
+      <li><strong>ТМ Мессенджер:</strong> Нажми на кнопку ТМ, найди пользователя по нику и пиши в личку или создавай беседы.</li>
     </ul>
-    
     <h2>Антиспам и безопасность 🛡</h2>
-    <p>У нас работает жесткий фильтр. Если ты пытаешься протащить запрещенную тему — система тебя заблокирует. Мы не предупреждаем, мы просто не даем это выложить. Также у нас есть защита от спама: не пытайся создать несколько тем подряд за день, это не пройдет.</p>
-    
+    <p>У нас работает жесткий фильтр. Если ты пытаешься протащить запрещенную тему — система тебя заблокирует. Мы не предупреждаем, мы просто не даем это выложить.</p>
     <h2>Заключение 🖤</h2>
-    <p>Спасибо, что ты с нами. Спасибо, что ты с семьей. Приятного пользования! Если что-то сломалось или есть идеи — пиши админу в ТМ.</p>
-    
+    <p>Спасибо, что ты с нами. Спасибо, что ты с семьей. Приятного пользования!</p>
     <button onclick="document.getElementById('rulesModal').classList.add('hidden')" style="margin-top:20px;">[ ПОНЯЛ, ЗАКРЫТЬ ]</button>
   </div>
 </div>
@@ -232,12 +194,32 @@
   </div>
   <div class="tm-body">
     <div class="tm-sidebar">
-      <div style="padding:10px; border-bottom:1px solid rgba(0,255,65,0.3);">
+      <div style="display:flex; border-bottom:1px solid rgba(0,255,65,0.3);">
+        <div id="tabChats" onclick="switchTmTab('chats')" style="flex:1; padding:10px; text-align:center; cursor:pointer; background:rgba(0,255,65,0.1); color:#00ff41; font-size:0.8rem; border-right:1px solid rgba(0,255,65,0.3);">ЛИЧНЫЕ</div>
+        <div id="tabGroups" onclick="switchTmTab('groups')" style="flex:1; padding:10px; text-align:center; cursor:pointer; background:transparent; color:#888; font-size:0.8rem;">БЕСЕДЫ</div>
+      </div>
+
+      <div id="searchBox" style="padding:10px; border-bottom:1px solid rgba(0,255,65,0.3);">
         <input type="text" id="tmSearch" placeholder="> поиск по нику..." oninput="searchUsers()" style="margin-bottom:0;">
         <div id="tmSearchResults" style="margin-top:10px; max-height:150px; overflow-y:auto;"></div>
       </div>
-      <div class="tm-chat-list" id="tmChatList"></div>
-      <div style="padding:10px; border-top:1px solid rgba(0,255,65,0.3);">
+
+      <div id="listChats" style="display:flex; flex-direction:column;">
+        <div class="list-header">Личные чаты</div>
+        <div class="tm-chat-list" id="tmChatList"></div>
+        <button id="btnShowMoreChats" class="show-more-btn hidden" onclick="showMoreChats()">[ Показать ещё ]</button>
+      </div>
+
+      <div id="listGroups" class="hidden" style="display:flex; flex-direction:column;">
+        <div class="list-header" style="display:flex; justify-content:space-between;">
+          <span>Беседы</span>
+          <span style="cursor:pointer; color:#00e5ff;" onclick="showCreateGroup()">[ + ]</span>
+        </div>
+        <div class="tm-chat-list" id="tmGroupList"></div>
+        <button id="btnShowMoreGroups" class="show-more-btn hidden" onclick="showMoreGroups()">[ Показать ещё ]</button>
+      </div>
+
+      <div style="padding:10px; border-top:1px solid rgba(0,255,65,0.3); margin-top:auto;">
         <button onclick="showSettings()" style="margin-bottom:0; font-size:0.8rem;">[ НАСТРОЙКИ ]</button>
       </div>
     </div>
@@ -246,6 +228,7 @@
       <div id="tmNoChat" style="flex:1; display:flex; align-items:center; justify-content:center; opacity:0.5; text-align:center; padding:20px;">
         // выбери чат или найди пользователя
       </div>
+      
       <div id="tmActiveChat" class="hidden" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
         <div style="padding:15px; border-bottom:1px solid #00ff41; background:rgba(0,0,0,0.9); display:flex; justify-content:space-between; align-items:center;">
           <span id="tmChatName" style="font-weight:bold; color:#00e5ff;">@user</span>
@@ -259,6 +242,33 @@
           <input type="text" id="tmMsgInput" placeholder="> сообщение..." style="margin-bottom:0;" onkeypress="if(event.key === 'Enter') sendMessage()">
           <button onclick="sendMessage()" style="width:auto; margin:0;">ОТПР</button>
         </div>
+      </div>
+
+      <div id="tmActiveGroup" class="hidden" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+        <div style="padding:15px; border-bottom:1px solid #ffd700; background:rgba(0,0,0,0.9); display:flex; justify-content:space-between; align-items:center;">
+          <span id="tmGroupName" style="font-weight:bold; color:#ffd700;">Беседа</span>
+          <div style="display:flex; gap:10px;">
+            <button class="danger" onclick="leaveGroupPrompt()" style="width:auto; padding:5px 10px; margin:0; font-size:0.7rem;">[ ВЫЙТИ ]</button>
+            <button class="danger" onclick="closeChatMobile()" style="width:auto; padding:5px 10px; margin:0; font-size:0.7rem; display:none;" id="tmGroupBackBtn">[ НАЗАД ]</button>
+          </div>
+        </div>
+        <div class="tm-messages" id="tmGroupMessages"></div>
+        <div class="tm-input-area">
+          <input type="text" id="tmGroupMsgInput" placeholder="> сообщение..." style="margin-bottom:0;" onkeypress="if(event.key === 'Enter') sendGroupMessage()">
+          <button onclick="sendGroupMessage()" style="width:auto; margin:0;">ОТПР</button>
+        </div>
+      </div>
+
+      <div id="tmCreateGroup" class="hidden" style="flex:1; padding:20px; overflow-y:auto;">
+        <h2 style="color:#ffd700;">// СОЗДАНИЕ БЕСЕДЫ</h2>
+        <p style="margin:10px 0; font-size:0.8rem; opacity:0.7;">Введи название:</p>
+        <input type="text" id="newGroupTitle" placeholder="> Название беседы">
+        <p style="margin:10px 0; font-size:0.8rem; opacity:0.7;">Добавить участников (по нику):</p>
+        <input type="text" id="groupMemberSearch" placeholder="> поиск по нику..." oninput="searchGroupMembers()">
+        <div id="groupMemberResults" style="max-height:150px; overflow-y:auto; margin-bottom:10px;"></div>
+        <div id="selectedMembers" style="font-size:0.8rem; margin-bottom:10px; color:#00e5ff;"></div>
+        <button onclick="createGroup()" style="margin-top:20px; background:#ffd700; color:#000;">Создать беседу</button>
+        <button class="danger" onclick="hideCreateGroup()" style="margin-top:10px;">[ ОТМЕНА ]</button>
       </div>
       
       <div id="tmSettings" class="hidden" style="flex:1; padding:20px; overflow-y:auto;">
@@ -322,7 +332,6 @@
       </button>
     </div>
 
-    <!-- БЛОК СОЗДАНИЯ ТЕМЫ -->
     <div class="panel">
       <h2>// НОВАЯ ТЕМА</h2>
       <input type="text" id="postTitle" placeholder="> заголовок темы">
@@ -342,14 +351,12 @@
       <button id="postBtn" onclick="addPost()">Отправить в эфир</button>
     </div>
 
-    <!-- КНОПКА ПРАВИЛ (МЕЖДУ ТЕМОЙ И ЛЕНТОЙ) -->
     <div class="panel" style="padding: 0; border: none; background: transparent; box-shadow: none;">
       <button class="rules-btn" onclick="document.getElementById('rulesModal').classList.remove('hidden')">
         [ ПРАВИЛА СООБЩЕСТВА ]
       </button>
     </div>
 
-    <!-- БЛОК ЛЕНТЫ -->
     <div class="panel">
       <h2>// ЛЕНТА // <span id="postCount">0</span> ЗАПИСЕЙ</h2>
       <div class="filters" id="filters">
@@ -388,9 +395,12 @@ const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null, currentProfile = null;
-let allComments = [], allReactions = [], chatsData = [], adminIds = new Set();
+let allComments = [], allReactions = [], chatsData = [], groupsData = [], adminIds = new Set();
 let activeChatId = null, activeChatPeerName = null, activeChatPeerId = null;
-let tmChannel = null, globalMsgChannel = null;
+let activeGroupId = null, activeGroupName = null;
+let tmChannel = null, globalMsgChannel = null, groupChannel = null;
+let chatLimit = 5, groupLimit = 5;
+let selectedGroupMembers = [];
 
 let currentPage = 1, PAGE_SIZE = 10, totalPosts = 0, currentFilter = 'общее';
 let commentsDisplayLimit = {}, popupTargetUser = null;
@@ -459,6 +469,16 @@ async function enterForum() {
   await loadAll();
   setupGlobalListeners();
   loadChats();
+  loadGroups();
+  loadAdminIds();
+}
+
+async function loadAdminIds() {
+  const { data } = await db.rpc('get_admins');
+  if (data) {
+    adminIds.clear();
+    data.forEach(a => adminIds.add(a.id));
+  }
 }
 
 function getStatusBadge(authorId) {
@@ -634,22 +654,48 @@ async function enablePush() {
   alert('Уведомления включены (демо)');
 }
 
+// --- МЕССЕНДЖЕР ---
 function openMessenger() {
   document.getElementById('messengerOverlay').classList.remove('hidden');
-  document.getElementById('tmNoChat').classList.add('hidden');
+  document.getElementById('tmNoChat').classList.remove('hidden');
   document.getElementById('tmActiveChat').classList.add('hidden');
+  document.getElementById('tmActiveGroup').classList.add('hidden');
+  document.getElementById('tmCreateGroup').classList.add('hidden');
   document.getElementById('tmSettings').classList.add('hidden');
   loadChats();
+  loadGroups();
   document.getElementById('setUsername').textContent = currentProfile.username;
-  document.getElementById('newUsername').value = '';
 }
 
 function closeMessenger() {
   document.getElementById('messengerOverlay').classList.add('hidden');
   if(tmChannel) { db.removeChannel(tmChannel); tmChannel = null; }
-  loadChats();
+  if(groupChannel) { db.removeChannel(groupChannel); groupChannel = null; }
+  loadChats(); loadGroups();
 }
 
+function switchTmTab(tab) {
+  const tc = document.getElementById('tabChats');
+  const tg = document.getElementById('tabGroups');
+  const lc = document.getElementById('listChats');
+  const lg = document.getElementById('listGroups');
+  const sb = document.getElementById('searchBox');
+
+  if (tab === 'chats') {
+    tc.style.background = 'rgba(0,255,65,0.1)'; tc.style.color = '#00ff41';
+    tg.style.background = 'transparent'; tg.style.color = '#888';
+    lc.style.display = 'flex'; lg.style.display = 'none'; sb.style.display = 'block';
+  } else {
+    tg.style.background = 'rgba(0,255,65,0.1)'; tg.style.color = '#00ff41';
+    tc.style.background = 'transparent'; tc.style.color = '#888';
+    lg.style.display = 'flex'; lc.style.display = 'none'; sb.style.display = 'none';
+  }
+  document.getElementById('tmNoChat').classList.remove('hidden');
+  document.getElementById('tmActiveChat').classList.add('hidden');
+  document.getElementById('tmActiveGroup').classList.add('hidden');
+}
+
+// --- ЛИЧНЫЕ ЧАТЫ ---
 async function searchUsers() {
   const q = document.getElementById('tmSearch').value.trim();
   const resBox = document.getElementById('tmSearchResults');
@@ -669,10 +715,12 @@ async function startChat(peerId, peerName) {
 
 async function loadChats() {
   if (!currentUser) return;
-  const { data: chats } = await db.from('chats').select('*').or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`);
+  const { data: chats } = await db.from('chats').select('*').or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`).order('created_at', { ascending: false });
   chatsData = chats || [];
   const list = document.getElementById('tmChatList');
-  if (!chatsData.length) { list.innerHTML = '<div style="padding:15px; opacity:0.5;">// нет чатов</div>'; updateGlobalUnreadBadge(0); return; }
+  const btnMore = document.getElementById('btnShowMoreChats');
+  
+  if (!chatsData.length) { list.innerHTML = '<div style="padding:15px; opacity:0.5;">// нет чатов</div>'; btnMore.classList.add('hidden'); return; }
 
   const peerIds = chatsData.map(c => c.user1_id === currentUser.id ? c.user2_id : c.user1_id);
   const { data: peers } = await db.from('profiles').select('id, username').in('id', peerIds);
@@ -685,7 +733,8 @@ async function loadChats() {
     return { id: c.id, unread: count > 0 };
   }));
 
-  list.innerHTML = chatsData.map(c => {
+  const visibleChats = chatsData.slice(0, chatLimit);
+  list.innerHTML = visibleChats.map(c => {
     const pId = c.user1_id === currentUser.id ? c.user2_id : c.user1_id;
     const peer = peers.find(p => p.id === pId);
     const name = peer ? peer.username : 'Unknown';
@@ -693,9 +742,14 @@ async function loadChats() {
     return `<div class="tm-chat-item" onclick="openChat(${c.id}, '${name}', '${pId}')"><div class="tm-chat-name">@${name}</div>${hasUnread ? '<div class="unread-dot"></div>' : ''}</div>`;
   }).join('');
 
+  if (chatsData.length > chatLimit) btnMore.classList.remove('hidden');
+  else btnMore.classList.add('hidden');
+
   const totalUnread = unreadStatus.filter(u => u.unread).length;
   updateGlobalUnreadBadge(totalUnread);
 }
+
+function showMoreChats() { chatLimit += 5; loadChats(); }
 
 function updateGlobalUnreadBadge(count) {
   const badge = document.getElementById('globalUnreadBadge');
@@ -705,7 +759,9 @@ function updateGlobalUnreadBadge(count) {
 
 async function openChat(chatId, peerName, peerId) {
   activeChatId = chatId; activeChatPeerName = peerName; activeChatPeerId = peerId;
+  activeGroupId = null;
   document.getElementById('tmNoChat').classList.add('hidden');
+  document.getElementById('tmActiveGroup').classList.add('hidden');
   document.getElementById('tmSettings').classList.add('hidden');
   document.getElementById('tmActiveChat').classList.remove('hidden');
   document.getElementById('tmChatName').textContent = '@' + peerName;
@@ -731,13 +787,28 @@ async function openChat(chatId, peerName, peerId) {
 async function loadMessages() {
   if (!activeChatId) return;
   const { data: msgs } = await db.from('messages').select('*').eq('chat_id', activeChatId).order('created_at', { ascending: true });
+  
+  // Получаем ники и статусы для сообщений
+  const senderIds = [...new Set((msgs || []).map(m => m.sender_id))];
+  const { data: profiles } = await db.from('profiles').select('id, username, is_admin').in('id', senderIds);
+  
   const box = document.getElementById('tmMessages');
-  box.innerHTML = (msgs || []).map(m => `
-    <div class="msg ${m.sender_id === currentUser.id ? 'me' : 'them'}">
-      <div style="font-size:0.6rem; opacity:0.5; margin-bottom:4px;">${m.sender_id === currentUser.id ? 'Ты' : '@' + activeChatPeerName}</div>
-      ${escapeHtml(m.body)}
-    </div>
-  `).join('');
+  box.innerHTML = (msgs || []).map(m => {
+    const sender = profiles?.find(p => p.id === m.sender_id);
+    const senderName = sender ? sender.username : m.sender_name || 'Unknown';
+    const isAdmin = sender ? sender.is_admin : false;
+    const isMe = m.sender_id === currentUser.id;
+    
+    return `
+      <div class="msg ${isMe ? 'me' : 'them'}">
+        <div class="msg-meta">
+          ${isAdmin ? '<span class="status-badge-msg">ADMIN</span>' : ''}
+          <span>@${escapeHtml(senderName)}</span>
+        </div>
+        ${escapeHtml(m.body)}
+      </div>
+    `;
+  }).join('');
   box.scrollTop = box.scrollHeight;
 }
 
@@ -746,7 +817,7 @@ async function sendMessage() {
   const body = inp.value.trim();
   if (!body || !activeChatId) return;
   inp.value = '';
-  const { error } = await db.from('messages').insert({ chat_id: activeChatId, sender_id: currentUser.id, body });
+  const { error } = await db.from('messages').insert({ chat_id: activeChatId, sender_id: currentUser.id, sender_name: currentProfile.username, body });
   if (error) { alert('ОШИБКА: ' + error.message); return; }
   loadMessages();
 }
@@ -761,11 +832,163 @@ async function deleteChatPrompt() {
   document.getElementById('tmNoChat').classList.remove('hidden');
 }
 
+// --- БЕСЕДЫ ---
+async function loadGroups() {
+  if (!currentUser) return;
+  const { data: memberships } = await db.from('group_members').select('group_id').eq('user_id', currentUser.id);
+  if (!memberships || !memberships.length) { 
+    groupsData = []; 
+    document.getElementById('tmGroupList').innerHTML = '<div style="padding:15px; opacity:0.5;">// нет бесед</div>';
+    document.getElementById('btnShowMoreGroups').classList.add('hidden');
+    return; 
+  }
+
+  const groupIds = memberships.map(m => m.group_id);
+  const { data: groups } = await db.from('group_chats').select('*').in('id', groupIds);
+  groupsData = groups || [];
+  
+  const list = document.getElementById('tmGroupList');
+  const btnMore = document.getElementById('btnShowMoreGroups');
+  
+  const visibleGroups = groupsData.slice(0, groupLimit);
+  list.innerHTML = visibleGroups.map(g => {
+    return `<div class="tm-chat-item" onclick="openGroup(${g.id}, '${g.title}', '${g.creator_id}')"><div class="tm-group-name">${g.title}</div></div>`;
+  }).join('');
+
+  if (groupsData.length > groupLimit) btnMore.classList.remove('hidden');
+  else btnMore.classList.add('hidden');
+}
+
+function showMoreGroups() { groupLimit += 5; loadGroups(); }
+
+function showCreateGroup() {
+  document.getElementById('tmNoChat').classList.add('hidden');
+  document.getElementById('tmActiveChat').classList.add('hidden');
+  document.getElementById('tmActiveGroup').classList.add('hidden');
+  document.getElementById('tmCreateGroup').classList.remove('hidden');
+  document.getElementById('newGroupTitle').value = '';
+  document.getElementById('groupMemberSearch').value = '';
+  document.getElementById('groupMemberResults').innerHTML = '';
+  document.getElementById('selectedMembers').innerHTML = '';
+  selectedGroupMembers = [];
+}
+
+function hideCreateGroup() {
+  document.getElementById('tmCreateGroup').classList.add('hidden');
+  document.getElementById('tmNoChat').classList.remove('hidden');
+}
+
+async function searchGroupMembers() {
+  const q = document.getElementById('groupMemberSearch').value.trim();
+  const resBox = document.getElementById('groupMemberResults');
+  if (q.length < 2) { resBox.innerHTML = ''; return; }
+  const { data } = await db.from('profiles').select('id, username').ilike('username', `%${q}%`).neq('id', currentUser.id).limit(5);
+  if (!data || !data.length) { resBox.innerHTML = '<div style="opacity:0.5;font-size:0.8rem;">не найдено</div>'; return; }
+  resBox.innerHTML = data.map(u => `<div style="padding:8px; border:1px solid rgba(0,229,255,0.3); margin-bottom:5px; cursor:pointer; color:#00e5ff;" onclick="addGroupMember('${u.id}', '${u.username}')">@${u.username}</div>`).join('');
+}
+
+function addGroupMember(id, name) {
+  if (!selectedGroupMembers.find(m => m.id === id)) {
+    selectedGroupMembers.push({ id, name });
+    document.getElementById('selectedMembers').innerHTML = 'Участники: ' + selectedGroupMembers.map(m => '@' + m.name).join(', ');
+  }
+}
+
+async function createGroup() {
+  const title = document.getElementById('newGroupTitle').value.trim();
+  if (!title) return alert('Введи название беседы');
+
+  const { data: newGroup, error } = await db.from('group_chats').insert({ title, creator_id: currentUser.id }).select().single();
+  if (error) return alert(error.message);
+
+  await db.from('group_members').insert({ group_id: newGroup.id, user_id: currentUser.id });
+
+  for (const m of selectedGroupMembers) {
+    await db.from('group_members').insert({ group_id: newGroup.id, user_id: m.id });
+  }
+
+  hideCreateGroup();
+  await loadGroups();
+  switchTmTab('groups');
+  openGroup(newGroup.id, title, currentUser.id);
+}
+
+async function openGroup(groupId, groupName, creatorId) {
+  activeGroupId = groupId; activeGroupName = groupName;
+  activeChatId = null;
+  document.getElementById('tmNoChat').classList.add('hidden');
+  document.getElementById('tmActiveChat').classList.add('hidden');
+  document.getElementById('tmSettings').classList.add('hidden');
+  document.getElementById('tmCreateGroup').classList.add('hidden');
+  document.getElementById('tmActiveGroup').classList.remove('hidden');
+  document.getElementById('tmGroupName').textContent = groupName;
+
+  if(window.innerWidth <= 600) {
+    document.getElementById('tmChatArea').classList.add('active');
+    document.getElementById('tmGroupBackBtn').style.display = 'block';
+  }
+
+  loadGroupMessages();
+  
+  if (groupChannel) db.removeChannel(groupChannel);
+  groupChannel = db.channel('group-' + groupId).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_messages', filter: `group_id=eq.${groupId}` }, () => { 
+    loadGroupMessages(); 
+  }).subscribe();
+}
+
+async function loadGroupMessages() {
+  if (!activeGroupId) return;
+  const { data: msgs } = await db.from('group_messages').select('*').eq('group_id', activeGroupId).order('created_at', { ascending: true });
+  
+  const senderIds = [...new Set((msgs || []).map(m => m.sender_id))];
+  const { data: profiles } = await db.from('profiles').select('id, username, is_admin').in('id', senderIds);
+
+  const box = document.getElementById('tmGroupMessages');
+  box.innerHTML = (msgs || []).map(m => {
+    const sender = profiles?.find(p => p.id === m.sender_id);
+    const senderName = sender ? sender.username : m.sender_name || 'Unknown';
+    const isAdmin = sender ? sender.is_admin : false;
+    const isMe = m.sender_id === currentUser.id;
+    
+    return `
+      <div class="msg ${isMe ? 'me' : 'them'}">
+        <div class="msg-meta">
+          ${isAdmin ? '<span class="status-badge-msg">ADMIN</span>' : ''}
+          <span>@${escapeHtml(senderName)}</span>
+        </div>
+        ${escapeHtml(m.body)}
+      </div>
+    `;
+  }).join('');
+  box.scrollTop = box.scrollHeight;
+}
+
+async function sendGroupMessage() {
+  const inp = document.getElementById('tmGroupMsgInput');
+  const body = inp.value.trim();
+  if (!body || !activeGroupId) return;
+  inp.value = '';
+  const { error } = await db.from('group_messages').insert({ group_id: activeGroupId, sender_id: currentUser.id, sender_name: currentProfile.username, body });
+  if (error) { alert('ОШИБКА: ' + error.message); return; }
+  loadGroupMessages();
+}
+
+async function leaveGroupPrompt() {
+  if (!confirm('Выйти из беседы?')) return;
+  await db.from('group_members').delete().eq('group_id', activeGroupId).eq('user_id', currentUser.id);
+  activeGroupId = null;
+  document.getElementById('tmActiveGroup').classList.add('hidden');
+  document.getElementById('tmNoChat').classList.remove('hidden');
+  loadGroups();
+}
+
+// --- ОБЩИЕ ФУНКЦИИ ---
 function closeChatMobile() { document.getElementById('tmChatArea').classList.remove('active'); }
 
 function showSettings() {
   document.getElementById('tmNoChat').classList.add('hidden');
   document.getElementById('tmActiveChat').classList.add('hidden');
+  document.getElementById('tmActiveGroup').classList.add('hidden');
   document.getElementById('tmSettings').classList.remove('hidden');
   document.getElementById('settingsMsg').textContent = '';
   document.getElementById('nameChangeMsg').textContent = '';
@@ -826,8 +1049,7 @@ async function changeUsername() {
 function setupGlobalListeners() {
   globalMsgChannel = db.channel('global-msg-listener').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
     if (currentUser && payload.new.sender_id !== currentUser.id) {
-      if (!document.getElementById('messengerOverlay').classList.contains('hidden')) loadChats();
-      else loadChats(); 
+      loadChats(); 
     }
   }).subscribe();
 }
