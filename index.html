@@ -130,7 +130,6 @@
   .msg.me { align-self: flex-end; border-color: #00e5ff; color: #00e5ff; }
   .msg.them { align-self: flex-start; }
   
-  /* НИКИ И СТАТУСЫ В МЕССЕНДЖЕРЕ */
   .msg-meta { font-size: 0.65rem; opacity: 0.8; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
   .status-badge-msg { display: inline-block; padding: 0 4px; font-size: 0.55rem; border-radius: 2px; border: 1px solid #ffd700; color: #ffd700; text-shadow: 0 0 3px rgba(255,215,0,0.5); font-weight: bold; }
 
@@ -210,11 +209,17 @@
         <button id="btnShowMoreChats" class="show-more-btn hidden" onclick="showMoreChats()">[ Показать ещё ]</button>
       </div>
 
+      <!-- БЛОК БЕСЕД -->
       <div id="listGroups" class="hidden" style="display:flex; flex-direction:column;">
-        <div class="list-header" style="display:flex; justify-content:space-between;">
-          <span>Беседы</span>
-          <span style="cursor:pointer; color:#00e5ff;" onclick="showCreateGroup()">[ + ]</span>
+        <div class="list-header">Беседы</div>
+        
+        <!-- БОЛЬШАЯ КНОПКА СОЗДАНИЯ БЕСЕДЫ -->
+        <div style="padding: 10px;">
+          <button onclick="showCreateGroup()" style="background: rgba(255,215,0,0.1); border: 1px solid #ffd700; color: #ffd700; font-size: 0.8rem; margin: 0; padding: 8px;">
+            [ СОЗДАТЬ БЕСЕДУ ]
+          </button>
         </div>
+
         <div class="tm-chat-list" id="tmGroupList"></div>
         <button id="btnShowMoreGroups" class="show-more-btn hidden" onclick="showMoreGroups()">[ Показать ещё ]</button>
       </div>
@@ -788,7 +793,6 @@ async function loadMessages() {
   if (!activeChatId) return;
   const { data: msgs } = await db.from('messages').select('*').eq('chat_id', activeChatId).order('created_at', { ascending: true });
   
-  // Получаем ники и статусы для сообщений
   const senderIds = [...new Set((msgs || []).map(m => m.sender_id))];
   const { data: profiles } = await db.from('profiles').select('id, username, is_admin').in('id', senderIds);
   
