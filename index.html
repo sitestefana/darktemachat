@@ -439,7 +439,7 @@
 
 <script>
 const SUPABASE_URL = 'https://geauicuahldmglatmtrv.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_dyMpzlPmu53ZDo3rJS7Lw_IIY_COdj';
+const SUPABASE_KEY = 'sb_publishable_dyMpzlPmu53ZDo3rJS7-Lw_IIY_COdj';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -780,7 +780,6 @@ function showMoreChats() { chatLimit += 5; loadChats(); }
 async function updateGlobalUnreadBadge() {
   let totalUnread = 0;
   
-  // Считаем непрочитанные в личках
   if (chatsData.length) {
     const peerIds = chatsData.map(c => c.user1_id === currentUser.id ? c.user2_id : c.user1_id);
     const { data: peers } = await db.from('profiles').select('id, username').in('id', peerIds);
@@ -795,7 +794,6 @@ async function updateGlobalUnreadBadge() {
     totalUnread += chatUnread.filter(u => u).length;
   }
 
-  // Считаем непрочитанные в беседах
   if (groupsData.length) {
     const groupUnread = await Promise.all(groupsData.map(async g => {
       if (g.id === activeGroupId) return false;
@@ -907,7 +905,6 @@ async function loadGroups() {
   
   const visibleGroups = groupsData.slice(0, groupLimit);
   
-  // Проверяем непрочитанные для каждой беседы
   const groupItemsHtml = await Promise.all(visibleGroups.map(async g => {
     const member = memberships.find(m => m.group_id === g.id);
     const myLastRead = member ? member.last_read_at : '1970-01-01';
@@ -945,7 +942,6 @@ async function searchGroupMembers(mode) {
   if (mode === 'create') {
     resBox.innerHTML = data.map(u => `<div style="padding:8px; border:1px solid rgba(0,229,255,0.3); margin-bottom:5px; cursor:pointer; color:#00e5ff;" onclick="addGroupMember('${u.id}', '${u.username}')">@${u.username}</div>`).join('');
   } else {
-    // Для инвайта: проверяем, есть ли уже в беседе
     const { data: existingMembers } = await db.from('group_members').select('user_id').eq('group_id', activeGroupId);
     const existingIds = new Set((existingMembers || []).map(m => m.user_id));
     
@@ -962,7 +958,6 @@ function addGroupMember(id, name) {
   if (!selectedGroupMembers.find(m => m.id === id)) {
     selectedGroupMembers.push({ id, name });
     document.getElementById('createSelectedMembers').innerHTML = 'Участники: ' + selectedGroupMembers.map(m => '@' + m.name).join(', ');
-    // СБРОС ПОИСКА
     document.getElementById('groupMemberSearch').value = '';
     document.getElementById('createMemberResults').innerHTML = '';
   }
@@ -1008,7 +1003,6 @@ async function openGroup(groupId, groupName, creatorId) {
     document.getElementById('tmGroupBackBtn').style.display = 'block';
   }
 
-  // Обновляем время прочтения
   await db.from('group_members').update({ last_read_at: new Date() }).eq('group_id', groupId).eq('user_id', currentUser.id);
 
   await loadGroupBanner();
@@ -1017,11 +1011,10 @@ async function openGroup(groupId, groupName, creatorId) {
   if (groupChannel) db.removeChannel(groupChannel);
   groupChannel = db.channel('group-' + groupId).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_messages', filter: `group_id=eq.${groupId}` }, () => { 
     loadGroupMessages(); 
-    // Обновляем прочтение при новом сообщении, если мы в чате
     db.from('group_members').update({ last_read_at: new Date() }).eq('group_id', groupId).eq('user_id', currentUser.id);
   }).subscribe();
   
-  loadGroups(); // Перерисовываем список, чтобы убрать точку
+  loadGroups();
 }
 
 async function loadGroupBanner() {
@@ -1058,7 +1051,7 @@ async function inviteGroupMember(id, name) {
   if (error) return alert(error.message);
   document.getElementById('groupInviteModal').classList.add('hidden');
   alert('Пользователь @' + name + ' добавлен в беседу');
-  loadGroupMessages(); // Обновить список, если нужно
+  loadGroupMessages();
 }
 
 async function loadGroupMessages() {
@@ -1100,7 +1093,6 @@ async function kickMember() {
   const { error } = await db.from('group_members').delete().eq('group_id', activeGroupId).eq('user_id', actionTargetMember.id);
   if (error) return alert(error.message);
   document.getElementById('groupActionModal').classList.add('hidden');
-  // Если мы выгнали себя (не должно быть), закрываем. Если другого - просто закрываем окно.
 }
 
 async function sendGroupMessage() {
@@ -1187,14 +1179,12 @@ async function changeUsername() {
 }
 
 function setupGlobalListeners() {
-  // Слушаем новые сообщения в личках
   globalMsgChannel = db.channel('global-msg-listener').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
     if (currentUser && payload.new.sender_id !== currentUser.id) {
       loadChats(); 
     }
   }).subscribe();
 
-  // Слушаем новые сообщения в беседах
   groupListChannel = db.channel('global-group-listener').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_messages' }, (payload) => {
      if (currentUser && payload.new.sender_id !== currentUser.id) {
         loadGroups(); 
