@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /#authPanel
+Disallow: /#forumPanel
+Disallow: /#messengerOverlay
+
+Sitemap: https://sitestefana.github.io/darktemachat/
