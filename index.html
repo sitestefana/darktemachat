@@ -211,15 +211,16 @@
 
       <div id="listGroups" style="display:none; flex-direction:column;">
         <div class="list-header">Беседы</div>
-        <div class="tm-chat-list" id="tmGroupList"></div>
-        <button id="btnShowMoreGroups" class="show-more-btn hidden" onclick="showMoreGroups()">[ Показать ещё ]</button>
         
-        <!-- КНОПКА СОЗДАНИЯ ТОЛЬКО ЗДЕСЬ -->
+        <!-- КНОПКА СОЗДАНИЯ БЕСЕДЫ ВНУТРИ БЛОКА -->
         <div style="padding:10px;">
           <button onclick="showCreateGroup()" style="background: rgba(255,215,0,0.1); border: 1px solid #ffd700; color: #ffd700; font-size: 0.8rem; margin: 0; padding: 8px;">
             [ СОЗДАТЬ БЕСЕДУ ]
           </button>
         </div>
+
+        <div class="tm-chat-list" id="tmGroupList"></div>
+        <button id="btnShowMoreGroups" class="show-more-btn hidden" onclick="showMoreGroups()">[ Показать ещё ]</button>
       </div>
 
       <div style="padding:10px; border-top:1px solid rgba(0,255,65,0.3); margin-top:auto;">
