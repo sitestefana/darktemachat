@@ -213,13 +213,13 @@
         <div class="list-header">Беседы</div>
         <div class="tm-chat-list" id="tmGroupList"></div>
         <button id="btnShowMoreGroups" class="show-more-btn hidden" onclick="showMoreGroups()">[ Показать ещё ]</button>
-      </div>
-
-      <!-- КНОПКА СОЗДАНИЯ БЕСЕДЫ -->
-      <div style="padding:10px; border-top:1px solid rgba(0,255,65,0.2);">
-        <button onclick="showCreateGroup()" style="background: rgba(255,215,0,0.1); border: 1px solid #ffd700; color: #ffd700; font-size: 0.8rem; margin: 0; padding: 8px;">
-          [ СОЗДАТЬ БЕСЕДУ ]
-        </button>
+        
+        <!-- КНОПКА СОЗДАНИЯ ТОЛЬКО ЗДЕСЬ -->
+        <div style="padding:10px;">
+          <button onclick="showCreateGroup()" style="background: rgba(255,215,0,0.1); border: 1px solid #ffd700; color: #ffd700; font-size: 0.8rem; margin: 0; padding: 8px;">
+            [ СОЗДАТЬ БЕСЕДУ ]
+          </button>
+        </div>
       </div>
 
       <div style="padding:10px; border-top:1px solid rgba(0,255,65,0.3); margin-top:auto;">
@@ -677,7 +677,6 @@ function closeMessenger() {
   loadChats(); loadGroups();
 }
 
-// ИСПРАВЛЕННАЯ ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ
 function switchTmTab(tab) {
   const tc = document.getElementById('tabChats');
   const tg = document.getElementById('tabGroups');
@@ -692,7 +691,6 @@ function switchTmTab(tab) {
     lc.classList.remove('hidden');
     lg.classList.add('hidden');
     sb.classList.remove('hidden');
-    
   } else {
     tg.style.background = 'rgba(0,255,65,0.1)'; tg.style.color = '#00ff41';
     tc.style.background = 'transparent'; tc.style.color = '#888';
