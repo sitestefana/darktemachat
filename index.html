@@ -12,7 +12,7 @@
 <meta name="author" content="Темщики">
 <link rel="canonical" href="https://sitetestefana.github.io/">
 
-<!-- OPEN GRAPH (для соцсетей) -->
+<!-- OPEN GRAPH -->
 <meta property="og:title" content="Темщики // darknet.forum">
 <meta property="og:description" content="Анонимный форум для общения и поиска единомышленников. Залетай через VPN.">
 <meta property="og:type" content="website">
@@ -53,7 +53,7 @@
   .danger { border: 1px solid #ff003c; color: #ff003c; background: transparent; }
   .danger:hover { background: #ff003c; color: #000; box-shadow: 0 0 15px #ff003c; }
   
-  /* СТИЛИ ДЛЯ ПОСТОВ */
+  /* ПОСТЫ */
   .post { border-left: 3px solid #00ff41; padding: 10px; margin-bottom: 10px; background: rgba(0,255,65,0.03); word-break: break-all; overflow-wrap: anywhere; width: 100%; }
   .post.pinned { border-left-color: #ffd700; background: rgba(255,215,0,0.05); }
   .post.scam { border: 1px solid #ff003c; border-left: 4px solid #ff003c; background: rgba(255,0,60,0.05); }
@@ -93,21 +93,21 @@
   .filter-btn.scam-filter { border-color: #ff003c; color: #ff003c; }
   .filter-btn.scam-filter.active { background: #ff003c; color: #000; }
 
-  /* КНОПКА ПРАВИЛ */
+  /* КНОПКА ПРАВИЛ (ТОНКАЯ И КРАСНАЯ) */
   .rules-btn {
     width: 100%;
-    padding: 12px;
-    background: rgba(0, 229, 255, 0.05);
-    border: 1px solid #00e5ff;
-    color: #00e5ff;
-    font-size: 0.9rem;
+    padding: 5px; /* Тонкая */
+    background: rgba(255, 0, 60, 0.05);
+    border: 1px solid #ff003c;
+    color: #ff003c;
+    font-size: 0.8rem;
     cursor: pointer;
-    margin-bottom: 15px;
+    margin-bottom: 0; /* Убираем отступ, так как она внутри panel */
     text-transform: uppercase;
     letter-spacing: 1px;
     transition: all 0.2s;
   }
-  .rules-btn:hover { background: rgba(0, 229, 255, 0.2); box-shadow: 0 0 15px rgba(0,229,255,0.4); }
+  .rules-btn:hover { background: rgba(255, 0, 60, 0.2); box-shadow: 0 0 15px rgba(255,0,60,0.4); }
 
   /* МОДАЛЬНОЕ ОКНО ПРАВИЛ */
   #rulesModal {
@@ -322,6 +322,7 @@
       </button>
     </div>
 
+    <!-- БЛОК СОЗДАНИЯ ТЕМЫ -->
     <div class="panel">
       <h2>// НОВАЯ ТЕМА</h2>
       <input type="text" id="postTitle" placeholder="> заголовок темы">
@@ -341,6 +342,14 @@
       <button id="postBtn" onclick="addPost()">Отправить в эфир</button>
     </div>
 
+    <!-- КНОПКА ПРАВИЛ (МЕЖДУ ТЕМОЙ И ЛЕНТОЙ) -->
+    <div class="panel" style="padding: 0; border: none; background: transparent; box-shadow: none;">
+      <button class="rules-btn" onclick="document.getElementById('rulesModal').classList.remove('hidden')">
+        [ ПРАВИЛА СООБЩЕСТВА ]
+      </button>
+    </div>
+
+    <!-- БЛОК ЛЕНТЫ -->
     <div class="panel">
       <h2>// ЛЕНТА // <span id="postCount">0</span> ЗАПИСЕЙ</h2>
       <div class="filters" id="filters">
@@ -359,11 +368,6 @@
       <div id="postsList"></div>
       <div id="pagination"></div>
     </div>
-
-    <!-- КНОПКА ПРАВИЛ -->
-    <button class="rules-btn" onclick="document.getElementById('rulesModal').classList.remove('hidden')">
-      [ ПРАВИЛА СООБЩЕСТВА ]
-    </button>
     
     <div style="display:flex; gap:10px; flex-wrap:wrap;">
       <button class="danger" onclick="logout()" style="flex:1;">[ ВЫЙТИ ]</button>
@@ -532,7 +536,6 @@ function renderPosts(posts) {
     const hasMore = postComments.length > limit;
     const canDelete = p.author_id === currentUser.id || currentProfile.is_admin;
     
-    // Класс для скам-листа
     const scamClass = p.category === 'скам-лист' ? 'scam' : '';
 
     const commentsHtml = visibleComments.map(c => `
