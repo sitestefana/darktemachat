@@ -113,7 +113,6 @@
   .tm-header { padding: 15px; border-bottom: 1px solid #00ff41; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.9); }
   .tm-body { display: flex; flex: 1; overflow: hidden; }
   
-  /* ДВУХКОЛОНОЧНЫЙ САЙДБАР */
   .tm-sidebar { width: 100%; max-width: 320px; border-right: 1px solid #00ff41; display: flex; flex-direction: column; background: rgba(0,10,2,0.8); }
   .tm-columns { display: flex; flex: 1; overflow: hidden; }
   .tm-col-left { flex: 1; border-right: 1px solid rgba(0,255,65,0.2); display: flex; flex-direction: column; background: rgba(20,20,0,0.2); }
@@ -128,11 +127,11 @@
   
   .col-scroll { flex: 1; overflow-y: auto; padding: 5px; }
   .tm-chat-list { display: flex; flex-direction: column; gap: 5px; }
-  .tm-chat-item { padding: 8px; border-bottom: 1px solid rgba(0,255,65,0.1); cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 3px; }
+  .tm-chat-item { padding: 8px; border-bottom: 1px solid rgba(0,255,65,0.1); cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 3px; position: relative; }
   .tm-chat-item:hover, .tm-chat-item.active { background: rgba(0,255,65,0.1); }
   .tm-chat-name { font-weight: bold; color: #00e5ff; font-size: 0.75rem; word-break: break-all; }
   .tm-group-name { font-weight: bold; color: #ffd700; font-size: 0.75rem; word-break: break-all; }
-  .unread-dot { width: 6px; height: 6px; background: #00ff41; border-radius: 50%; box-shadow: 0 0 8px #00ff41; flex-shrink: 0; }
+  .unread-dot { width: 6px; height: 6px; background: #00ff41; border-radius: 50%; box-shadow: 0 0 8px #00ff41; flex-shrink: 0; margin-left: 5px;}
   
   .tm-chat-area { flex: 1; display: flex; flex-direction: column; position: relative; }
   .tm-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
@@ -142,6 +141,8 @@
   
   .msg-meta { font-size: 0.65rem; opacity: 0.8; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
   .status-badge-msg { display: inline-block; padding: 0 4px; font-size: 0.55rem; border-radius: 2px; border: 1px solid #ffd700; color: #ffd700; text-shadow: 0 0 3px rgba(255,215,0,0.5); font-weight: bold; }
+  .clickable-nick { cursor: pointer; text-decoration: underline; }
+  .clickable-nick:hover { color: #fff; }
 
   .tm-input-area { padding: 15px; border-top: 1px solid #00ff41; display: flex; gap: 10px; background: rgba(0,0,0,0.9); }
   .badge { background: #ff003c; color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; margin-left: 5px; display: inline-block; vertical-align: middle; }
@@ -152,12 +153,13 @@
   .install-btn { position: fixed; bottom: 25px; right: 15px; z-index: 200; border: 1px solid rgba(0, 229, 255, 0.6); color: #00e5ff; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); padding: 6px 10px; font-size: 0.75rem; width: auto; margin-bottom: 0; opacity: 0.7; transition: all 0.2s ease; }
   .install-btn:hover { opacity: 1; background: rgba(0, 229, 255, 0.9); color: #000; box-shadow: 0 0 20px #00e5ff; border-color: #00e5ff; }
 
-  /* МОДАЛЬНОЕ ОКНО СОЗДАНИЯ БЕСЕДЫ */
-  #createGroupModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-  .create-group-content { background: #000; border: 1px solid #ffd700; max-width: 400px; width: 100%; padding: 20px; box-shadow: 0 0 30px rgba(255,215,0,0.2); }
-  .create-group-content h2 { color: #ffd700; margin-bottom: 15px; text-align: center; font-size: 1rem; }
-  .create-group-content input { margin-bottom: 10px; }
+  /* МОДАЛЬНЫЕ ОКНА */
+  #createGroupModal, #groupActionModal, #groupBannerModal, #groupInviteModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+  .modal-content { background: #000; border: 1px solid #ffd700; max-width: 400px; width: 100%; padding: 20px; box-shadow: 0 0 30px rgba(255,215,0,0.2); }
+  .modal-content h2 { color: #ffd700; margin-bottom: 15px; text-align: center; font-size: 1rem; }
+  .modal-content input { margin-bottom: 10px; }
   .selected-members-list { font-size: 0.8rem; color: #00e5ff; margin-bottom: 10px; min-height: 20px; }
+  .banner-display { background: rgba(255,215,0,0.1); border: 1px solid #ffd700; color: #ffd700; text-align: center; padding: 5px; font-size: 0.8rem; margin: 0 15px 10px 15px; border-radius: 3px; }
 
   @media (max-width: 600px) {
     .tm-body { flex-direction: column; }
@@ -175,16 +177,43 @@
   <div class="line" style="animation-delay:1s">[ !! ] ДОСТУП РАЗРЕШЁН.</div>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО СОЗДАНИЯ БЕСЕДЫ -->
+<!-- МОДАЛЬНЫЕ ОКНА -->
 <div id="createGroupModal" class="hidden">
-  <div class="create-group-content">
+  <div class="modal-content">
     <h2>// СОЗДАНИЕ БЕСЕДЫ</h2>
     <input type="text" id="newGroupTitle" placeholder="> Название беседы">
-    <input type="text" id="groupMemberSearch" placeholder="> Поиск участника по нику..." oninput="searchGroupMembers()">
-    <div id="groupMemberResults" style="max-height:120px; overflow-y:auto; margin-bottom:10px;"></div>
-    <div id="selectedMembers" class="selected-members-list"></div>
-    <button onclick="createGroup()" style="background:#ffd700; color:#000; margin-top:10px;">Создать беседу</button>
+    <input type="text" id="groupMemberSearch" placeholder="> Поиск участника..." oninput="searchGroupMembers('create')">
+    <div id="createMemberResults" style="max-height:120px; overflow-y:auto; margin-bottom:10px;"></div>
+    <div id="createSelectedMembers" class="selected-members-list"></div>
+    <button onclick="createGroup()" style="background:#ffd700; color:#000; margin-top:10px;">Создать</button>
     <button class="danger" onclick="document.getElementById('createGroupModal').classList.add('hidden')" style="margin-top:5px;">[ ОТМЕНА ]</button>
+  </div>
+</div>
+
+<div id="groupActionModal" class="hidden">
+  <div class="modal-content" style="border-color:#ff003c; box-shadow:0 0 30px rgba(255,0,60,0.2);">
+    <h2 style="color:#ff003c;">// ДЕЙСТВИЕ</h2>
+    <p style="text-align:center; margin-bottom:15px;">@<span id="actionTargetName"></span></p>
+    <button class="danger" id="kickBtn" onclick="kickMember()">[ ВЫГНАТЬ ИЗ БЕСЕДЫ ]</button>
+    <button onclick="document.getElementById('groupActionModal').classList.add('hidden')" style="margin-top:10px;">[ ЗАКРЫТЬ ]</button>
+  </div>
+</div>
+
+<div id="groupBannerModal" class="hidden">
+  <div class="modal-content">
+    <h2>// СТАТУС БЕСЕДЫ</h2>
+    <input type="text" id="newBannerText" placeholder="> Новый статус...">
+    <button onclick="updateGroupBanner()">Обновить</button>
+    <button class="danger" onclick="document.getElementById('groupBannerModal').classList.add('hidden')" style="margin-top:10px;">[ ОТМЕНА ]</button>
+  </div>
+</div>
+
+<div id="groupInviteModal" class="hidden">
+  <div class="modal-content">
+    <h2>// ПРИГЛАСИТЬ</h2>
+    <input type="text" id="inviteMemberSearch" placeholder="> Поиск участника..." oninput="searchGroupMembers('invite')">
+    <div id="inviteMemberResults" style="max-height:120px; overflow-y:auto; margin-bottom:10px;"></div>
+    <button class="danger" onclick="document.getElementById('groupInviteModal').classList.add('hidden')" style="margin-top:10px;">[ ЗАКРЫТЬ ]</button>
   </div>
 </div>
 
@@ -224,7 +253,6 @@
   <div class="tm-body">
     <div class="tm-sidebar">
       <div class="tm-columns">
-        <!-- ЛЕВАЯ КОЛОНКА: БЕСЕДЫ -->
         <div class="tm-col-left">
           <div class="col-header groups">Беседы</div>
           <div class="create-group-btn" onclick="showCreateGroup()">[ + СОЗДАТЬ ]</div>
@@ -234,7 +262,6 @@
           </div>
         </div>
         
-        <!-- ПРАВАЯ КОЛОНКА: ЛИЧНЫЕ + ПОИСК -->
         <div class="tm-col-right">
           <div class="col-header chats">Личные</div>
           <div style="padding:5px;">
@@ -274,13 +301,19 @@
       </div>
 
       <div id="tmActiveGroup" class="hidden" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
-        <div style="padding:15px; border-bottom:1px solid #ffd700; background:rgba(0,0,0,0.9); display:flex; justify-content:space-between; align-items:center;">
+        <div style="padding:15px; border-bottom:1px solid #ffd700; background:rgba(0,0,0,0.9); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:5px;">
           <span id="tmGroupName" style="font-weight:bold; color:#ffd700;">Беседа</span>
           <div style="display:flex; gap:10px;">
+            <button class="danger" id="groupInviteBtn" onclick="showInviteModal()" style="width:auto; padding:5px 10px; margin:0; font-size:0.7rem; display:none;">[ + ]</button>
+            <button class="danger" id="groupBannerBtn" onclick="showBannerModal()" style="width:auto; padding:5px 10px; margin:0; font-size:0.7rem; display:none;">[ СТАТУС ]</button>
             <button class="danger" onclick="leaveGroupPrompt()" style="width:auto; padding:5px 10px; margin:0; font-size:0.7rem;">[ ВЫЙТИ ]</button>
             <button class="danger" onclick="closeChatMobile()" style="width:auto; padding:5px 10px; margin:0; font-size:0.7rem; display:none;" id="tmGroupBackBtn">[ НАЗАД ]</button>
           </div>
         </div>
+        
+        <!-- БАННЕР -->
+        <div id="groupBannerDisplay" class="banner-display hidden"></div>
+
         <div class="tm-messages" id="tmGroupMessages"></div>
         <div class="tm-input-area">
           <input type="text" id="tmGroupMsgInput" placeholder="> сообщение..." style="margin-bottom:0;" onkeypress="if(event.key === 'Enter') sendGroupMessage()">
@@ -414,10 +447,10 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null, currentProfile = null;
 let allComments = [], allReactions = [], chatsData = [], groupsData = [], adminIds = new Set();
 let activeChatId = null, activeChatPeerName = null, activeChatPeerId = null;
-let activeGroupId = null, activeGroupName = null;
-let tmChannel = null, globalMsgChannel = null, groupChannel = null;
+let activeGroupId = null, activeGroupName = null, activeGroupCreatorId = null;
+let tmChannel = null, globalMsgChannel = null, groupChannel = null, groupListChannel = null;
 let chatLimit = 5, groupLimit = 5;
-let selectedGroupMembers = [];
+let selectedGroupMembers = [], selectedInviteMember = null, actionTargetMember = null;
 
 let currentPage = 1, PAGE_SIZE = 10, totalPosts = 0, currentFilter = 'общее';
 let commentsDisplayLimit = {}, popupTargetUser = null;
@@ -741,7 +774,7 @@ async function loadChats() {
   else btnMore.classList.add('hidden');
 
   const totalUnread = unreadStatus.filter(u => u.unread).length;
-  updateGlobalUnreadBadge(totalUnread);
+  updateGlobalUnreadBadge(totalUnread + (groupsData.filter(g => g.hasUnread).length || 0)); // Суммируем с беседами (упрощенно)
 }
 
 function showMoreChats() { chatLimit += 5; loadChats(); }
@@ -841,6 +874,16 @@ async function loadGroups() {
   const { data: groups } = await db.from('group_chats').select('*').in('id', groupIds);
   groupsData = groups || [];
   
+  // Проверка непрочитанных в беседах
+  const unreadCounts = await Promise.all(groupsData.map(async g => {
+    if (g.id === activeGroupId) return { id: g.id, unread: false };
+    const { data: lastMsg } = await db.from('group_messages').select('created_at').eq('group_id', g.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+    if (!lastMsg) return { id: g.id, unread: false };
+    const { data: lastRead } = await db.from('group_members').select('joined_at').eq('group_id', g.id).eq('user_id', currentUser.id).single();
+    // Упрощенная логика: если последнее сообщение после присоединения (в реальности нужно поле last_read в group_members)
+    return { id: g.id, unread: false }; 
+  }));
+
   const list = document.getElementById('tmGroupList');
   const btnMore = document.getElementById('btnShowMoreGroups');
   
@@ -859,26 +902,29 @@ function showCreateGroup() {
   document.getElementById('createGroupModal').classList.remove('hidden');
   document.getElementById('newGroupTitle').value = '';
   document.getElementById('groupMemberSearch').value = '';
-  document.getElementById('groupMemberResults').innerHTML = '';
-  document.getElementById('selectedMembers').innerHTML = '';
+  document.getElementById('createMemberResults').innerHTML = '';
+  document.getElementById('createSelectedMembers').innerHTML = '';
   selectedGroupMembers = [];
 }
 
-async function searchGroupMembers() {
-  const q = document.getElementById('groupMemberSearch').value.trim();
-  const resBox = document.getElementById('groupMemberResults');
+async function searchGroupMembers(mode) {
+  const q = mode === 'create' ? document.getElementById('groupMemberSearch').value.trim() : document.getElementById('inviteMemberSearch').value.trim();
+  const resBox = mode === 'create' ? document.getElementById('createMemberResults') : document.getElementById('inviteMemberResults');
   if (q.length < 2) { resBox.innerHTML = ''; return; }
   const { data } = await db.from('profiles').select('id, username').ilike('username', `%${q}%`).neq('id', currentUser.id).limit(5);
   if (!data || !data.length) { resBox.innerHTML = '<div style="opacity:0.5;font-size:0.8rem;">не найдено</div>'; return; }
-  resBox.innerHTML = data.map(u => `<div style="padding:8px; border:1px solid rgba(0,229,255,0.3); margin-bottom:5px; cursor:pointer; color:#00e5ff;" onclick="addGroupMember('${u.id}', '${u.username}')">@${u.username}</div>`).join('');
+  
+  if (mode === 'create') {
+    resBox.innerHTML = data.map(u => `<div style="padding:8px; border:1px solid rgba(0,229,255,0.3); margin-bottom:5px; cursor:pointer; color:#00e5ff;" onclick="addGroupMember('${u.id}', '${u.username}')">@${u.username}</div>`).join('');
+  } else {
+    resBox.innerHTML = data.map(u => `<div style="padding:8px; border:1px solid rgba(0,229,255,0.3); margin-bottom:5px; cursor:pointer; color:#00e5ff;" onclick="inviteGroupMember('${u.id}', '${u.username}')">@${u.username}</div>`).join('');
+  }
 }
 
 function addGroupMember(id, name) {
   if (!selectedGroupMembers.find(m => m.id === id)) {
     selectedGroupMembers.push({ id, name });
-    document.getElementById('selectedMembers').innerHTML = 'Участники: ' + selectedGroupMembers.map(m => '@' + m.name).join(', ');
-    document.getElementById('groupMemberSearch').value = '';
-    document.getElementById('groupMemberResults').innerHTML = '';
+    document.getElementById('createSelectedMembers').innerHTML = 'Участники: ' + selectedGroupMembers.map(m => '@' + m.name).join(', ');
   }
 }
 
@@ -901,7 +947,7 @@ async function createGroup() {
 }
 
 async function openGroup(groupId, groupName, creatorId) {
-  activeGroupId = groupId; activeGroupName = groupName;
+  activeGroupId = groupId; activeGroupName = groupName; activeGroupCreatorId = creatorId;
   activeChatId = null;
   document.getElementById('tmNoChat').classList.add('hidden');
   document.getElementById('tmActiveChat').classList.add('hidden');
@@ -909,17 +955,62 @@ async function openGroup(groupId, groupName, creatorId) {
   document.getElementById('tmActiveGroup').classList.remove('hidden');
   document.getElementById('tmGroupName').textContent = groupName;
 
+  if (currentUser.id === creatorId) {
+    document.getElementById('groupBannerBtn').style.display = 'block';
+    document.getElementById('groupInviteBtn').style.display = 'block';
+  } else {
+    document.getElementById('groupBannerBtn').style.display = 'none';
+    document.getElementById('groupInviteBtn').style.display = 'none';
+  }
+
   if(window.innerWidth <= 600) {
     document.getElementById('tmChatArea').classList.add('active');
     document.getElementById('tmGroupBackBtn').style.display = 'block';
   }
 
+  await loadGroupBanner();
   loadGroupMessages();
   
   if (groupChannel) db.removeChannel(groupChannel);
   groupChannel = db.channel('group-' + groupId).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_messages', filter: `group_id=eq.${groupId}` }, () => { 
     loadGroupMessages(); 
   }).subscribe();
+}
+
+async function loadGroupBanner() {
+  const { data } = await db.from('group_chats').select('status_banner').eq('id', activeGroupId).single();
+  const bannerDiv = document.getElementById('groupBannerDisplay');
+  if (data && data.status_banner) {
+    bannerDiv.textContent = data.status_banner;
+    bannerDiv.classList.remove('hidden');
+  } else {
+    bannerDiv.classList.add('hidden');
+  }
+}
+
+function showBannerModal() {
+  document.getElementById('groupBannerModal').classList.remove('hidden');
+  document.getElementById('newBannerText').value = '';
+}
+
+async function updateGroupBanner() {
+  const text = document.getElementById('newBannerText').value.trim();
+  await db.from('group_chats').update({ status_banner: text }).eq('id', activeGroupId);
+  document.getElementById('groupBannerModal').classList.add('hidden');
+  loadGroupBanner();
+}
+
+function showInviteModal() {
+  document.getElementById('groupInviteModal').classList.remove('hidden');
+  document.getElementById('inviteMemberSearch').value = '';
+  document.getElementById('inviteMemberResults').innerHTML = '';
+}
+
+async function inviteGroupMember(id, name) {
+  const { error } = await db.from('group_members').insert({ group_id: activeGroupId, user_id: id });
+  if (error) return alert(error.message);
+  document.getElementById('groupInviteModal').classList.add('hidden');
+  alert('Пользователь @' + name + ' добавлен в беседу');
 }
 
 async function loadGroupMessages() {
@@ -940,13 +1031,27 @@ async function loadGroupMessages() {
       <div class="msg ${isMe ? 'me' : 'them'}">
         <div class="msg-meta">
           ${isAdmin ? '<span class="status-badge-msg">ADMIN</span>' : ''}
-          <span>@${escapeHtml(senderName)}</span>
+          <span class="clickable-nick" onclick="openGroupActionModal('${m.sender_id}', '${senderName}')">@${escapeHtml(senderName)}</span>
         </div>
         ${escapeHtml(m.body)}
       </div>
     `;
   }).join('');
   box.scrollTop = box.scrollHeight;
+}
+
+function openGroupActionModal(userId, userName) {
+  if (currentUser.id !== activeGroupCreatorId || userId === currentUser.id) return; // Только создатель и не на себя
+  actionTargetMember = { id: userId, name: userName };
+  document.getElementById('actionTargetName').textContent = userName;
+  document.getElementById('groupActionModal').classList.remove('hidden');
+}
+
+async function kickMember() {
+  if (!actionTargetMember) return;
+  const { error } = await db.from('group_members').delete().eq('group_id', activeGroupId).eq('user_id', actionTargetMember.id);
+  if (error) return alert(error.message);
+  document.getElementById('groupActionModal').classList.add('hidden');
 }
 
 async function sendGroupMessage() {
@@ -1033,10 +1138,18 @@ async function changeUsername() {
 }
 
 function setupGlobalListeners() {
+  // Слушаем новые сообщения в личках
   globalMsgChannel = db.channel('global-msg-listener').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
     if (currentUser && payload.new.sender_id !== currentUser.id) {
       loadChats(); 
     }
+  }).subscribe();
+
+  // Слушаем новые сообщения в беседах (для счетчика, если реализуем)
+  groupListChannel = db.channel('global-group-listener').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_messages' }, (payload) => {
+     if (currentUser && payload.new.sender_id !== currentUser.id) {
+        loadGroups(); // Перезагружаем список, чтобы обновить потенциальные индикаторы
+     }
   }).subscribe();
 }
 
