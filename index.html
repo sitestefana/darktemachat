@@ -106,7 +106,6 @@
   @keyframes adBlink { 0%,100%{opacity:1;text-shadow:0 0 6px #ff003c} 50%{opacity:0.25;text-shadow:none} }
   #pagination { display: flex; gap: 10px; justify-content: center; align-items: center; margin-top: 15px; width: 100%; flex-wrap: wrap; }
   #pagination button { width: auto; margin-bottom: 0; }
-  #userPopup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #000; border: 1px solid #00e5ff; padding: 20px; z-index: 30000; text-align: center; box-shadow: 0 0 30px rgba(0,229,255,0.3); width: 250px; }
   
   /* МЕССЕНДЖЕР */
   #messengerOverlay { position: fixed; inset: 0; background: #0a0a0a; z-index: 20000; display: flex; flex-direction: column; overflow: hidden; background-image: linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px); background-size: 30px 30px; }
@@ -154,12 +153,23 @@
   .install-btn:hover { opacity: 1; background: rgba(0, 229, 255, 0.9); color: #000; box-shadow: 0 0 20px #00e5ff; border-color: #00e5ff; }
 
   /* МОДАЛЬНЫЕ ОКНА */
-  #createGroupModal, #groupActionModal, #groupBannerModal, #groupInviteModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+  #createGroupModal, #groupActionModal, #groupBannerModal, #groupInviteModal, #profileModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
   .modal-content { background: #000; border: 1px solid #ffd700; max-width: 400px; width: 100%; padding: 20px; box-shadow: 0 0 30px rgba(255,215,0,0.2); }
   .modal-content h2 { color: #ffd700; margin-bottom: 15px; text-align: center; font-size: 1rem; }
   .modal-content input { margin-bottom: 10px; }
   .selected-members-list { font-size: 0.8rem; color: #00e5ff; margin-bottom: 10px; min-height: 20px; }
   .banner-display { background: rgba(255,215,0,0.1); border: 1px solid #ffd700; color: #ffd700; text-align: center; padding: 5px; font-size: 0.8rem; margin: 0 15px 10px 15px; border-radius: 3px; }
+
+  /* ПРОФИЛЬ */
+  #profileModal .modal-content { border-color: #00e5ff; box-shadow: 0 0 30px rgba(0,229,255,0.2); }
+  #profileModal h2 { color: #00e5ff; }
+  .profile-status-display { background: rgba(0,255,65,0.1); border: 1px dashed #00ff41; padding: 5px; text-align: center; font-size: 0.85rem; margin-bottom: 10px; color: #00ff41; }
+  .profile-posts-list { max-height: 200px; overflow-y: auto; margin-bottom: 15px; border-top: 1px solid rgba(0,255,65,0.2); padding-top: 5px; }
+  .profile-post-item { border-bottom: 1px solid rgba(0,255,65,0.1); padding: 5px 0; font-size: 0.8rem; }
+  .profile-post-item strong { color: #00e5ff; display: block; }
+
+  /* ПАМЯТКА */
+  .vpn-warning { margin-top: 20px; text-align: center; font-size: 0.75rem; color: #ff003c; border: 1px dashed #ff003c; padding: 10px; background: rgba(255,0,60,0.05); animation: adBlink 2s infinite; }
 
   @media (max-width: 600px) {
     .tm-body { flex-direction: column; }
@@ -178,6 +188,38 @@
 </div>
 
 <!-- МОДАЛЬНЫЕ ОКНА -->
+<div id="profileModal" class="hidden">
+  <div class="modal-content">
+    <h2>// ПРОФИЛЬ</h2>
+    <p style="text-align:center; font-size:1.1rem; color:#00e5ff; margin-bottom:5px;">@<span id="profNick"></span></p>
+    <div id="profAdminBadge" style="text-align:center; margin-bottom:10px;"></div>
+    
+    <div id="profStatusView">
+      <div class="profile-status-display" id="profStatusText">// статус не установлен</div>
+    </div>
+    
+    <div id="profStatusEdit" class="hidden">
+      <p style="font-size:0.7rem; opacity:0.7; margin-bottom:5px;">Сменить статус (макс. 50 симв.):</p>
+      <input type="text" id="profNewStatus" placeholder="> новый статус..." maxlength="50">
+      <button onclick="saveProfileStatus()" style="font-size:0.8rem;">Сохранить</button>
+    </div>
+
+    <hr style="border-color:rgba(0,255,65,0.2); margin:10px 0;">
+    
+    <p style="font-size:0.8rem; opacity:0.7; margin-bottom:5px;">Посты пользователя:</p>
+    <div class="profile-posts-list" id="profPostsList"></div>
+
+    <div id="profAddPost" class="hidden">
+      <p style="font-size:0.7rem; opacity:0.7; margin-bottom:5px;">Добавить пост (макс. 300 симв.):</p>
+      <textarea id="profPostText" rows="3" placeholder="> текст поста..." maxlength="300"></textarea>
+      <button onclick="addProfilePost()" style="font-size:0.8rem;">Добавить пост</button>
+    </div>
+
+    <button onclick="writeToProfileUser()" style="margin-top:10px; border:1px solid #00e5ff; background:transparent; color:#00e5ff;">Написать в ТМ</button>
+    <button class="danger" onclick="document.getElementById('profileModal').classList.add('hidden')" style="margin-top:5px;">[ ЗАКРЫТЬ ]</button>
+  </div>
+</div>
+
 <div id="createGroupModal" class="hidden">
   <div class="modal-content">
     <h2>// СОЗДАНИЕ БЕСЕДЫ</h2>
@@ -202,7 +244,7 @@
 <div id="groupBannerModal" class="hidden">
   <div class="modal-content">
     <h2>// СТАТУС БЕСЕДЫ</h2>
-    <input type="text" id="newBannerText" placeholder="> Новый статус...">
+    <input type="text" id="newBannerText" placeholder="> Новый статус..." maxlength="50">
     <button onclick="updateGroupBanner()">Обновить</button>
     <button class="danger" onclick="document.getElementById('groupBannerModal').classList.add('hidden')" style="margin-top:10px;">[ ОТМЕНА ]</button>
   </div>
@@ -237,12 +279,6 @@
     <p>Спасибо, что ты с нами. Спасибо, что ты с семьей. Приятного пользования!</p>
     <button onclick="document.getElementById('rulesModal').classList.add('hidden')" style="margin-top:20px;">[ ПОНЯЛ, ЗАКРЫТЬ ]</button>
   </div>
-</div>
-
-<div id="userPopup" class="hidden">
-  <h3 style="color:#00e5ff; margin-bottom:15px;">@<span id="popupUser"></span></h3>
-  <button onclick="popupWrite()" style="margin-bottom:10px;">НАПИСАТЬ В ТМ</button>
-  <button class="danger" onclick="document.getElementById('userPopup').classList.add('hidden')">ЗАКРЫТЬ</button>
 </div>
 
 <div id="messengerOverlay" class="hidden">
@@ -372,6 +408,10 @@
       <input type="password" id="regPass" placeholder="> пароль">
       <button id="regBtn" onclick="doRegister()">Зарегистрироваться</button>
     </div>
+    
+    <div class="vpn-warning">
+      ПРИНУДИТЕЛЬНО РЕКОМЕНДУЕМ ИСПОЛЬЗОВАТЬ VPN/PROXY
+    </div>
   </div>
 
   <div id="forumPanel" class="hidden">
@@ -396,7 +436,7 @@
         <option value="общение">Общение</option>
         <option value="темщики">Темщики</option>
       </select>
-      <textarea id="postText" rows="4" placeholder="> сообщение..."></textarea>
+      <textarea id="postText" rows="4" placeholder="> сообщение... (макс. 1000 симв.)" maxlength="1000"></textarea>
       <button id="postBtn" onclick="addPost()">Отправить в эфир</button>
     </div>
 
@@ -450,6 +490,7 @@ let activeGroupId = null, activeGroupName = null, activeGroupCreatorId = null;
 let tmChannel = null, globalMsgChannel = null, groupChannel = null, groupListChannel = null;
 let chatLimit = 5, groupLimit = 5;
 let selectedGroupMembers = [], selectedInviteMember = null, actionTargetMember = null;
+let profileTargetId = null, profileTargetName = null;
 
 let currentPage = 1, PAGE_SIZE = 10, totalPosts = 0, currentFilter = 'общее';
 let commentsDisplayLimit = {}, popupTargetUser = null;
@@ -577,17 +618,80 @@ function renderPagination() {
 
 function goPage(page) { currentPage = page; window.scrollTo({ top: 0, behavior: 'smooth' }); loadAll(); }
 
-function openUserPopup(userId, userName) {
-  popupTargetUser = { id: userId, name: userName };
-  document.getElementById('popupUser').textContent = userName;
-  document.getElementById('userPopup').classList.remove('hidden');
+// ПРОФИЛЬ
+async function openProfile(userId, userName) {
+  profileTargetId = userId; profileTargetName = userName;
+  document.getElementById('profNick').textContent = userName;
+  
+  const { data: profile } = await db.from('profiles').select('status_text, is_admin').eq('id', userId).single();
+  
+  const badgeDiv = document.getElementById('profAdminBadge');
+  if (profile && profile.is_admin) badgeDiv.innerHTML = `<span class="status-badge status-admin">ADMIN</span>`;
+  else badgeDiv.innerHTML = '';
+
+  const statusView = document.getElementById('profStatusView');
+  const statusText = document.getElementById('profStatusText');
+  const statusEdit = document.getElementById('profStatusEdit');
+  
+  if (profile && profile.status_text) statusText.textContent = profile.status_text;
+  else statusText.textContent = '// статус не установлен';
+
+  if (userId === currentUser.id) {
+    statusEdit.classList.remove('hidden');
+  } else {
+    statusEdit.classList.add('hidden');
+  }
+
+  document.getElementById('profAddPost').classList.toggle('hidden', userId !== currentUser.id);
+  
+  const { data: posts } = await db.from('posts').select('title').eq('author_id', userId).order('created_at', { ascending: false }).limit(5);
+  const postsList = document.getElementById('profPostsList');
+  if (posts && posts.length) {
+    postsList.innerHTML = posts.map(p => `<div class="profile-post-item"><strong># ${escapeHtml(p.title)}</strong></div>`).join('');
+  } else {
+    postsList.innerHTML = '<div style="opacity:0.5;font-size:0.8rem;">// постов нет</div>';
+  }
+
+  document.getElementById('profileModal').classList.remove('hidden');
 }
 
-function popupWrite() {
-  document.getElementById('userPopup').classList.add('hidden');
-  openMessenger();
-  startChat(popupTargetUser.id, popupTargetUser.name);
+async function saveProfileStatus() {
+  const text = document.getElementById('profNewStatus').value.trim();
+  if (text.length > 50) return alert('Максимум 50 символов');
+  const { error } = await db.from('profiles').update({ status_text: text }).eq('id', currentUser.id);
+  if (error) return alert(error.message);
+  document.getElementById('profStatusText').textContent = text || '// статус не установлен';
+  document.getElementById('profNewStatus').value = '';
+  alert('Статус обновлен');
 }
+
+async function addProfilePost() {
+  const text = document.getElementById('profPostText').value.trim();
+  if (!text) return alert('Введи текст');
+  if (text.length > 300) return alert('Максимум 300 символов');
+  
+  const { error } = await db.from('posts').insert({ 
+    author_id: currentUser.id, 
+    author_name: currentProfile.username, 
+    title: 'Пост из профиля', 
+    body: text, 
+    category: 'общение' 
+  });
+  
+  if (error) return alert(error.message);
+  document.getElementById('profPostText').value = '';
+  alert('Пост добавлен');
+  openProfile(profileTargetId, profileTargetName);
+}
+
+async function writeToProfileUser() {
+  document.getElementById('profileModal').classList.add('hidden');
+  await startChat(profileTargetId, profileTargetName);
+}
+
+// ССЫЛКИ НА ПРОФИЛЬ
+function openUserPopup(userId, userName) { openProfile(userId, userName); } // Заменяем старое окно на профиль
+function popupWrite() { document.getElementById('userPopup').classList.add('hidden'); } // Заглушка, так как теперь профиль
 
 function renderPosts(posts) {
   document.getElementById('postCount').textContent = totalPosts;
@@ -612,7 +716,7 @@ function renderPosts(posts) {
         <div class="meta">
           <div style="display:flex; align-items:center; gap:5px;">
             ${getStatusBadge(c.author_id)}
-            <span class="author" onclick="openUserPopup('${c.author_id}', '${c.author_name}')">@${escapeHtml(c.author_name)}</span>
+            <span class="author" onclick="openProfile('${c.author_id}', '${c.author_name}')">@${escapeHtml(c.author_name)}</span>
           </div>
           ${(c.author_id === currentUser.id || currentProfile.is_admin) ? `<span class="del" onclick="deleteComment(${c.id})">[ x ]</span>` : ''}
         </div>
@@ -628,7 +732,7 @@ function renderPosts(posts) {
         <div class="meta">
           <div style="display:flex; align-items:center; gap:5px;">
             ${getStatusBadge(p.author_id)} 
-            <span class="author" onclick="openUserPopup('${p.author_id}', '${p.author_name}')">@${escapeHtml(p.author_name)}</span>
+            <span class="author" onclick="openProfile('${p.author_id}', '${p.author_name}')">@${escapeHtml(p.author_name)}</span>
           </div>
           · ${new Date(p.created_at).toLocaleString('ru-RU')}
           <span style="background:rgba(0,255,65,0.2); padding:2px 5px; border-radius:3px; font-size:0.65rem;">${p.category || 'общее'}</span>
@@ -658,6 +762,7 @@ async function addPost() {
   const b = document.getElementById('postText').value.trim();
   const cat = document.getElementById('postCategory').value;
   if (!t || !b) return alert('Заполни поля');
+  if (t.length > 100 || b.length > 1000) return alert('Слишком длинный заголовок или текст');
   const btn = document.getElementById('postBtn');
   btn.disabled = true;
   
@@ -735,6 +840,8 @@ async function searchUsers() {
 async function startChat(peerId, peerName) {
   document.getElementById('tmSearch').value = '';
   document.getElementById('tmSearchResults').innerHTML = '';
+  document.getElementById('messengerOverlay').classList.remove('hidden');
+  
   const { data: existing } = await db.from('chats').select('id').or(`and(user1_id.eq.${currentUser.id},user2_id.eq.${peerId}),and(user1_id.eq.${peerId},user2_id.eq.${currentUser.id})`).single();
   let chatId = existing ? existing.id : (await db.from('chats').insert({ user1_id: currentUser.id, user2_id: peerId }).select().single()).data.id;
   openChat(chatId, peerName, peerId);
@@ -855,7 +962,7 @@ async function loadMessages() {
       <div class="msg ${isMe ? 'me' : 'them'}">
         <div class="msg-meta">
           ${isAdmin ? '<span class="status-badge-msg">ADMIN</span>' : ''}
-          <span>@${escapeHtml(senderName)}</span>
+          <span class="clickable-nick" onclick="openProfile('${m.sender_id}', '${senderName}')">@${escapeHtml(senderName)}</span>
         </div>
         ${escapeHtml(m.body)}
       </div>
@@ -1035,6 +1142,7 @@ function showBannerModal() {
 
 async function updateGroupBanner() {
   const text = document.getElementById('newBannerText').value.trim();
+  if (text.length > 50) return alert('Максимум 50 символов');
   await db.from('group_chats').update({ status_banner: text }).eq('id', activeGroupId);
   document.getElementById('groupBannerModal').classList.add('hidden');
   loadGroupBanner();
@@ -1072,7 +1180,7 @@ async function loadGroupMessages() {
       <div class="msg ${isMe ? 'me' : 'them'}">
         <div class="msg-meta">
           ${isAdmin ? '<span class="status-badge-msg">ADMIN</span>' : ''}
-          <span class="clickable-nick" onclick="openGroupActionModal('${m.sender_id}', '${senderName}')">@${escapeHtml(senderName)}</span>
+          <span class="clickable-nick" onclick="openProfile('${m.sender_id}', '${senderName}')">@${escapeHtml(senderName)}</span>
         </div>
         ${escapeHtml(m.body)}
       </div>
