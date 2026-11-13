@@ -24,8 +24,9 @@
   .status { font-size: 0.75rem; color: #0f0; opacity: 0.7; }
   .blink { animation: blink 1s steps(2) infinite; }
   @keyframes blink { 50%{opacity:0} }
-  .userbar { display: flex; gap: 10px; align-items: center; font-size: 0.85rem; cursor: pointer; }
-  .userbar:hover { text-shadow: 0 0 5px #00ff41; }
+  .userbar { display: flex; gap: 10px; align-items: center; font-size: 0.85rem; }
+  .userbar .nick-click { cursor: pointer; text-decoration: underline; }
+  .userbar .nick-click:hover { color: #fff; }
   main { width: 100%; max-width: 900px; padding: 15px 10px; display: flex; flex-direction: column; gap: 15px; }
   .panel { border: 1px solid #00ff41; background: rgba(0, 20, 5, 0.7); padding: 15px; box-shadow: 0 0 15px rgba(0,255,65,0.15); width: 100%; }
   .panel h2 { font-size: 1rem; letter-spacing: 2px; margin-bottom: 15px; color: #00ff41; }
@@ -211,18 +212,18 @@
       <button id="profDislikeBtn" onclick="rateProfile(-1)" style="width:auto; padding:5px 15px; font-size:0.8rem; background:transparent; border:1px solid #ff003c; color:#ff003c;">▼ <span id="profDislikes">0</span></button>
     </div>
 
-    <div class="profile-about" id="profAboutText">// о себе не написано</div>
-    <div id="profAboutEdit" class="hidden">
-      <p style="font-size:0.7rem; opacity:0.7; margin-bottom:5px;">О себе (макс. 150):</p>
-      <input type="text" id="profNewAbout" placeholder="> кратко о себе..." maxlength="150">
-      <button onclick="saveAboutMe()" style="font-size:0.8rem;">Сохранить "О себе"</button>
-    </div>
-
     <div class="profile-status-display" id="profStatusText">// статус не установлен</div>
     <div id="profStatusEdit" class="hidden">
       <p style="font-size:0.7rem; opacity:0.7; margin-bottom:5px;">Сменить статус (макс. 50):</p>
       <input type="text" id="profNewStatus" placeholder="> новый статус..." maxlength="50">
       <button onclick="saveProfileStatus()" style="font-size:0.8rem;">Сохранить статус</button>
+    </div>
+
+    <div class="profile-about" id="profAboutText">// о себе не написано</div>
+    <div id="profAboutEdit" class="hidden">
+      <p style="font-size:0.7rem; opacity:0.7; margin-bottom:5px;">О себе (макс. 150):</p>
+      <input type="text" id="profNewAbout" placeholder="> кратко о себе..." maxlength="150">
+      <button onclick="saveAboutMe()" style="font-size:0.8rem;">Сохранить "О себе"</button>
     </div>
 
     <p style="font-size:0.8rem; opacity:0.7; margin-top:15px; margin-bottom:5px;">Посты пользователя:</p>
@@ -327,7 +328,7 @@
       </div>
       
       <div style="padding:10px; border-top:1px solid rgba(0,255,65,0.3);">
-        <button onclick="showSettings()" style="margin-bottom:0; font-size:0.8rem;">[ НАСТРОЙКИ ]</button>
+        <button onclick="openMyProfile()" style="margin-bottom:0; font-size:0.8rem;">[ МОЙ ПРОФИЛЬ ]</button>
       </div>
     </div>
 
@@ -338,7 +339,7 @@
       
       <div id="tmActiveChat" class="hidden" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
         <div style="padding:15px; border-bottom:1px solid #00ff41; background:rgba(0,0,0,0.9); display:flex; justify-content:space-between; align-items:center;">
-          <span id="tmChatName" style="font-weight:bold; color:#00e5ff;">@user</span>
+          <span id="tmChatName" style="font-weight:bold; color:#00e5ff; cursor:pointer; text-decoration:underline;" onclick="openProfile(activeChatPeerId, activeChatPeerName)">@user</span>
           <div style="display:flex; gap:10px;">
             <button class="danger" onclick="deleteChatPrompt()" style="width:auto; padding:5px 10px; margin:0; font-size:0.7rem;">[ x ]</button>
             <button class="danger" onclick="closeChatMobile()" style="width:auto; padding:5px 10px; margin:0; font-size:0.7rem; display:none;" id="tmBackBtn">[ НАЗАД ]</button>
@@ -399,9 +400,9 @@
 <header>
   <div class="header-top">
     <div class="glitch-title" data-text="ТЕМЩИКИ">ТЕМЩИКИ</div>
-    <div class="userbar" id="headerUser" onclick="openMyProfile()">
+    <div class="userbar">
       <span class="status"><span class="blink">●</span> ONLINE</span>
-      <div id="userInfo" class="hidden"></div>
+      <span id="userInfo" class="hidden nick-click" onclick="openMyProfile()"></span>
     </div>
   </div>
   <div class="ad-banner top hidden" id="adTop">◆ здесь могла быть <span>ваша реклама</span> ◆</div>
@@ -510,6 +511,7 @@ let chatLimit = 5, groupLimit = 5;
 let selectedGroupMembers = [], selectedInviteMember = null, actionTargetMember = null;
 let profileTargetId = null, profileTargetName = null;
 let profilePostsData = [], profilePostsLimit = 3, profilePostsExpanded = false;
+let modalCommentsLimit = 5;
 
 let currentPage = 1, PAGE_SIZE = 10, totalPosts = 0, currentFilter = 'общее';
 let commentsDisplayLimit = {}, popupTargetUser = null;
@@ -570,10 +572,11 @@ async function enterForum() {
 
   document.getElementById('authPanel').classList.add('hidden');
   document.getElementById('forumPanel').classList.remove('hidden');
-  document.getElementById('userInfo').innerHTML = `[ ${profile.username}${profile.is_admin ? ' ★' : ''} ]`;
+  document.getElementById('userInfo').innerHTML = `${profile.username}${profile.is_admin ? ' ★' : ''}`;
   document.getElementById('userInfo').classList.remove('hidden');
   document.getElementById('adTop').classList.remove('hidden');
   document.getElementById('adBottom').classList.remove('hidden');
+  document.getElementById('setUsername').textContent = profile.username;
 
   await loadAll();
   setupGlobalListeners();
@@ -645,6 +648,7 @@ function goPage(page) { currentPage = page; window.scrollTo({ top: 0, behavior: 
 async function openProfile(userId, userName) {
   profileTargetId = userId; profileTargetName = userName;
   document.getElementById('profNick').textContent = userName;
+  modalCommentsLimit = 5; // Сброс пагинации комментов в модалке
   
   const { data: profile } = await db.from('profiles').select('status_text, about_me, is_admin').eq('id', userId).single();
   
@@ -758,12 +762,20 @@ function openFullPost(postId) {
   const post = profilePostsData.find(p => p.id == postId);
   if (!post) return;
 
+  renderFullPostModal(post);
+  document.getElementById('postModal').classList.remove('hidden');
+}
+
+function renderFullPostModal(post) {
   const likes = allReactions.filter(r => r.post_id === post.id && r.value === 1).length;
   const dislikes = allReactions.filter(r => r.post_id === post.id && r.value === -1).length;
   const myReaction = allReactions.find(r => r.post_id === post.id && r.user_id === currentUser.id);
   const postComments = allComments.filter(c => c.post_id === post.id);
+  
+  const visibleComments = postComments.slice(0, modalCommentsLimit);
+  const hasMore = postComments.length > modalCommentsLimit;
 
-  const commentsHtml = postComments.map(c => `
+  const commentsHtml = visibleComments.map(c => `
     <div class="comment">
       <div class="meta">
         <div style="display:flex; align-items:center; gap:5px;">
@@ -775,6 +787,8 @@ function openFullPost(postId) {
       <div class="body">${escapeHtml(c.body)}</div>
     </div>
   `).join('');
+
+  const loadMoreHtml = hasMore ? `<button class="load-more-btn" onclick="loadMoreModalComments('${post.id}')">Показать еще (${postComments.length - modalCommentsLimit})</button>` : '';
 
   const modal = document.getElementById('modalPostContent');
   modal.innerHTML = `
@@ -788,11 +802,12 @@ function openFullPost(postId) {
       </div>
       <div class="content"><strong># ${escapeHtml(post.title)}</strong><br>${escapeHtml(post.body)}</div>
       <div class="post-actions">
-        <button class="react-btn ${myReaction?.value === 1 ? 'active-up' : ''}" onclick="react(${post.id}, 1); openFullPost(${post.id})">▲ ${likes}</button>
-        <button class="react-btn ${myReaction?.value === -1 ? 'active-down' : ''}" onclick="react(${post.id}, -1); openFullPost(${post.id})">▼ ${dislikes}</button>
+        <button class="react-btn ${myReaction?.value === 1 ? 'active-up' : ''}" onclick="react(${post.id}, 1); renderFullPostModal(profilePostsData.find(p=>p.id==${post.id}))">▲ ${likes}</button>
+        <button class="react-btn ${myReaction?.value === -1 ? 'active-down' : ''}" onclick="react(${post.id}, -1); renderFullPostModal(profilePostsData.find(p=>p.id==${post.id}))">▼ ${dislikes}</button>
       </div>
       <div class="comments" style="display:block;">
         ${commentsHtml || '<div style="opacity:.4;font-size:0.8rem;padding:6px 0">// комментариев нет</div>'}
+        ${loadMoreHtml}
         <div class="comment-form">
           <input type="text" id="modalCommentInput" placeholder="> твой коммент...">
           <button onclick="addModalComment(${post.id})">OK</button>
@@ -800,8 +815,12 @@ function openFullPost(postId) {
       </div>
     </div>
   `;
+}
 
-  document.getElementById('postModal').classList.remove('hidden');
+function loadMoreModalComments(postId) {
+  modalCommentsLimit += 5;
+  const post = profilePostsData.find(p => p.id == postId);
+  if (post) renderFullPostModal(post);
 }
 
 async function addModalComment(postId) {
@@ -809,9 +828,9 @@ async function addModalComment(postId) {
   if (!inp.value.trim()) return;
   await db.from('comments').insert({ post_id: postId, author_id: currentUser.id, author_name: currentProfile.username, body: inp.value.trim() });
   inp.value = '';
-  // Перезагружаем комментарии в ленте
   await loadAll();
-  openFullPost(postId);
+  const post = profilePostsData.find(p => p.id == postId);
+  if (post) renderFullPostModal(post);
 }
 
 function openSettingsFromProfile() {
@@ -1390,6 +1409,7 @@ function showSettings() {
   document.getElementById('nameChangeMsg').textContent = '';
   document.getElementById('newPass').value = '';
   document.getElementById('newUsername').value = '';
+  document.getElementById('setUsername').textContent = currentProfile.username; // ПОЛНЫЙ НИК
   if(window.innerWidth <= 600) document.getElementById('tmChatArea').classList.add('active');
 }
 
@@ -1436,7 +1456,7 @@ async function changeUsername() {
     currentProfile.username = newName;
     document.getElementById('setUsername').textContent = newName;
     document.getElementById('newUsername').value = '';
-    document.getElementById('userInfo').innerHTML = `[ ${newName}${currentProfile.is_admin ? ' ★' : ''} ]`;
+    document.getElementById('userInfo').innerHTML = `${newName}${currentProfile.is_admin ? ' ★' : ''}`;
     
     await loadAll();
   }
