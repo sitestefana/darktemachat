@@ -24,7 +24,8 @@
   .status { font-size: 0.75rem; color: #0f0; opacity: 0.7; }
   .blink { animation: blink 1s steps(2) infinite; }
   @keyframes blink { 50%{opacity:0} }
-  .userbar { display: flex; gap: 10px; align-items: center; font-size: 0.85rem; }
+  .userbar { display: flex; gap: 10px; align-items: center; font-size: 0.85rem; cursor: pointer; }
+  .userbar:hover { text-shadow: 0 0 5px #00ff41; }
   main { width: 100%; max-width: 900px; padding: 15px 10px; display: flex; flex-direction: column; gap: 15px; }
   .panel { border: 1px solid #00ff41; background: rgba(0, 20, 5, 0.7); padding: 15px; box-shadow: 0 0 15px rgba(0,255,65,0.15); width: 100%; }
   .panel h2 { font-size: 1rem; letter-spacing: 2px; margin-bottom: 15px; color: #00ff41; }
@@ -153,8 +154,8 @@
   .install-btn:hover { opacity: 1; background: rgba(0, 229, 255, 0.9); color: #000; box-shadow: 0 0 20px #00e5ff; border-color: #00e5ff; }
 
   /* МОДАЛЬНЫЕ ОКНА */
-  #createGroupModal, #groupActionModal, #groupBannerModal, #groupInviteModal, #profileModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-  .modal-content { background: #000; border: 1px solid #ffd700; max-width: 400px; width: 100%; padding: 20px; box-shadow: 0 0 30px rgba(255,215,0,0.2); }
+  #createGroupModal, #groupActionModal, #groupBannerModal, #groupInviteModal, #profileModal, #postModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+  .modal-content { background: #000; border: 1px solid #ffd700; max-width: 400px; width: 100%; padding: 20px; box-shadow: 0 0 30px rgba(255,215,0,0.2); max-height: 90vh; overflow-y: auto;}
   .modal-content h2 { color: #ffd700; margin-bottom: 15px; text-align: center; font-size: 1rem; }
   .modal-content input { margin-bottom: 10px; }
   .selected-members-list { font-size: 0.8rem; color: #00e5ff; margin-bottom: 10px; min-height: 20px; }
@@ -164,10 +165,12 @@
   #profileModal .modal-content { border-color: #00e5ff; box-shadow: 0 0 30px rgba(0,229,255,0.2); }
   #profileModal h2 { color: #00e5ff; }
   .profile-status-display { background: rgba(0,255,65,0.1); border: 1px dashed #00ff41; padding: 5px; text-align: center; font-size: 0.85rem; margin-bottom: 10px; color: #00ff41; }
-  .profile-posts-list { max-height: 200px; overflow-y: auto; margin-bottom: 15px; border-top: 1px solid rgba(0,255,65,0.2); padding-top: 5px; }
-  .profile-post-item { border-bottom: 1px solid rgba(0,255,65,0.1); padding: 5px 0; font-size: 0.8rem; }
+  .profile-about { font-size: 0.8rem; color: #aaa; border: 1px solid rgba(255,255,255,0.2); padding: 8px; margin-bottom: 10px; border-radius: 3px; }
+  .profile-posts-list { margin-bottom: 15px; border-top: 1px solid rgba(0,255,65,0.2); padding-top: 5px; }
+  .profile-post-item { border-bottom: 1px solid rgba(0,255,65,0.1); padding: 8px 0; font-size: 0.85rem; cursor: pointer; }
+  .profile-post-item:hover { background: rgba(0,255,65,0.05); }
   .profile-post-item strong { color: #00e5ff; display: block; }
-
+  
   /* ПАМЯТКА */
   .vpn-warning { margin-top: 20px; text-align: center; font-size: 0.75rem; color: #ff003c; border: 1px dashed #ff003c; padding: 10px; background: rgba(255,0,60,0.05); animation: adBlink 2s infinite; }
 
@@ -187,35 +190,47 @@
   <div class="line" style="animation-delay:1s">[ !! ] ДОСТУП РАЗРЕШЁН.</div>
 </div>
 
-<!-- МОДАЛЬНЫЕ ОКНА -->
+<!-- МОДАЛЬНОЕ ОКНО ПОСТА -->
+<div id="postModal" class="hidden">
+  <div class="modal-content" style="max-width: 600px;">
+    <div id="modalPostContent"></div>
+    <button class="danger" onclick="document.getElementById('postModal').classList.add('hidden')" style="margin-top:15px;">[ ЗАКРЫТЬ ]</button>
+  </div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО ПРОФИЛЯ -->
 <div id="profileModal" class="hidden">
   <div class="modal-content">
     <h2>// ПРОФИЛЬ</h2>
     <p style="text-align:center; font-size:1.1rem; color:#00e5ff; margin-bottom:5px;">@<span id="profNick"></span></p>
-    <div id="profAdminBadge" style="text-align:center; margin-bottom:10px;"></div>
     
-    <div id="profStatusView">
-      <div class="profile-status-display" id="profStatusText">// статус не установлен</div>
+    <div style="text-align:center; margin-bottom:10px;" id="profAdminBadge"></div>
+    
+    <div style="display:flex; justify-content:center; gap:10px; margin-bottom:10px;">
+      <button id="profLikeBtn" onclick="rateProfile(1)" style="width:auto; padding:5px 15px; font-size:0.8rem; background:transparent; border:1px solid #00ff41; color:#00ff41;">▲ <span id="profLikes">0</span></button>
+      <button id="profDislikeBtn" onclick="rateProfile(-1)" style="width:auto; padding:5px 15px; font-size:0.8rem; background:transparent; border:1px solid #ff003c; color:#ff003c;">▼ <span id="profDislikes">0</span></button>
     </div>
-    
+
+    <div class="profile-about" id="profAboutText">// о себе не написано</div>
+    <div id="profAboutEdit" class="hidden">
+      <p style="font-size:0.7rem; opacity:0.7; margin-bottom:5px;">О себе (макс. 150):</p>
+      <input type="text" id="profNewAbout" placeholder="> кратко о себе..." maxlength="150">
+      <button onclick="saveAboutMe()" style="font-size:0.8rem;">Сохранить "О себе"</button>
+    </div>
+
+    <div class="profile-status-display" id="profStatusText">// статус не установлен</div>
     <div id="profStatusEdit" class="hidden">
-      <p style="font-size:0.7rem; opacity:0.7; margin-bottom:5px;">Сменить статус (макс. 50 симв.):</p>
+      <p style="font-size:0.7rem; opacity:0.7; margin-bottom:5px;">Сменить статус (макс. 50):</p>
       <input type="text" id="profNewStatus" placeholder="> новый статус..." maxlength="50">
-      <button onclick="saveProfileStatus()" style="font-size:0.8rem;">Сохранить</button>
+      <button onclick="saveProfileStatus()" style="font-size:0.8rem;">Сохранить статус</button>
     </div>
 
-    <hr style="border-color:rgba(0,255,65,0.2); margin:10px 0;">
-    
-    <p style="font-size:0.8rem; opacity:0.7; margin-bottom:5px;">Посты пользователя:</p>
+    <p style="font-size:0.8rem; opacity:0.7; margin-top:15px; margin-bottom:5px;">Посты пользователя:</p>
     <div class="profile-posts-list" id="profPostsList"></div>
+    <button id="profShowMoreBtn" class="hidden" onclick="toggleProfilePosts()" style="font-size:0.8rem; background:transparent; border:1px dashed #00e5ff; color:#00e5ff; margin-bottom:10px;">Показать ещё</button>
 
-    <div id="profAddPost" class="hidden">
-      <p style="font-size:0.7rem; opacity:0.7; margin-bottom:5px;">Добавить пост (макс. 300 симв.):</p>
-      <textarea id="profPostText" rows="3" placeholder="> текст поста..." maxlength="300"></textarea>
-      <button onclick="addProfilePost()" style="font-size:0.8rem;">Добавить пост</button>
-    </div>
-
-    <button onclick="writeToProfileUser()" style="margin-top:10px; border:1px solid #00e5ff; background:transparent; color:#00e5ff;">Написать в ТМ</button>
+    <button id="profSettingsBtn" class="hidden" onclick="openSettingsFromProfile()" style="border:1px solid #ffd700; color:#ffd700; background:transparent; margin-bottom:5px;">[ НАСТРОЙКИ ]</button>
+    <button id="profWriteBtn" onclick="writeToProfileUser()" style="border:1px solid #00e5ff; background:transparent; color:#00e5ff;">Написать в ТМ</button>
     <button class="danger" onclick="document.getElementById('profileModal').classList.add('hidden')" style="margin-top:5px;">[ ЗАКРЫТЬ ]</button>
   </div>
 </div>
@@ -372,7 +387,10 @@
         <button onclick="changePassword()">Обновить пароль</button>
         <p id="settingsMsg" style="color:#00e5ff; margin-top:10px;"></p>
         
-        <button class="danger" onclick="hideSettings()" style="margin-top:20px;">[ НАЗАД ]</button>
+        <hr style="border-color:rgba(0,255,65,0.3); margin:20px 0;">
+        <button class="danger" onclick="logout()">[ ВЫХОД С УСТР. ]</button>
+
+        <button class="danger" onclick="hideSettings()" style="margin-top:10px;">[ НАЗАД ]</button>
       </div>
     </div>
   </div>
@@ -381,7 +399,7 @@
 <header>
   <div class="header-top">
     <div class="glitch-title" data-text="ТЕМЩИКИ">ТЕМЩИКИ</div>
-    <div class="userbar">
+    <div class="userbar" id="headerUser" onclick="openMyProfile()">
       <span class="status"><span class="blink">●</span> ONLINE</span>
       <div id="userInfo" class="hidden"></div>
     </div>
@@ -491,6 +509,7 @@ let tmChannel = null, globalMsgChannel = null, groupChannel = null, groupListCha
 let chatLimit = 5, groupLimit = 5;
 let selectedGroupMembers = [], selectedInviteMember = null, actionTargetMember = null;
 let profileTargetId = null, profileTargetName = null;
+let profilePostsData = [], profilePostsLimit = 3, profilePostsExpanded = false;
 
 let currentPage = 1, PAGE_SIZE = 10, totalPosts = 0, currentFilter = 'общее';
 let commentsDisplayLimit = {}, popupTargetUser = null;
@@ -563,6 +582,10 @@ async function enterForum() {
   loadAdminIds();
 }
 
+function openMyProfile() {
+  if (currentProfile) openProfile(currentUser.id, currentProfile.username);
+}
+
 async function loadAdminIds() {
   const { data } = await db.rpc('get_admins');
   if (data) {
@@ -623,75 +646,187 @@ async function openProfile(userId, userName) {
   profileTargetId = userId; profileTargetName = userName;
   document.getElementById('profNick').textContent = userName;
   
-  const { data: profile } = await db.from('profiles').select('status_text, is_admin').eq('id', userId).single();
+  const { data: profile } = await db.from('profiles').select('status_text, about_me, is_admin').eq('id', userId).single();
   
   const badgeDiv = document.getElementById('profAdminBadge');
   if (profile && profile.is_admin) badgeDiv.innerHTML = `<span class="status-badge status-admin">ADMIN</span>`;
   else badgeDiv.innerHTML = '';
 
-  const statusView = document.getElementById('profStatusView');
-  const statusText = document.getElementById('profStatusText');
-  const statusEdit = document.getElementById('profStatusEdit');
-  
-  if (profile && profile.status_text) statusText.textContent = profile.status_text;
-  else statusText.textContent = '// статус не установлен';
+  document.getElementById('profStatusText').textContent = (profile && profile.status_text) ? profile.status_text : '// статус не установлен';
+  document.getElementById('profAboutText').textContent = (profile && profile.about_me) ? profile.about_me : '// о себе не написано';
 
-  if (userId === currentUser.id) {
-    statusEdit.classList.remove('hidden');
-  } else {
-    statusEdit.classList.add('hidden');
-  }
+  const isMe = userId === currentUser.id;
+  document.getElementById('profStatusEdit').classList.toggle('hidden', !isMe);
+  document.getElementById('profAboutEdit').classList.toggle('hidden', !isMe);
+  document.getElementById('profSettingsBtn').classList.toggle('hidden', !isMe);
+  document.getElementById('profWriteBtn').classList.toggle('hidden', isMe);
 
-  document.getElementById('profAddPost').classList.toggle('hidden', userId !== currentUser.id);
-  
-  const { data: posts } = await db.from('posts').select('title').eq('author_id', userId).order('created_at', { ascending: false }).limit(5);
-  const postsList = document.getElementById('profPostsList');
-  if (posts && posts.length) {
-    postsList.innerHTML = posts.map(p => `<div class="profile-post-item"><strong># ${escapeHtml(p.title)}</strong></div>`).join('');
-  } else {
-    postsList.innerHTML = '<div style="opacity:0.5;font-size:0.8rem;">// постов нет</div>';
-  }
+  const { data: ratings } = await db.from('profile_ratings').select('value').eq('profile_id', userId);
+  const likes = (ratings || []).filter(r => r.value === 1).length;
+  const dislikes = (ratings || []).filter(r => r.value === -1).length;
+  document.getElementById('profLikes').textContent = likes;
+  document.getElementById('profDislikes').textContent = dislikes;
 
+  const { data: myRating } = await db.from('profile_ratings').select('value').eq('profile_id', userId).eq('rater_id', currentUser.id).single();
+  const likeBtn = document.getElementById('profLikeBtn');
+  const disBtn = document.getElementById('profDislikeBtn');
+  likeBtn.style.background = (myRating && myRating.value === 1) ? '#00ff41' : 'transparent';
+  likeBtn.style.color = (myRating && myRating.value === 1) ? '#000' : '#00ff41';
+  disBtn.style.background = (myRating && myRating.value === -1) ? '#ff003c' : 'transparent';
+  disBtn.style.color = (myRating && myRating.value === -1) ? '#000' : '#ff003c';
+
+  await loadProfilePosts(userId);
   document.getElementById('profileModal').classList.remove('hidden');
+}
+
+async function rateProfile(val) {
+  const { data: existing } = await db.from('profile_ratings').select('id, value').eq('profile_id', profileTargetId).eq('rater_id', currentUser.id).single();
+  if (existing) {
+    if (existing.value === val) await db.from('profile_ratings').delete().eq('id', existing.id);
+    else await db.from('profile_ratings').update({ value: val }).eq('id', existing.id);
+  } else {
+    await db.from('profile_ratings').insert({ profile_id: profileTargetId, rater_id: currentUser.id, value: val });
+  }
+  openProfile(profileTargetId, profileTargetName);
+}
+
+async function saveAboutMe() {
+  const text = document.getElementById('profNewAbout').value.trim();
+  if (text.length > 150) return alert('Максимум 150 символов');
+  await db.from('profiles').update({ about_me: text }).eq('id', currentUser.id);
+  document.getElementById('profAboutText').textContent = text || '// о себе не написано';
+  document.getElementById('profNewAbout').value = '';
+  alert('Сохранено');
 }
 
 async function saveProfileStatus() {
   const text = document.getElementById('profNewStatus').value.trim();
   if (text.length > 50) return alert('Максимум 50 символов');
-  const { error } = await db.from('profiles').update({ status_text: text }).eq('id', currentUser.id);
-  if (error) return alert(error.message);
+  await db.from('profiles').update({ status_text: text }).eq('id', currentUser.id);
   document.getElementById('profStatusText').textContent = text || '// статус не установлен';
   document.getElementById('profNewStatus').value = '';
   alert('Статус обновлен');
 }
 
-async function addProfilePost() {
-  const text = document.getElementById('profPostText').value.trim();
-  if (!text) return alert('Введи текст');
-  if (text.length > 300) return alert('Максимум 300 символов');
-  
-  const { error } = await db.from('posts').insert({ 
-    author_id: currentUser.id, 
-    author_name: currentProfile.username, 
-    title: 'Пост из профиля', 
-    body: text, 
-    category: 'общение' 
-  });
-  
-  if (error) return alert(error.message);
-  document.getElementById('profPostText').value = '';
-  alert('Пост добавлен');
-  openProfile(profileTargetId, profileTargetName);
+async function loadProfilePosts(userId) {
+  const { data } = await db.from('posts').select('*').eq('author_id', userId).order('created_at', { ascending: false });
+  profilePostsData = data || [];
+  renderProfilePosts();
 }
 
-async function writeToProfileUser() {
+function renderProfilePosts() {
+  const list = document.getElementById('profPostsList');
+  const btn = document.getElementById('profShowMoreBtn');
+  
+  if (!profilePostsData.length) {
+    list.innerHTML = '<div style="opacity:0.5;font-size:0.8rem;">// постов нет</div>';
+    btn.classList.add('hidden');
+    return;
+  }
+
+  const visible = profilePostsLimit >= profilePostsData.length ? profilePostsData : profilePostsData.slice(0, profilePostsLimit);
+  
+  list.innerHTML = visible.map(p => `
+    <div class="profile-post-item" onclick="openFullPost('${p.id}')">
+      <strong># ${escapeHtml(p.title)}</strong>
+      <span style="opacity:0.5; font-size:0.7rem;">${new Date(p.created_at).toLocaleString('ru-RU')}</span>
+    </div>
+  `).join('');
+
+  if (profilePostsData.length > 3) {
+    btn.classList.remove('hidden');
+    btn.textContent = profilePostsExpanded ? '[ СКРЫТЬ ]' : '[ ПОКАЗАТЬ ЕЩЁ ]';
+  } else {
+    btn.classList.add('hidden');
+  }
+}
+
+function toggleProfilePosts() {
+  if (profilePostsExpanded) {
+    profilePostsExpanded = false;
+    profilePostsLimit = 3;
+  } else {
+    profilePostsExpanded = true;
+    profilePostsLimit = profilePostsData.length;
+  }
+  renderProfilePosts();
+}
+
+function openFullPost(postId) {
   document.getElementById('profileModal').classList.add('hidden');
-  await startChat(profileTargetId, profileTargetName);
+  
+  const post = profilePostsData.find(p => p.id == postId);
+  if (!post) return;
+
+  const likes = allReactions.filter(r => r.post_id === post.id && r.value === 1).length;
+  const dislikes = allReactions.filter(r => r.post_id === post.id && r.value === -1).length;
+  const myReaction = allReactions.find(r => r.post_id === post.id && r.user_id === currentUser.id);
+  const postComments = allComments.filter(c => c.post_id === post.id);
+
+  const commentsHtml = postComments.map(c => `
+    <div class="comment">
+      <div class="meta">
+        <div style="display:flex; align-items:center; gap:5px;">
+          ${getStatusBadge(c.author_id)}
+          <span class="author" onclick="openProfile('${c.author_id}', '${c.author_name}')">@${escapeHtml(c.author_name)}</span>
+        </div>
+        ${(c.author_id === currentUser.id || currentProfile.is_admin) ? `<span class="del" onclick="deleteComment(${c.id})">[ x ]</span>` : ''}
+      </div>
+      <div class="body">${escapeHtml(c.body)}</div>
+    </div>
+  `).join('');
+
+  const modal = document.getElementById('modalPostContent');
+  modal.innerHTML = `
+    <div class="post">
+      <div class="meta">
+        <div style="display:flex; align-items:center; gap:5px;">
+          ${getStatusBadge(post.author_id)} 
+          <span class="author" onclick="openProfile('${post.author_id}', '${post.author_name}')">@${escapeHtml(post.author_name)}</span>
+        </div>
+        · ${new Date(post.created_at).toLocaleString('ru-RU')}
+      </div>
+      <div class="content"><strong># ${escapeHtml(post.title)}</strong><br>${escapeHtml(post.body)}</div>
+      <div class="post-actions">
+        <button class="react-btn ${myReaction?.value === 1 ? 'active-up' : ''}" onclick="react(${post.id}, 1); openFullPost(${post.id})">▲ ${likes}</button>
+        <button class="react-btn ${myReaction?.value === -1 ? 'active-down' : ''}" onclick="react(${post.id}, -1); openFullPost(${post.id})">▼ ${dislikes}</button>
+      </div>
+      <div class="comments" style="display:block;">
+        ${commentsHtml || '<div style="opacity:.4;font-size:0.8rem;padding:6px 0">// комментариев нет</div>'}
+        <div class="comment-form">
+          <input type="text" id="modalCommentInput" placeholder="> твой коммент...">
+          <button onclick="addModalComment(${post.id})">OK</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('postModal').classList.remove('hidden');
 }
 
-// ССЫЛКИ НА ПРОФИЛЬ
-function openUserPopup(userId, userName) { openProfile(userId, userName); } // Заменяем старое окно на профиль
-function popupWrite() { document.getElementById('userPopup').classList.add('hidden'); } // Заглушка, так как теперь профиль
+async function addModalComment(postId) {
+  const inp = document.getElementById('modalCommentInput');
+  if (!inp.value.trim()) return;
+  await db.from('comments').insert({ post_id: postId, author_id: currentUser.id, author_name: currentProfile.username, body: inp.value.trim() });
+  inp.value = '';
+  // Перезагружаем комментарии в ленте
+  await loadAll();
+  openFullPost(postId);
+}
+
+function openSettingsFromProfile() {
+  document.getElementById('profileModal').classList.add('hidden');
+  document.getElementById('messengerOverlay').classList.remove('hidden');
+  showSettings();
+}
+
+function writeToProfileUser() {
+  document.getElementById('profileModal').classList.add('hidden');
+  startChat(profileTargetId, profileTargetName);
+}
+
+function openUserPopup(userId, userName) { openProfile(userId, userName); }
+function popupWrite() { document.getElementById('userPopup').classList.add('hidden'); }
 
 function renderPosts(posts) {
   document.getElementById('postCount').textContent = totalPosts;
