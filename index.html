@@ -13,10 +13,10 @@
   html, body { width: 100%; max-width: 100vw; overflow-x: hidden; }
   body { font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff41; min-height: 100vh; background-image: linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px); background-size: 30px 30px; padding-bottom: 60px; display: flex; flex-direction: column; align-items: center; }
   body::before { content: ""; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px); pointer-events: none; z-index: 9999; }
-  
+
   header { width: 100%; border-bottom: 1px solid #00ff41; padding: 15px 10px; background: rgba(0,0,0,0.85); position: sticky; top: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; }
   .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 900px; flex-wrap: wrap; gap: 10px; }
-  
+
   .brand { display: flex; align-items: center; gap: 10px; }
   .brand img { height: 35px; width: auto; mix-blend-mode: screen; filter: drop-shadow(0 0 5px #00ff41); }
   .glitch-title { font-size: 1.8rem; letter-spacing: 2px; text-transform: uppercase; color: #00ff41; text-shadow: 0 0 8px #00ff41, 0 0 20px #00ff41; position: relative; }
@@ -25,13 +25,12 @@
   .glitch-title::after  { color: #00e5ff; animation: glitch2 3s infinite; clip-path: inset(60% 0 0 0); }
   @keyframes glitch1 { 0%,100%{transform:translate(0)} 20%{transform:translate(-3px,1px)} 40%{transform:translate(2px,-1px)} 60%{transform:translate(-2px,0)} }
   @keyframes glitch2 { 0%,100%{transform:translate(0)} 30%{transform:translate(3px,-1px)} 50%{transform:translate(-2px,1px)} 70%{transform:translate(1px,0)} }
-  
-  /* КОМПАКТНЫЙ USERBAR (ONLINE НАД НИКОМ) */
+
   .userbar { display: flex; flex-direction: column; align-items: flex-end; font-size: 0.8rem; line-height: 1.2; }
   .userbar .status { font-size: 0.65rem; color: #0f0; opacity: 0.7; margin-bottom: 2px; }
   .userbar .nick-click { cursor: pointer; text-decoration: underline; font-weight: bold; }
   .userbar .nick-click:hover { color: #fff; }
-  
+
   main { width: 100%; max-width: 900px; padding: 15px 10px; display: flex; flex-direction: column; gap: 15px; }
   .panel { border: 1px solid #00ff41; background: rgba(0, 20, 5, 0.7); padding: 15px; box-shadow: 0 0 15px rgba(0,255,65,0.15); width: 100%; }
   .panel h2 { font-size: 1rem; letter-spacing: 2px; margin-bottom: 15px; color: #00ff41; }
@@ -44,13 +43,13 @@
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   .danger { border: 1px solid #ff003c; color: #ff003c; background: transparent; }
   .danger:hover { background: #ff003c; color: #000; box-shadow: 0 0 15px #ff003c; }
-  
+
   .post { border-left: 3px solid #00ff41; padding: 10px; margin-bottom: 10px; background: rgba(0,255,65,0.03); word-break: break-all; overflow-wrap: anywhere; width: 100%; }
   .post.pinned { border-left-color: #ffd700; background: rgba(255,215,0,0.05); }
   .post.scam { border: 1px solid #ff003c; border-left: 4px solid #ff003c; background: rgba(255,0,60,0.05); }
   .post.scam .content strong { color: #ff003c; }
   .post.scam .author { color: #ff003c; }
-  
+
   .post .pin { float: right; margin-right: 8px; cursor: pointer; opacity: 0.6; font-size: 0.9rem; }
   .post .meta { font-size: 0.75rem; opacity: 0.6; margin-bottom: 6px; display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
   .post .author { color: #00e5ff; cursor: pointer; text-decoration: underline; }
@@ -72,11 +71,11 @@
   .comment-form input { margin-bottom: 0; flex: 1; }
   .comment-form button { padding: 8px; font-size: 0.8rem; width: 100%; margin-bottom: 0; }
   .load-more-btn { background: transparent; border: 1px dashed #00e5ff; color: #00e5ff; margin-top: 5px; font-size: 0.75rem; padding: 5px; }
-  
+
   .tabs { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
   .tab { flex: 1; padding: 10px; text-align: center; border: 1px solid #00ff41; cursor: pointer; font-size: 0.85rem; opacity: 0.5; }
   .tab.active { opacity: 1; background: rgba(0,255,65,0.1); box-shadow: 0 0 10px rgba(0,255,65,0.3); }
-  
+
   .filters { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; width: 100%; scrollbar-width: none; }
   .filters::-webkit-scrollbar { display: none; }
   .filter-btn { flex: 0 0 auto; background: transparent; border: 1px solid #00ff41; color: #00ff41; padding: 5px 12px; font-size: 0.75rem; cursor: pointer; border-radius: 15px; width: auto; margin: 0; text-transform: none; }
@@ -96,7 +95,7 @@
   .rules-content li { margin-bottom: 5px; }
   .rules-content .highlight { color: #ffd700; font-weight: bold; }
   .rules-warning { border: 2px dashed #ff003c; background: rgba(255,0,60,0.1); padding: 15px; text-align: center; color: #ff003c; font-weight: bold; margin: 20px 0; font-size: 0.9rem; line-height: 1.4; text-transform: uppercase; }
-  
+
   .hidden { display: none !important; }
   .boot { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; font-size: 0.85rem; }
   .boot .line { opacity: 0; animation: fade .3s forwards; }
@@ -109,24 +108,23 @@
   @keyframes adBlink { 0%,100%{opacity:1;text-shadow:0 0 6px #ff003c} 50%{opacity:0.25;text-shadow:none} }
   #pagination { display: flex; gap: 10px; justify-content: center; align-items: center; margin-top: 15px; width: 100%; flex-wrap: wrap; }
   #pagination button { width: auto; margin-bottom: 0; }
-  
-  /* МЕССЕНДЖЕР */
+
   #messengerOverlay { position: fixed; inset: 0; background: #0a0a0a; z-index: 20000; display: flex; flex-direction: column; overflow: hidden; background-image: linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px); background-size: 30px 30px; }
   .tm-header { padding: 15px; border-bottom: 1px solid #00ff41; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.9); }
   .tm-body { display: flex; flex: 1; overflow: hidden; }
-  
+
   .tm-sidebar { width: 100%; max-width: 320px; border-right: 1px solid #00ff41; display: flex; flex-direction: column; background: rgba(0,10,2,0.8); }
   .tm-columns { display: flex; flex: 1; overflow: hidden; }
   .tm-col-left { flex: 1; border-right: 1px solid rgba(0,255,65,0.2); display: flex; flex-direction: column; background: rgba(20,20,0,0.2); }
   .tm-col-right { flex: 1; display: flex; flex-direction: column; background: rgba(0,20,20,0.2); }
-  
+
   .col-header { padding: 8px; font-size: 0.7rem; text-transform: uppercase; text-align: center; border-bottom: 1px solid rgba(0,255,65,0.3); background: rgba(0,0,0,0.5); }
   .col-header.groups { color: #ffd700; }
   .col-header.chats { color: #00e5ff; }
-  
+
   .create-group-btn { padding: 5px; background: rgba(255,215,0,0.1); border: 1px solid #ffd700; color: #ffd700; font-size: 0.7rem; cursor: pointer; text-align: center; margin: 5px; border-radius: 3px; text-transform: uppercase; }
   .create-group-btn:hover { background: rgba(255,215,0,0.2); }
-  
+
   .col-scroll { flex: 1; overflow-y: auto; padding: 5px; }
   .tm-chat-list { display: flex; flex-direction: column; gap: 5px; }
   .tm-chat-item { padding: 8px; border-bottom: 1px solid rgba(0,255,65,0.1); cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 3px; position: relative; }
@@ -134,13 +132,13 @@
   .tm-chat-name { font-weight: bold; color: #00e5ff; font-size: 0.75rem; word-break: break-all; }
   .tm-group-name { font-weight: bold; color: #ffd700; font-size: 0.75rem; word-break: break-all; }
   .unread-dot { width: 6px; height: 6px; background: #00ff41; border-radius: 50%; box-shadow: 0 0 8px #00ff41; flex-shrink: 0; margin-left: 5px;}
-  
+
   .tm-chat-area { flex: 1; display: flex; flex-direction: column; position: relative; }
   .tm-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
   .msg { max-width: 80%; padding: 10px; border: 1px solid #00ff41; background: rgba(0,20,5,0.9); word-break: break-all; }
   .msg.me { align-self: flex-end; border-color: #00e5ff; color: #00e5ff; }
   .msg.them { align-self: flex-start; }
-  
+
   .msg-meta { font-size: 0.65rem; opacity: 0.8; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
   .status-badge-msg { display: inline-block; padding: 0 4px; font-size: 0.55rem; border-radius: 2px; border: 1px solid #ffd700; color: #ffd700; text-shadow: 0 0 3px rgba(255,215,0,0.5); font-weight: bold; }
   .clickable-nick { cursor: pointer; text-decoration: underline; }
@@ -155,15 +153,17 @@
   .install-btn { position: fixed; bottom: 25px; right: 15px; z-index: 200; border: 1px solid rgba(0, 229, 255, 0.6); color: #00e5ff; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); padding: 6px 10px; font-size: 0.75rem; width: auto; margin-bottom: 0; opacity: 0.7; transition: all 0.2s ease; }
   .install-btn:hover { opacity: 1; background: rgba(0, 229, 255, 0.9); color: #000; box-shadow: 0 0 20px #00e5ff; border-color: #00e5ff; }
 
-  /* МОДАЛЬНЫЕ ОКНА */
-  #createGroupModal, #groupActionModal, #groupBannerModal, #groupInviteModal, #profileModal, #postModal, #marketModal, #itemDescriptionModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+  /* МОДАЛЬНЫЕ ОКНА — с правильными z-index */
+  #createGroupModal, #groupActionModal, #groupBannerModal, #groupInviteModal, #profileModal, #postModal, #marketModal, #marketEditModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+  #itemDescriptionModal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 60000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(6px); }
+  #marketEditModal { z-index: 65000; }
+
   .modal-content { background: #000; border: 1px solid #ffd700; max-width: 400px; width: 100%; padding: 20px; box-shadow: 0 0 30px rgba(255,215,0,0.2); max-height: 90vh; overflow-y: auto;}
   .modal-content h2 { color: #ffd700; margin-bottom: 15px; text-align: center; font-size: 1rem; }
   .modal-content input { margin-bottom: 10px; }
   .selected-members-list { font-size: 0.8rem; color: #00e5ff; margin-bottom: 10px; min-height: 20px; }
   .banner-display { background: rgba(255,215,0,0.1); border: 1px solid #ffd700; color: #ffd700; text-align: center; padding: 5px; font-size: 0.8rem; margin: 0 15px 10px 15px; border-radius: 3px; }
 
-  /* ПРОФИЛЬ */
   #profileModal .modal-content { border-color: #00e5ff; box-shadow: 0 0 30px rgba(0,229,255,0.2); }
   #profileModal h2 { color: #00e5ff; }
   .profile-status-display { background: rgba(0,255,65,0.1); border: 1px dashed #00ff41; padding: 5px; text-align: center; font-size: 0.85rem; margin-bottom: 10px; color: #00ff41; }
@@ -173,7 +173,6 @@
   .profile-post-item:hover { background: rgba(0,255,65,0.05); }
   .profile-post-item strong { color: #00e5ff; display: block; }
 
-  /* МАРКЕТ */
   #marketModal .modal-content { max-width: 800px; border-color: #ffd700; box-shadow: 0 0 30px rgba(255,215,0,0.2); }
   .market-warning { background: rgba(255,0,60,0.1); border: 1px dashed #ff003c; color: #ff003c; text-align: center; padding: 10px; font-size: 0.8rem; margin-bottom: 15px; font-weight: bold; }
   .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
@@ -185,12 +184,10 @@
   .market-card-desc:hover { color: #fff; }
   .market-card-price { font-weight: bold; color: #ffd700; font-size: 1rem; margin-bottom: 10px; }
   .market-card button { margin-bottom: 0; padding: 8px; font-size: 0.8rem; }
-  
-  /* КНОПКА РЕДАКТИРОВАНИЯ В КАРТОЧКЕ */
+
   .market-edit-btn { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.8); border: 1px solid #ffd700; color: #ffd700; padding: 2px 6px; font-size: 0.7rem; cursor: pointer; width: auto; margin: 0; z-index: 10;}
   .market-edit-btn:hover { background: #ffd700; color: #000; }
-  
-  /* ПАМЯТКА */
+
   .vpn-warning { margin-top: 20px; text-align: center; font-size: 0.75rem; color: #ff003c; border: 1px dashed #ff003c; padding: 10px; background: rgba(255,0,60,0.05); animation: adBlink 2s infinite; }
 
   @media (max-width: 600px) {
@@ -218,11 +215,32 @@
   </div>
 </div>
 
+<!-- РЕДАКТОР ТОВАРА -->
+<div id="marketEditModal" class="hidden">
+  <div class="modal-content" style="border-color:#ffd700; max-width: 500px;">
+    <h2>// РЕДАКТОР ТОВАРА</h2>
+    <input type="hidden" id="editItemId">
+    <p style="font-size:0.75rem; opacity:0.7; margin-bottom:5px;">Название:</p>
+    <input type="text" id="editItemTitle" maxlength="100">
+    <p style="font-size:0.75rem; opacity:0.7; margin-bottom:5px;">Описание:</p>
+    <textarea id="editItemDesc" rows="5" maxlength="1000"></textarea>
+    <p style="font-size:0.75rem; opacity:0.7; margin-bottom:5px;">Цена:</p>
+    <input type="text" id="editItemPrice" maxlength="50">
+    <p style="font-size:0.75rem; opacity:0.7; margin-bottom:5px;">URL картинки:</p>
+    <input type="text" id="editItemImage" placeholder="./market-item.png">
+    <button onclick="saveMarketItem()" style="background:#ffd700; color:#000;">СОХРАНИТЬ</button>
+    <button class="danger" onclick="deleteMarketItem()" style="margin-top:5px;">[ УДАЛИТЬ ТОВАР ]</button>
+    <button onclick="document.getElementById('marketEditModal').classList.add('hidden')" style="margin-top:5px; background:transparent; border:1px solid #ffd700; color:#ffd700;">[ ОТМЕНА ]</button>
+  </div>
+</div>
+
 <!-- TM MARKET -->
 <div id="marketModal" class="hidden">
   <div class="modal-content">
     <h2>// TM MARKET</h2>
     <div class="market-warning">Платежный шлюз не подключен. Все покупки через администрацию.</div>
+    <button id="addMarketBtn" class="hidden" onclick="openNewMarketItem()"
+      style="background:#ffd700; color:#000; margin-bottom:15px;">[ + ДОБАВИТЬ ТОВАР ]</button>
     <div class="market-grid" id="marketGrid"></div>
     <button class="danger" onclick="document.getElementById('marketModal').classList.add('hidden')" style="margin-top:20px;">[ ЗАКРЫТЬ ]</button>
   </div>
@@ -241,32 +259,26 @@
   <div class="modal-content">
     <h2>// ПРОФИЛЬ</h2>
     <p style="text-align:center; font-size:1.1rem; color:#00e5ff; margin-bottom:5px;">@<span id="profNick"></span></p>
-    
     <div style="text-align:center; margin-bottom:10px;" id="profAdminBadge"></div>
-    
     <div style="display:flex; justify-content:center; gap:10px; margin-bottom:10px;">
       <button id="profLikeBtn" onclick="rateProfile(1)" style="width:auto; padding:5px 15px; font-size:0.8rem; background:transparent; border:1px solid #00ff41; color:#00ff41;">▲ <span id="profLikes">0</span></button>
       <button id="profDislikeBtn" onclick="rateProfile(-1)" style="width:auto; padding:5px 15px; font-size:0.8rem; background:transparent; border:1px solid #ff003c; color:#ff003c;">▼ <span id="profDislikes">0</span></button>
     </div>
-
     <div class="profile-status-display" id="profStatusText">// статус не установлен</div>
     <div id="profStatusEdit" class="hidden">
       <p style="font-size:0.7rem; opacity:0.7; margin-bottom:5px;">Сменить статус (макс. 50):</p>
       <input type="text" id="profNewStatus" placeholder="> новый статус..." maxlength="50">
       <button onclick="saveProfileStatus()" style="font-size:0.8rem;">Сохранить статус</button>
     </div>
-
     <div class="profile-about" id="profAboutText">// о себе не написано</div>
     <div id="profAboutEdit" class="hidden">
       <p style="font-size:0.7rem; opacity:0.7; margin-bottom:5px;">О себе (макс. 150):</p>
       <input type="text" id="profNewAbout" placeholder="> кратко о себе..." maxlength="150">
       <button onclick="saveAboutMe()" style="font-size:0.8rem;">Сохранить "О себе"</button>
     </div>
-
     <p style="font-size:0.8rem; opacity:0.7; margin-top:15px; margin-bottom:5px;">Посты пользователя:</p>
     <div class="profile-posts-list" id="profPostsList"></div>
     <button id="profShowMoreBtn" class="hidden" onclick="toggleProfilePosts()" style="font-size:0.8rem; background:transparent; border:1px dashed #00e5ff; color:#00e5ff; margin-bottom:10px;">Показать ещё</button>
-
     <button id="profSettingsBtn" class="hidden" onclick="openSettingsFromProfile()" style="border:1px solid #ffd700; color:#ffd700; background:transparent; margin-bottom:5px;">[ НАСТРОЙКИ ]</button>
     <button id="profWriteBtn" onclick="writeToProfileUser()" style="border:1px solid #00e5ff; background:transparent; color:#00e5ff;">Написать в ТМ</button>
     <button class="danger" onclick="document.getElementById('profileModal').classList.add('hidden')" style="margin-top:5px;">[ ЗАКРЫТЬ ]</button>
@@ -322,19 +334,17 @@
     <h2>Инструкция по использованию 📖</h2>
     <ul>
       <li><strong>Регистрация:</strong> Вводи ник, почту и пароль. Ник не должен содержать слово "Админ".</li>
-      <li><strong>Создание темы:</strong> Выбери категорию (новости, вопросы, скам-лист и т.д.), напиши заголовок и текст. Одна тема в сутки.</li>
+      <li><strong>Создание темы:</strong> Выбери категорию, напиши заголовок и текст. Одна тема в сутки.</li>
       <li><strong>Общение:</strong> Ставь лайки, пиши комменты, закрепляй темы (если ты админ).</li>
       <li><strong>ТМ Мессенджер:</strong> Нажми на кнопку ТМ, найди пользователя по нику и пиши в личку или создавай беседы.</li>
     </ul>
     <h2>Антиспам и безопасность 🛡</h2>
-    <p>У нас работает жесткий фильтр. Если ты пытаешься протащить запрещенную тему — система тебя заблокирует. Мы не предупреждаем, мы просто не даем это выложить.</p>
-    
+    <p>У нас работает жесткий фильтр. Если ты пытаешься протащить запрещенную тему — система тебя заблокирует.</p>
     <div class="rules-warning">
       !!!!!МЫ НЕ ПРОДАЕМ С ЛЕВЫХ АККАУНТОВ И ВНЕ НАШЕГО ФОРУМА!!!!!<br><br>
       НАРУШИТЕЛЕЙ ПРОПИСЫВАЙТЕ В РАЗДЕЛЕ СКАМ-ЛИСТ!!!!!<br><br>
       АДМИНИСТРАТОР " TM " @Majestic !!!!!
     </div>
-
     <h2>Заключение 🖤</h2>
     <p>Спасибо, что ты с нами. Спасибо, что ты с семьей. Приятного пользования!</p>
     <button onclick="document.getElementById('rulesModal').classList.add('hidden')" style="margin-top:20px;">[ ПОНЯЛ, ЗАКРЫТЬ ]</button>
@@ -357,7 +367,6 @@
             <button id="btnShowMoreGroups" class="show-more-btn hidden" onclick="showMoreGroups()" style="font-size:0.6rem; padding:3px; width:100%; background:transparent; border:none; color:#00e5ff; cursor:pointer;">[ ЕЩЁ ]</button>
           </div>
         </div>
-        
         <div class="tm-col-right">
           <div class="col-header chats">Личные</div>
           <div style="padding:5px;">
@@ -370,7 +379,6 @@
           </div>
         </div>
       </div>
-      
       <div style="padding:10px; border-top:1px solid rgba(0,255,65,0.3);">
         <button onclick="openMyProfile()" style="margin-bottom:0; font-size:0.8rem;">[ МОЙ ПРОФИЛЬ ]</button>
       </div>
@@ -380,7 +388,6 @@
       <div id="tmNoChat" style="flex:1; display:flex; align-items:center; justify-content:center; opacity:0.5; text-align:center; padding:20px;">
         // выбери чат или беседу
       </div>
-      
       <div id="tmActiveChat" class="hidden" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
         <div style="padding:15px; border-bottom:1px solid #00ff41; background:rgba(0,0,0,0.9); display:flex; justify-content:space-between; align-items:center;">
           <span id="tmChatName" style="font-weight:bold; color:#00e5ff; cursor:pointer; text-decoration:underline;" onclick="openProfile(activeChatPeerId, activeChatPeerName)">@user</span>
@@ -395,7 +402,6 @@
           <button onclick="sendMessage()" style="width:auto; margin:0;">ОТПР</button>
         </div>
       </div>
-
       <div id="tmActiveGroup" class="hidden" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
         <div style="padding:15px; border-bottom:1px solid #ffd700; background:rgba(0,0,0,0.9); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:5px;">
           <span id="tmGroupName" style="font-weight:bold; color:#ffd700;">Беседа</span>
@@ -406,34 +412,26 @@
             <button class="danger" onclick="closeChatMobile()" style="width:auto; padding:5px 10px; margin:0; font-size:0.7rem; display:none;" id="tmGroupBackBtn">[ НАЗАД ]</button>
           </div>
         </div>
-        
         <div id="groupBannerDisplay" class="banner-display hidden"></div>
-
         <div class="tm-messages" id="tmGroupMessages"></div>
         <div class="tm-input-area">
           <input type="text" id="tmGroupMsgInput" placeholder="> сообщение..." style="margin-bottom:0;" onkeypress="if(event.key === 'Enter') sendGroupMessage()">
           <button onclick="sendGroupMessage()" style="width:auto; margin:0;">ОТПР</button>
         </div>
       </div>
-      
       <div id="tmSettings" class="hidden" style="flex:1; padding:20px; overflow-y:auto;">
         <h2>// НАСТРОЙКИ</h2>
         <p style="margin:10px 0; color:#00e5ff;">Текущий ник: @<span id="setUsername"></span></p>
-        
         <p style="margin-top:15px; font-size:0.8rem; opacity:0.7;">Смена ника (раз в 7 дней):</p>
         <input type="text" id="newUsername" placeholder="> новый ник">
         <button onclick="changeUsername()">Сменить ник</button>
         <p id="nameChangeMsg" style="color:#00e5ff; margin-top:5px; font-size:0.8rem;"></p>
-
         <hr style="border-color:rgba(0,255,65,0.3); margin:20px 0;">
-
         <p style="margin-bottom:5px; opacity:0.7;">Смена пароля:</p>
         <input type="password" id="newPass" placeholder="> новый пароль">
         <button onclick="changePassword()">Обновить пароль</button>
         <p id="settingsMsg" style="color:#00e5ff; margin-top:10px;"></p>
-        
         <hr style="border-color:rgba(0,255,65,0.3); margin:20px 0;">
-        
         <button id="pushBtn" style="border:1px solid #00e5ff; color:#00e5ff; background:transparent;" onclick="enablePush()">[ УВЕДОМЛЕНИЯ ]</button>
         <button class="danger" onclick="logout()">[ ВЫХОД С УСТР. ]</button>
         <button class="danger" onclick="hideSettings()" style="margin-top:10px;">[ НАЗАД ]</button>
@@ -475,26 +473,22 @@
       <input type="password" id="regPass" placeholder="> пароль">
       <button id="regBtn" onclick="doRegister()">Зарегистрироваться</button>
     </div>
-    
     <div class="vpn-warning">
       ПРИНУДИТЕЛЬНО РЕКОМЕНДУЕМ ИСПОЛЬЗОВАТЬ VPN/PROXY
     </div>
   </div>
 
   <div id="forumPanel" class="hidden">
-    
     <div class="panel" style="border-color:#ffd700; padding:10px; position:relative;">
       <button onclick="openMarket()" style="background:transparent; border:1px solid #ffd700; color:#ffd700; margin:0;">
         [ ОТКРЫТЬ TM MARKET ]
       </button>
     </div>
-
     <div class="panel" style="border-color:#00e5ff; padding:10px; position:relative;">
       <button onclick="openMessenger()" style="background:transparent; border:1px solid #00e5ff; color:#00e5ff; margin:0;">
         [ ОТКРЫТЬ ТМ МЕССЕНДЖЕР ] <span id="globalUnreadBadge" class="badge hidden">0</span>
       </button>
     </div>
-
     <div class="panel">
       <h2>// НОВАЯ ТЕМА</h2>
       <input type="text" id="postTitle" placeholder="> заголовок темы">
@@ -513,13 +507,11 @@
       <textarea id="postText" rows="4" placeholder="> сообщение... (макс. 1000 симв.)" maxlength="1000"></textarea>
       <button id="postBtn" onclick="addPost()">Отправить в эфир</button>
     </div>
-
     <div class="panel" style="padding: 0; border: none; background: transparent; box-shadow: none;">
       <button class="rules-btn" onclick="document.getElementById('rulesModal').classList.remove('hidden')">
         [ ПРАВИЛА СООБЩЕСТВА ]
       </button>
     </div>
-
     <div class="panel">
       <h2>// ЛЕНТА // <span id="postCount">0</span> ЗАПИСЕЙ</h2>
       <div class="filters" id="filters">
@@ -538,8 +530,6 @@
       <div id="postsList"></div>
       <div id="pagination"></div>
     </div>
-    
-    <!-- Изображение под лентой -->
     <div class="panel" style="padding: 0; border: none; background: transparent; box-shadow: none; text-align: center; margin-top: 10px;">
       <img src="./logo.png" alt="TM forum" style="max-width: 100%; height: auto; mix-blend-mode: screen; filter: drop-shadow(0 0 15px rgba(0,255,65,0.3));">
     </div>
@@ -563,13 +553,13 @@ let activeChatId = null, activeChatPeerName = null, activeChatPeerId = null;
 let activeGroupId = null, activeGroupName = null, activeGroupCreatorId = null;
 let tmChannel = null, globalMsgChannel = null, groupChannel = null, groupListChannel = null;
 let chatLimit = 5, groupLimit = 5;
-let selectedGroupMembers = [], selectedInviteMember = null, actionTargetMember = null;
+let selectedGroupMembers = [], actionTargetMember = null;
 let profileTargetId = null, profileTargetName = null;
 let profilePostsData = [], profilePostsLimit = 3, profilePostsExpanded = false;
 let modalCommentsLimit = 5;
 
 let currentPage = 1, PAGE_SIZE = 10, totalPosts = 0, currentFilter = 'общее';
-let commentsDisplayLimit = {}, popupTargetUser = null;
+let commentsDisplayLimit = {};
 
 setTimeout(() => { document.getElementById('boot').style.display = 'none'; }, 2000);
 
@@ -601,7 +591,12 @@ async function doRegister() {
 
   const { data: authData, error: authErr } = await db.auth.signUp({ email, password: pass });
   if (authErr) return alert(authErr.message);
-  
+
+  if (!authData.session) {
+    alert('Аккаунт создан. Подтверди email и войди.');
+    return;
+  }
+
   const { error: profErr } = await db.from('profiles').insert({ id: authData.user.id, username });
   if (profErr) {
     await db.from('profiles').insert({ id: authData.user.id, username: email.split('@')[0] + Math.floor(Math.random() * 1000) });
@@ -615,14 +610,14 @@ async function enterForum() {
   const { data: { user } } = await db.auth.getUser();
   if (!user) return;
   currentUser = user;
-  
+
   let { data: profile } = await db.from('profiles').select('*').eq('id', user.id).single();
   if (!profile) {
     const defaultName = user.email.split('@')[0] + Math.floor(Math.random() * 1000);
     const { data: newProfile } = await db.from('profiles').insert({ id: user.id, username: defaultName }).select().single();
     profile = newProfile;
   }
-  
+
   currentProfile = profile;
 
   document.getElementById('authPanel').classList.add('hidden');
@@ -665,10 +660,68 @@ function setFilter(cat, btn) {
   loadAll();
 }
 
+// --- ЛЕНТА ---
+async function loadAll() {
+  let postsQuery = db.from('posts').select('*', { count: 'exact' })
+    .order('is_pinned', { ascending: false })
+    .order('created_at', { ascending: false });
+
+  if (currentFilter && currentFilter !== 'общее') {
+    postsQuery = postsQuery.eq('category', currentFilter);
+  }
+
+  const from = (currentPage - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+  postsQuery = postsQuery.range(from, to);
+
+  const { data: posts, count, error } = await postsQuery;
+  if (error) console.error('posts load:', error);
+
+  totalPosts = count || 0;
+
+  const postIds = (posts || []).map(p => p.id);
+  if (postIds.length) {
+    const [{ data: comments }, { data: reactions }] = await Promise.all([
+      db.from('comments').select('*').in('post_id', postIds).order('created_at', { ascending: true }),
+      db.from('reactions').select('*').in('post_id', postIds)
+    ]);
+    allComments = comments || [];
+    allReactions = reactions || [];
+  } else {
+    allComments = [];
+    allReactions = [];
+  }
+
+  renderPosts(posts || []);
+  renderPagination();
+}
+
+function renderPagination() {
+  const box = document.getElementById('pagination');
+  const pages = Math.ceil(totalPosts / PAGE_SIZE) || 1;
+  if (pages <= 1) { box.innerHTML = ''; return; }
+  box.innerHTML = `
+    <button ${currentPage === 1 ? 'disabled' : ''} onclick="gotoPage(${currentPage - 1})">← НАЗАД</button>
+    <span style="opacity:0.7;">${currentPage} / ${pages}</span>
+    <button ${currentPage === pages ? 'disabled' : ''} onclick="gotoPage(${currentPage + 1})">ВПЕРЁД →</button>
+  `;
+}
+
+function gotoPage(p) {
+  if (p < 1) return;
+  currentPage = p;
+  loadAll();
+}
+
 // --- TM MARKET ---
 async function loadMarket() {
-  const { data } = await db.from('market_items').select('*').eq('is_active', true).order('created_at', { ascending: false });
+  const { data } = await db.from('market_items').select('*')
+    .eq('is_active', true).order('created_at', { ascending: false });
   marketData = data || [];
+
+  const addBtn = document.getElementById('addMarketBtn');
+  if (addBtn) addBtn.classList.toggle('hidden', !currentProfile?.is_admin);
+
   renderMarket();
 }
 
@@ -681,12 +734,12 @@ function renderMarket() {
   grid.innerHTML = marketData.map(item => `
     <div class="market-card">
       ${currentProfile?.is_admin ? `<button class="market-edit-btn" onclick="editMarketItem(${item.id})">[ РЕД ]</button>` : ''}
-      <img src="${item.image_url || './market-item.png'}" alt="${escapeHtml(item.title)}" onerror="this.src='https://via.placeholder.com/300x200/0a0a0a/00ff41?text=NO+IMAGE'">
+      <img src="${escapeHtml(item.image_url || './market-item.png')}" alt="${escapeHtml(item.title)}" onerror="this.src='https://via.placeholder.com/300x200/0a0a0a/00ff41?text=NO+IMAGE'">
       <div class="market-card-body">
         <div class="market-card-title">${escapeHtml(item.title)}</div>
-        <div class="market-card-desc" onclick="openItemDesc('${escapeHtml(item.title)}', '${escapeHtml(item.description || 'Описание отсутствует')}')">Показать описание</div>
+        <div class="market-card-desc" onclick="openItemDescById(${item.id})">Показать описание</div>
         <div class="market-card-price">${escapeHtml(item.price)}</div>
-        <button onclick="buyItem('${escapeHtml(item.title)}')">КУПИТЬ</button>
+        <button onclick="buyItemById(${item.id})">КУПИТЬ</button>
       </div>
     </div>
   `).join('');
@@ -697,39 +750,74 @@ function openMarket() {
   loadMarket();
 }
 
-function openItemDesc(title, text) {
-  document.getElementById('itemDescTitle').textContent = '// ' + title;
-  document.getElementById('itemDescText').textContent = text;
+function openItemDescById(id) {
+  const item = marketData.find(i => i.id === id);
+  if (!item) return;
+  document.getElementById('itemDescTitle').textContent = '// ' + item.title;
+  document.getElementById('itemDescText').textContent = item.description || 'Описание отсутствует';
   document.getElementById('itemDescriptionModal').classList.remove('hidden');
 }
 
-async function buyItem(title) {
-  document.getElementById('marketModal').classList.add('hidden');
-  await startChat('c3b0f0ac-24f8-48fe-acb1-ecd12379e016', 'Majestic'); // UUID @Majestic
-  setTimeout(() => {
-    const msgInput = document.getElementById('tmMsgInput');
-    if (msgInput) msgInput.value = `Йоу! Бро! Хочу приобрести товар. ${title}`;
-  }, 1000);
-}
-
-async function editMarketItem(id) {
+async function buyItemById(id) {
   const item = marketData.find(i => i.id === id);
   if (!item) return;
-  const newTitle = prompt('Название товара:', item.title);
-  if (newTitle === null) return;
-  const newDesc = prompt('Описание товара:', item.description);
-  if (newDesc === null) return;
-  const newPrice = prompt('Цена (например, 700 руб.):', item.price);
-  if (newPrice === null) return;
+  document.getElementById('marketModal').classList.add('hidden');
+  await startChat('c3b0f0ac-24f8-48fe-acb1-ecd12379e016', 'Majestic');
+  const msgInput = document.getElementById('tmMsgInput');
+  if (msgInput) msgInput.value = `Йоу! Бро! Хочу приобрести товар. ${item.title}`;
+}
 
-  const { error } = await db.from('market_items').update({
-    title: newTitle,
-    description: newDesc,
-    price: newPrice
-  }).eq('id', id);
+function editMarketItem(id) {
+  const item = marketData.find(i => i.id === id);
+  if (!item) return;
+  document.getElementById('editItemId').value = item.id;
+  document.getElementById('editItemTitle').value = item.title;
+  document.getElementById('editItemDesc').value = item.description || '';
+  document.getElementById('editItemPrice').value = item.price;
+  document.getElementById('editItemImage').value = item.image_url || './market-item.png';
+  document.getElementById('marketEditModal').classList.remove('hidden');
+}
+
+function openNewMarketItem() {
+  document.getElementById('editItemId').value = '';
+  document.getElementById('editItemTitle').value = '';
+  document.getElementById('editItemDesc').value = '';
+  document.getElementById('editItemPrice').value = '';
+  document.getElementById('editItemImage').value = './market-item.png';
+  document.getElementById('marketEditModal').classList.remove('hidden');
+}
+
+async function saveMarketItem() {
+  const id = document.getElementById('editItemId').value;
+  const title = document.getElementById('editItemTitle').value.trim();
+  const description = document.getElementById('editItemDesc').value.trim();
+  const price = document.getElementById('editItemPrice').value.trim();
+  const image_url = document.getElementById('editItemImage').value.trim() || './market-item.png';
+
+  if (!title || !price) return alert('Заполни название и цену');
+
+  const payload = { title, description, price, image_url };
+
+  let error;
+  if (id) {
+    ({ error } = await db.from('market_items').update(payload).eq('id', id));
+  } else {
+    ({ error } = await db.from('market_items').insert(payload));
+  }
 
   if (error) return alert('Ошибка: ' + error.message);
-  loadMarket();
+  document.getElementById('marketEditModal').classList.add('hidden');
+  await loadMarket();
+}
+
+async function deleteMarketItem() {
+  const id = document.getElementById('editItemId').value;
+  if (!id) return;
+  if (!confirm('Удалить товар?')) return;
+  const { error } = await db.from('market_items').delete().eq('id', id);
+  if (error) return alert('Ошибка: ' + error.message);
+  document.getElementById('marketEditModal').classList.add('hidden');
+  await loadMarket();
 }
 
 // --- ПРОФИЛЬ ---
@@ -737,9 +825,9 @@ async function openProfile(userId, userName) {
   profileTargetId = userId; profileTargetName = userName;
   document.getElementById('profNick').textContent = userName;
   modalCommentsLimit = 5;
-  
+
   const { data: profile } = await db.from('profiles').select('status_text, about_me, is_admin').eq('id', userId).single();
-  
+
   const badgeDiv = document.getElementById('profAdminBadge');
   if (profile && profile.is_admin) badgeDiv.innerHTML = `<span class="status-badge status-admin">ADMIN</span>`;
   else badgeDiv.innerHTML = '';
@@ -809,7 +897,7 @@ async function loadProfilePosts(userId) {
 function renderProfilePosts() {
   const list = document.getElementById('profPostsList');
   const btn = document.getElementById('profShowMoreBtn');
-  
+
   if (!profilePostsData.length) {
     list.innerHTML = '<div style="opacity:0.5;font-size:0.8rem;">// постов нет</div>';
     btn.classList.add('hidden');
@@ -817,7 +905,7 @@ function renderProfilePosts() {
   }
 
   const visible = profilePostsLimit >= profilePostsData.length ? profilePostsData : profilePostsData.slice(0, profilePostsLimit);
-  
+
   list.innerHTML = visible.map(p => `
     <div class="profile-post-item" onclick="openFullPost('${p.id}')">
       <strong># ${escapeHtml(p.title)}</strong>
@@ -846,10 +934,8 @@ function toggleProfilePosts() {
 
 function openFullPost(postId) {
   document.getElementById('profileModal').classList.add('hidden');
-  
   const post = profilePostsData.find(p => p.id == postId);
   if (!post) return;
-
   renderFullPostModal(post);
   document.getElementById('postModal').classList.remove('hidden');
 }
@@ -859,7 +945,7 @@ function renderFullPostModal(post) {
   const dislikes = allReactions.filter(r => r.post_id === post.id && r.value === -1).length;
   const myReaction = allReactions.find(r => r.post_id === post.id && r.user_id === currentUser.id);
   const postComments = allComments.filter(c => c.post_id === post.id);
-  
+
   const visibleComments = postComments.slice(0, modalCommentsLimit);
   const hasMore = postComments.length > modalCommentsLimit;
 
@@ -868,7 +954,7 @@ function renderFullPostModal(post) {
       <div class="meta">
         <div style="display:flex; align-items:center; gap:5px;">
           ${getStatusBadge(c.author_id)}
-          <span class="author" onclick="openProfile('${c.author_id}', '${c.author_name}')">@${escapeHtml(c.author_name)}</span>
+          <span class="author" onclick="openProfile('${c.author_id}', '${escapeHtml(c.author_name)}')">@${escapeHtml(c.author_name)}</span>
         </div>
         ${(c.author_id === currentUser.id || currentProfile.is_admin) ? `<span class="del" onclick="deleteComment(${c.id})">[ x ]</span>` : ''}
       </div>
@@ -883,15 +969,15 @@ function renderFullPostModal(post) {
     <div class="post">
       <div class="meta">
         <div style="display:flex; align-items:center; gap:5px;">
-          ${getStatusBadge(post.author_id)} 
-          <span class="author" onclick="openProfile('${post.author_id}', '${post.author_name}')">@${escapeHtml(post.author_name)}</span>
+          ${getStatusBadge(post.author_id)}
+          <span class="author" onclick="openProfile('${post.author_id}', '${escapeHtml(post.author_name)}')">@${escapeHtml(post.author_name)}</span>
         </div>
         · ${new Date(post.created_at).toLocaleString('ru-RU')}
       </div>
       <div class="content"><strong># ${escapeHtml(post.title)}</strong><br>${escapeHtml(post.body)}</div>
       <div class="post-actions">
-        <button class="react-btn ${myReaction?.value === 1 ? 'active-up' : ''}" onclick="react(${post.id}, 1); renderFullPostModal(profilePostsData.find(p=>p.id==${post.id}))">▲ ${likes}</button>
-        <button class="react-btn ${myReaction?.value === -1 ? 'active-down' : ''}" onclick="react(${post.id}, -1); renderFullPostModal(profilePostsData.find(p=>p.id==${post.id}))">▼ ${dislikes}</button>
+        <button class="react-btn ${myReaction?.value === 1 ? 'active-up' : ''}" onclick="reactModal(${post.id}, 1)">▲ ${likes}</button>
+        <button class="react-btn ${myReaction?.value === -1 ? 'active-down' : ''}" onclick="reactModal(${post.id}, -1)">▼ ${dislikes}</button>
       </div>
       <div class="comments" style="display:block;">
         ${commentsHtml || '<div style="opacity:.4;font-size:0.8rem;padding:6px 0">// комментариев нет</div>'}
@@ -903,6 +989,12 @@ function renderFullPostModal(post) {
       </div>
     </div>
   `;
+}
+
+async function reactModal(postId, val) {
+  await react(postId, val);
+  const post = profilePostsData.find(p => p.id == postId);
+  if (post) renderFullPostModal(post);
 }
 
 function loadMoreModalComments(postId) {
@@ -932,9 +1024,6 @@ function writeToProfileUser() {
   startChat(profileTargetId, profileTargetName);
 }
 
-function openUserPopup(userId, userName) { openProfile(userId, userName); }
-function popupWrite() { document.getElementById('userPopup').classList.add('hidden'); }
-
 function renderPosts(posts) {
   document.getElementById('postCount').textContent = totalPosts;
   const list = document.getElementById('postsList');
@@ -950,7 +1039,7 @@ function renderPosts(posts) {
     const visibleComments = postComments.slice(0, limit);
     const hasMore = postComments.length > limit;
     const canDelete = p.author_id === currentUser.id || currentProfile.is_admin;
-    
+
     const scamClass = p.category === 'скам-лист' ? 'scam' : '';
 
     const commentsHtml = visibleComments.map(c => `
@@ -958,7 +1047,7 @@ function renderPosts(posts) {
         <div class="meta">
           <div style="display:flex; align-items:center; gap:5px;">
             ${getStatusBadge(c.author_id)}
-            <span class="author" onclick="openProfile('${c.author_id}', '${c.author_name}')">@${escapeHtml(c.author_name)}</span>
+            <span class="author" onclick="openProfile('${c.author_id}', '${escapeHtml(c.author_name)}')">@${escapeHtml(c.author_name)}</span>
           </div>
           ${(c.author_id === currentUser.id || currentProfile.is_admin) ? `<span class="del" onclick="deleteComment(${c.id})">[ x ]</span>` : ''}
         </div>
@@ -973,8 +1062,8 @@ function renderPosts(posts) {
         ${canDelete ? `<span class="del" onclick="deletePost(${p.id})">[ x ]</span>` : ''}
         <div class="meta">
           <div style="display:flex; align-items:center; gap:5px;">
-            ${getStatusBadge(p.author_id)} 
-            <span class="author" onclick="openProfile('${p.author_id}', '${p.author_name}')">@${escapeHtml(p.author_name)}</span>
+            ${getStatusBadge(p.author_id)}
+            <span class="author" onclick="openProfile('${p.author_id}', '${escapeHtml(p.author_name)}')">@${escapeHtml(p.author_name)}</span>
           </div>
           · ${new Date(p.created_at).toLocaleString('ru-RU')}
           <span style="background:rgba(0,255,65,0.2); padding:2px 5px; border-radius:3px; font-size:0.65rem;">${p.category || 'общее'}</span>
@@ -1007,9 +1096,9 @@ async function addPost() {
   if (t.length > 100 || b.length > 1000) return alert('Слишком длинный заголовок или текст');
   const btn = document.getElementById('postBtn');
   btn.disabled = true;
-  
+
   const { error } = await db.from('posts').insert({ author_id: currentUser.id, author_name: currentProfile.username, title: t, body: b, category: cat, is_pinned: false });
-  
+
   btn.disabled = false;
   if (error) {
     alert('ОШИБКА: ' + error.message);
@@ -1021,17 +1110,24 @@ async function addPost() {
 
 async function deletePost(id) { if(confirm('Удалить тему?')) { await db.from('posts').delete().eq('id', id); loadAll(); } }
 async function togglePin(id, cur) { await db.from('posts').update({ is_pinned: !cur }).eq('id', id); loadAll(); }
+
 async function react(id, val) {
   const ex = allReactions.find(r => r.post_id === id && r.user_id === currentUser.id);
-  if (ex) { if (ex.value === val) await db.from('reactions').delete().eq('id', ex.id); else await db.from('reactions').update({ value: val }).eq('id', ex.id); }
-  else await db.from('reactions').insert({ post_id: id, user_id: currentUser.id, value: val });
+  if (ex) {
+    if (ex.value === val) await db.from('reactions').delete().eq('id', ex.id);
+    else await db.from('reactions').update({ value: val }).eq('id', ex.id);
+  } else {
+    await db.from('reactions').insert({ post_id: id, user_id: currentUser.id, value: val });
+  }
+  await loadAll();
+}
+
+async function toggleComments(id) {
+  if(commentsDisplayLimit[id] !== undefined) delete commentsDisplayLimit[id];
+  else commentsDisplayLimit[id] = 10;
   loadAll();
 }
-async function toggleComments(id) { 
-  if(commentsDisplayLimit[id] !== undefined) delete commentsDisplayLimit[id]; 
-  else commentsDisplayLimit[id] = 10; 
-  loadAll(); 
-}
+
 async function addComment(id) {
   const inp = document.getElementById('cin-' + id);
   if(!inp.value.trim()) return;
@@ -1042,6 +1138,7 @@ async function addComment(id) {
   }
   inp.value = ''; commentsDisplayLimit[id] = 10; loadAll();
 }
+
 async function deleteComment(id) { if(confirm('Удалить коммент?')) { await db.from('comments').delete().eq('id', id); loadAll(); } }
 
 async function enablePush() {
@@ -1071,21 +1168,22 @@ function closeMessenger() {
 
 // --- ЛИЧНЫЕ ЧАТЫ ---
 async function searchUsers() {
-  const q = document.getElementById('tmSearch').value.trim();
+  const q = document.getElementById('tmSearch').value.trim().replace(/[%_\\]/g, '\\$&');
   const resBox = document.getElementById('tmSearchResults');
   if (q.length < 2) { resBox.innerHTML = ''; return; }
   const { data } = await db.from('profiles').select('id, username').ilike('username', `%${q}%`).neq('id', currentUser.id).limit(5);
   if (!data || !data.length) { resBox.innerHTML = '<div style="opacity:0.5;font-size:0.7rem;">не найдено</div>'; return; }
-  resBox.innerHTML = data.map(u => `<div style="padding:5px; border:1px solid rgba(0,229,255,0.3); margin-bottom:3px; cursor:pointer; color:#00e5ff;" onclick="startChat('${u.id}', '${u.username}')">@${u.username}</div>`).join('');
+  resBox.innerHTML = data.map(u => `<div style="padding:5px; border:1px solid rgba(0,229,255,0.3); margin-bottom:3px; cursor:pointer; color:#00e5ff;" onclick="startChat('${u.id}', '${escapeHtml(u.username)}')">@${escapeHtml(u.username)}</div>`).join('');
 }
 
 async function startChat(peerId, peerName) {
   document.getElementById('tmSearch').value = '';
   document.getElementById('tmSearchResults').innerHTML = '';
   document.getElementById('messengerOverlay').classList.remove('hidden');
-  
-  const { data: existing } = await db.from('chats').select('id').or(`and(user1_id.eq.${currentUser.id},user2_id.eq.${peerId}),and(user1_id.eq.${peerId},user2_id.eq.${currentUser.id})`).single();
+
+  const { data: existing } = await db.from('chats').select('id').or(`and(user1_id.eq.${currentUser.id},user2_id.eq.${peerId}),and(user1_id.eq.${peerId},user2_id.eq.${currentUser.id})`).maybeSingle();
   let chatId = existing ? existing.id : (await db.from('chats').insert({ user1_id: currentUser.id, user2_id: peerId }).select().single()).data.id;
+  await loadChats();
   openChat(chatId, peerName, peerId);
 }
 
@@ -1095,12 +1193,12 @@ async function loadChats() {
   chatsData = chats || [];
   const list = document.getElementById('tmChatList');
   const btnMore = document.getElementById('btnShowMoreChats');
-  
+
   if (!chatsData.length) { list.innerHTML = '<div style="padding:10px; opacity:0.5; text-align:center;">// пусто</div>'; btnMore.classList.add('hidden'); return; }
 
   const peerIds = chatsData.map(c => c.user1_id === currentUser.id ? c.user2_id : c.user1_id);
   const { data: peers } = await db.from('profiles').select('id, username').in('id', peerIds);
-  
+
   const unreadStatus = await Promise.all(chatsData.map(async c => {
     if (c.id === activeChatId) return { id: c.id, unread: false };
     const isU1 = c.user1_id === currentUser.id;
@@ -1115,12 +1213,12 @@ async function loadChats() {
     const peer = peers.find(p => p.id === pId);
     const name = peer ? peer.username : 'Unknown';
     const hasUnread = unreadStatus.find(u => u.id === c.id)?.unread;
-    return `<div class="tm-chat-item" onclick="openChat(${c.id}, '${name}', '${pId}')"><div class="tm-chat-name">@${name}</div>${hasUnread ? '<div class="unread-dot"></div>' : ''}</div>`;
+    return `<div class="tm-chat-item" onclick="openChat(${c.id}, '${escapeHtml(name)}', '${pId}')"><div class="tm-chat-name">@${escapeHtml(name)}</div>${hasUnread ? '<div class="unread-dot"></div>' : ''}</div>`;
   }).join('');
 
   if (chatsData.length > chatLimit) btnMore.classList.remove('hidden');
   else btnMore.classList.add('hidden');
-  
+
   updateGlobalUnreadBadge();
 }
 
@@ -1128,11 +1226,8 @@ function showMoreChats() { chatLimit += 5; loadChats(); }
 
 async function updateGlobalUnreadBadge() {
   let totalUnread = 0;
-  
+
   if (chatsData.length) {
-    const peerIds = chatsData.map(c => c.user1_id === currentUser.id ? c.user2_id : c.user1_id);
-    const { data: peers } = await db.from('profiles').select('id, username').in('id', peerIds);
-    
     const chatUnread = await Promise.all(chatsData.map(async c => {
       if (c.id === activeChatId) return false;
       const isU1 = c.user1_id === currentUser.id;
@@ -1173,15 +1268,17 @@ async function openChat(chatId, peerName, peerId) {
     document.getElementById('tmBackBtn').style.display = 'block';
   }
 
-  const isU1 = chatsData.find(c => c.id === chatId)?.user1_id === currentUser.id;
+  // Надёжно определяем поле last_read
+  const { data: chat } = await db.from('chats').select('user1_id').eq('id', chatId).single();
+  const isU1 = chat && chat.user1_id === currentUser.id;
   await db.from('chats').update(isU1 ? { last_read_user1: new Date() } : { last_read_user2: new Date() }).eq('id', chatId);
 
   loadChats();
   loadMessages();
-  
+
   if (tmChannel) db.removeChannel(tmChannel);
-  tmChannel = db.channel('chat-' + chatId).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, () => { 
-    loadMessages(); 
+  tmChannel = db.channel('chat-' + chatId).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, () => {
+    loadMessages();
     db.from('chats').update(isU1 ? { last_read_user1: new Date() } : { last_read_user2: new Date() }).eq('id', chatId);
   }).subscribe();
 }
@@ -1189,22 +1286,22 @@ async function openChat(chatId, peerName, peerId) {
 async function loadMessages() {
   if (!activeChatId) return;
   const { data: msgs } = await db.from('messages').select('*').eq('chat_id', activeChatId).order('created_at', { ascending: true });
-  
+
   const senderIds = [...new Set((msgs || []).map(m => m.sender_id))];
   const { data: profiles } = await db.from('profiles').select('id, username, is_admin').in('id', senderIds);
-  
+
   const box = document.getElementById('tmMessages');
   box.innerHTML = (msgs || []).map(m => {
     const sender = profiles?.find(p => p.id === m.sender_id);
     const senderName = sender ? sender.username : m.sender_name || 'Unknown';
     const isAdmin = sender ? sender.is_admin : false;
     const isMe = m.sender_id === currentUser.id;
-    
+
     return `
       <div class="msg ${isMe ? 'me' : 'them'}">
         <div class="msg-meta">
           ${isAdmin ? '<span class="status-badge-msg">ADMIN</span>' : ''}
-          <span class="clickable-nick" onclick="openProfile('${m.sender_id}', '${senderName}')">@${escapeHtml(senderName)}</span>
+          <span class="clickable-nick" onclick="openProfile('${m.sender_id}', '${escapeHtml(senderName)}')">@${escapeHtml(senderName)}</span>
         </div>
         ${escapeHtml(m.body)}
       </div>
@@ -1237,36 +1334,36 @@ async function deleteChatPrompt() {
 async function loadGroups() {
   if (!currentUser) return;
   const { data: memberships } = await db.from('group_members').select('group_id, last_read_at').eq('user_id', currentUser.id);
-  if (!memberships || !memberships.length) { 
-    groupsData = []; 
+  if (!memberships || !memberships.length) {
+    groupsData = [];
     document.getElementById('tmGroupList').innerHTML = '<div style="padding:10px; opacity:0.5; text-align:center;">// пусто</div>';
     document.getElementById('btnShowMoreGroups').classList.add('hidden');
     updateGlobalUnreadBadge();
-    return; 
+    return;
   }
 
   const groupIds = memberships.map(m => m.group_id);
   const { data: groups } = await db.from('group_chats').select('*').in('id', groupIds);
   groupsData = groups || [];
-  
+
   const list = document.getElementById('tmGroupList');
   const btnMore = document.getElementById('btnShowMoreGroups');
-  
+
   const visibleGroups = groupsData.slice(0, groupLimit);
-  
+
   const groupItemsHtml = await Promise.all(visibleGroups.map(async g => {
     const member = memberships.find(m => m.group_id === g.id);
     const myLastRead = member ? member.last_read_at : '1970-01-01';
     const { count } = await db.from('group_messages').select('*', { count: 'exact', head: true }).eq('group_id', g.id).gt('created_at', myLastRead).neq('sender_id', currentUser.id);
     const hasUnread = count > 0 && g.id !== activeGroupId;
-    return `<div class="tm-chat-item" onclick="openGroup(${g.id}, '${g.title}', '${g.creator_id}')"><div class="tm-group-name">${g.title}</div>${hasUnread ? '<div class="unread-dot"></div>' : ''}</div>`;
+    return `<div class="tm-chat-item" onclick="openGroup(${g.id}, '${escapeHtml(g.title)}', '${g.creator_id}')"><div class="tm-group-name">${escapeHtml(g.title)}</div>${hasUnread ? '<div class="unread-dot"></div>' : ''}</div>`;
   }));
-  
+
   list.innerHTML = groupItemsHtml.join('');
 
   if (groupsData.length > groupLimit) btnMore.classList.remove('hidden');
   else btnMore.classList.add('hidden');
-  
+
   updateGlobalUnreadBadge();
 }
 
@@ -1282,23 +1379,23 @@ function showCreateGroup() {
 }
 
 async function searchGroupMembers(mode) {
-  const q = mode === 'create' ? document.getElementById('groupMemberSearch').value.trim() : document.getElementById('inviteMemberSearch').value.trim();
+  const q = (mode === 'create' ? document.getElementById('groupMemberSearch').value : document.getElementById('inviteMemberSearch').value).trim().replace(/[%_\\]/g, '\\$&');
   const resBox = mode === 'create' ? document.getElementById('createMemberResults') : document.getElementById('inviteMemberResults');
   if (q.length < 2) { resBox.innerHTML = ''; return; }
   const { data } = await db.from('profiles').select('id, username').ilike('username', `%${q}%`).neq('id', currentUser.id).limit(5);
   if (!data || !data.length) { resBox.innerHTML = '<div style="opacity:0.5;font-size:0.8rem;">не найдено</div>'; return; }
-  
+
   if (mode === 'create') {
-    resBox.innerHTML = data.map(u => `<div style="padding:8px; border:1px solid rgba(0,229,255,0.3); margin-bottom:5px; cursor:pointer; color:#00e5ff;" onclick="addGroupMember('${u.id}', '${u.username}')">@${u.username}</div>`).join('');
+    resBox.innerHTML = data.map(u => `<div style="padding:8px; border:1px solid rgba(0,229,255,0.3); margin-bottom:5px; cursor:pointer; color:#00e5ff;" onclick="addGroupMember('${u.id}', '${escapeHtml(u.username)}')">@${escapeHtml(u.username)}</div>`).join('');
   } else {
     const { data: existingMembers } = await db.from('group_members').select('user_id').eq('group_id', activeGroupId);
     const existingIds = new Set((existingMembers || []).map(m => m.user_id));
-    
+
     resBox.innerHTML = data.map(u => {
       if (existingIds.has(u.id)) {
-        return `<div style="padding:8px; border:1px solid rgba(255,255,255,0.1); margin-bottom:5px; color:#666; cursor:not-allowed;">@${u.username} (уже в беседе)</div>`;
+        return `<div style="padding:8px; border:1px solid rgba(255,255,255,0.1); margin-bottom:5px; color:#666; cursor:not-allowed;">@${escapeHtml(u.username)} (уже в беседе)</div>`;
       }
-      return `<div style="padding:8px; border:1px solid rgba(0,229,255,0.3); margin-bottom:5px; cursor:pointer; color:#00e5ff;" onclick="inviteGroupMember('${u.id}', '${u.username}')">@${u.username}</div>`;
+      return `<div style="padding:8px; border:1px solid rgba(0,229,255,0.3); margin-bottom:5px; cursor:pointer; color:#00e5ff;" onclick="inviteGroupMember('${u.id}', '${escapeHtml(u.username)}')">@${escapeHtml(u.username)}</div>`;
     }).join('');
   }
 }
@@ -1356,13 +1453,13 @@ async function openGroup(groupId, groupName, creatorId) {
 
   await loadGroupBanner();
   loadGroupMessages();
-  
+
   if (groupChannel) db.removeChannel(groupChannel);
-  groupChannel = db.channel('group-' + groupId).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_messages', filter: `group_id=eq.${groupId}` }, () => { 
-    loadGroupMessages(); 
+  groupChannel = db.channel('group-' + groupId).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_messages', filter: `group_id=eq.${groupId}` }, () => {
+    loadGroupMessages();
     db.from('group_members').update({ last_read_at: new Date() }).eq('group_id', groupId).eq('user_id', currentUser.id);
   }).subscribe();
-  
+
   loadGroups();
 }
 
@@ -1407,7 +1504,7 @@ async function inviteGroupMember(id, name) {
 async function loadGroupMessages() {
   if (!activeGroupId) return;
   const { data: msgs } = await db.from('group_messages').select('*').eq('group_id', activeGroupId).order('created_at', { ascending: true });
-  
+
   const senderIds = [...new Set((msgs || []).map(m => m.sender_id))];
   const { data: profiles } = await db.from('profiles').select('id, username, is_admin').in('id', senderIds);
 
@@ -1417,12 +1514,12 @@ async function loadGroupMessages() {
     const senderName = sender ? sender.username : m.sender_name || 'Unknown';
     const isAdmin = sender ? sender.is_admin : false;
     const isMe = m.sender_id === currentUser.id;
-    
+
     return `
       <div class="msg ${isMe ? 'me' : 'them'}">
         <div class="msg-meta">
           ${isAdmin ? '<span class="status-badge-msg">ADMIN</span>' : ''}
-          <span class="clickable-nick" onclick="openProfile('${m.sender_id}', '${senderName}')">@${escapeHtml(senderName)}</span>
+          <span class="clickable-nick" onclick="openProfile('${m.sender_id}', '${escapeHtml(senderName)}')">@${escapeHtml(senderName)}</span>
         </div>
         ${escapeHtml(m.body)}
       </div>
@@ -1443,8 +1540,9 @@ async function kickMember() {
   const { error } = await db.from('group_members').delete().eq('group_id', activeGroupId).eq('user_id', actionTargetMember.id);
   if (error) return alert(error.message);
   document.getElementById('groupActionModal').classList.add('hidden');
-  
+
   if (actionTargetMember.id === currentUser.id) {
+    if (groupChannel) { db.removeChannel(groupChannel); groupChannel = null; }
     activeGroupId = null;
     document.getElementById('tmActiveGroup').classList.add('hidden');
     document.getElementById('tmNoChat').classList.remove('hidden');
@@ -1464,28 +1562,30 @@ async function sendGroupMessage() {
 
 async function leaveGroupPrompt() {
   if (!confirm('Выйти из беседы?')) return;
-  
+
   await db.from('group_members').delete().eq('group_id', activeGroupId).eq('user_id', currentUser.id);
-  
+
+  if (groupChannel) { db.removeChannel(groupChannel); groupChannel = null; }
+
   activeGroupId = null;
   activeGroupName = null;
   activeGroupCreatorId = null;
-  
+
   document.getElementById('tmActiveGroup').classList.add('hidden');
   document.getElementById('tmActiveChat').classList.add('hidden');
   document.getElementById('tmSettings').classList.add('hidden');
   document.getElementById('tmNoChat').classList.remove('hidden');
-  
+
   if (window.innerWidth <= 600) {
     document.getElementById('tmChatArea').classList.remove('active');
   }
-  
+
   await loadGroups();
   await loadChats();
   updateGlobalUnreadBadge();
 }
 
-// --- ОБЩИЕ ФУНКЦИИ ---
+// --- ОБЩИЕ ---
 function closeChatMobile() { document.getElementById('tmChatArea').classList.remove('active'); }
 
 function showSettings() {
@@ -1520,11 +1620,11 @@ async function changePassword() {
 async function changeUsername() {
   const newName = document.getElementById('newUsername').value.trim();
   const msg = document.getElementById('nameChangeMsg');
-  
+
   if (newName.length < 3) { msg.style.color = '#ff003c'; msg.textContent = 'Ник слишком короткий'; return; }
-  
+
   if (newName.toLowerCase().includes('админ') || newName.toLowerCase().includes('admin')) {
-    msg.style.color = '#ff003c'; 
+    msg.style.color = '#ff003c';
     msg.textContent = 'Ник не может содержать слово "Админ" или "Admin".';
     return;
   }
@@ -1534,7 +1634,7 @@ async function changeUsername() {
   msg.style.color = '#00e5ff'; msg.textContent = 'Обновление...';
 
   const { error } = await db.rpc('change_username', { new_name: newName });
-  
+
   if (error) {
     msg.style.color = '#ff003c';
     msg.textContent = error.message;
@@ -1545,21 +1645,23 @@ async function changeUsername() {
     document.getElementById('setUsername').textContent = newName;
     document.getElementById('newUsername').value = '';
     document.getElementById('userInfo').innerHTML = `${newName}${currentProfile.is_admin ? ' ★' : ''}`;
-    
     await loadAll();
   }
 }
 
 function setupGlobalListeners() {
+  if (globalMsgChannel) { db.removeChannel(globalMsgChannel); globalMsgChannel = null; }
+  if (groupListChannel) { db.removeChannel(groupListChannel); groupListChannel = null; }
+
   globalMsgChannel = db.channel('global-msg-listener').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
     if (currentUser && payload.new.sender_id !== currentUser.id) {
-      loadChats(); 
+      loadChats();
     }
   }).subscribe();
 
   groupListChannel = db.channel('global-group-listener').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_messages' }, (payload) => {
      if (currentUser && payload.new.sender_id !== currentUser.id) {
-        loadGroups(); 
+        loadGroups();
      }
   }).subscribe();
 }
