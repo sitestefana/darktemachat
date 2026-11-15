@@ -18,7 +18,6 @@
   .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 900px; flex-wrap: wrap; gap: 10px; }
   
   .brand { display: flex; align-items: center; gap: 10px; }
-  /* Убираем фон у иконки через mix-blend-mode */
   .brand img { height: 35px; width: auto; mix-blend-mode: screen; filter: drop-shadow(0 0 5px #00ff41); }
   .glitch-title { font-size: 1.8rem; letter-spacing: 2px; text-transform: uppercase; color: #00ff41; text-shadow: 0 0 8px #00ff41, 0 0 20px #00ff41; position: relative; }
   .glitch-title::before, .glitch-title::after { content: attr(data-text); position: absolute; left: 0; top: 0; width: 100%; }
@@ -27,11 +26,10 @@
   @keyframes glitch1 { 0%,100%{transform:translate(0)} 20%{transform:translate(-3px,1px)} 40%{transform:translate(2px,-1px)} 60%{transform:translate(-2px,0)} }
   @keyframes glitch2 { 0%,100%{transform:translate(0)} 30%{transform:translate(3px,-1px)} 50%{transform:translate(-2px,1px)} 70%{transform:translate(1px,0)} }
   
-  .status { font-size: 0.75rem; color: #0f0; opacity: 0.7; }
-  .blink { animation: blink 1s steps(2) infinite; }
-  @keyframes blink { 50%{opacity:0} }
-  .userbar { display: flex; gap: 10px; align-items: center; font-size: 0.85rem; }
-  .userbar .nick-click { cursor: pointer; text-decoration: underline; }
+  /* КОМПАКТНЫЙ USERBAR (ONLINE НАД НИКОМ) */
+  .userbar { display: flex; flex-direction: column; align-items: flex-end; font-size: 0.8rem; line-height: 1.2; }
+  .userbar .status { font-size: 0.65rem; color: #0f0; opacity: 0.7; margin-bottom: 2px; }
+  .userbar .nick-click { cursor: pointer; text-decoration: underline; font-weight: bold; }
   .userbar .nick-click:hover { color: #fff; }
   
   main { width: 100%; max-width: 900px; padding: 15px 10px; display: flex; flex-direction: column; gap: 15px; }
@@ -86,12 +84,7 @@
   .filter-btn.scam-filter { border-color: #ff003c; color: #ff003c; }
   .filter-btn.scam-filter.active { background: #ff003c; color: #000; }
 
-  .rules-btn {
-    width: 100%; padding: 5px; background: rgba(255, 0, 60, 0.05);
-    border: 1px solid #ff003c; color: #ff003c; font-size: 0.8rem;
-    cursor: pointer; margin-bottom: 0; text-transform: uppercase;
-    letter-spacing: 1px; transition: all 0.2s;
-  }
+  .rules-btn { width: 100%; padding: 5px; background: rgba(255, 0, 60, 0.05); border: 1px solid #ff003c; color: #ff003c; font-size: 0.8rem; cursor: pointer; margin-bottom: 0; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s; }
   .rules-btn:hover { background: rgba(255, 0, 60, 0.2); box-shadow: 0 0 15px rgba(255,0,60,0.4); }
 
   #rulesModal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 40000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
@@ -184,8 +177,7 @@
   #marketModal .modal-content { max-width: 800px; border-color: #ffd700; box-shadow: 0 0 30px rgba(255,215,0,0.2); }
   .market-warning { background: rgba(255,0,60,0.1); border: 1px dashed #ff003c; color: #ff003c; text-align: center; padding: 10px; font-size: 0.8rem; margin-bottom: 15px; font-weight: bold; }
   .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
-  .market-card { border: 1px solid #00ff41; background: rgba(0,20,5,0.8); display: flex; flex-direction: column; overflow: hidden; }
-  /* Картинка карточки без фона */
+  .market-card { border: 1px solid #00ff41; background: rgba(0,20,5,0.8); display: flex; flex-direction: column; overflow: hidden; position: relative; }
   .market-card img { width: 100%; height: 120px; object-fit: contain; background: #000; border-bottom: 1px solid #00ff41; padding: 5px; }
   .market-card-body { padding: 10px; display: flex; flex-direction: column; flex: 1; }
   .market-card-title { font-weight: bold; color: #00e5ff; font-size: 0.9rem; margin-bottom: 5px; }
@@ -193,7 +185,11 @@
   .market-card-desc:hover { color: #fff; }
   .market-card-price { font-weight: bold; color: #ffd700; font-size: 1rem; margin-bottom: 10px; }
   .market-card button { margin-bottom: 0; padding: 8px; font-size: 0.8rem; }
-
+  
+  /* КНОПКА РЕДАКТИРОВАНИЯ В КАРТОЧКЕ */
+  .market-edit-btn { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.8); border: 1px solid #ffd700; color: #ffd700; padding: 2px 6px; font-size: 0.7rem; cursor: pointer; width: auto; margin: 0; z-index: 10;}
+  .market-edit-btn:hover { background: #ffd700; color: #000; }
+  
   /* ПАМЯТКА */
   .vpn-warning { margin-top: 20px; text-align: center; font-size: 0.75rem; color: #ff003c; border: 1px dashed #ff003c; padding: 10px; background: rgba(255,0,60,0.05); animation: adBlink 2s infinite; }
 
@@ -684,6 +680,7 @@ function renderMarket() {
   }
   grid.innerHTML = marketData.map(item => `
     <div class="market-card">
+      ${currentProfile?.is_admin ? `<button class="market-edit-btn" onclick="editMarketItem(${item.id})">[ РЕД ]</button>` : ''}
       <img src="${item.image_url || './market-item.png'}" alt="${escapeHtml(item.title)}" onerror="this.src='https://via.placeholder.com/300x200/0a0a0a/00ff41?text=NO+IMAGE'">
       <div class="market-card-body">
         <div class="market-card-title">${escapeHtml(item.title)}</div>
@@ -708,11 +705,31 @@ function openItemDesc(title, text) {
 
 async function buyItem(title) {
   document.getElementById('marketModal').classList.add('hidden');
-  await startChat('c3b0f0ac-24f8-48fe-acb1-ecd12379e016', 'Majestic'); // Твой реальный UUID @Majestic
+  await startChat('c3b0f0ac-24f8-48fe-acb1-ecd12379e016', 'Majestic'); // UUID @Majestic
   setTimeout(() => {
     const msgInput = document.getElementById('tmMsgInput');
     if (msgInput) msgInput.value = `Йоу! Бро! Хочу приобрести товар. ${title}`;
   }, 1000);
+}
+
+async function editMarketItem(id) {
+  const item = marketData.find(i => i.id === id);
+  if (!item) return;
+  const newTitle = prompt('Название товара:', item.title);
+  if (newTitle === null) return;
+  const newDesc = prompt('Описание товара:', item.description);
+  if (newDesc === null) return;
+  const newPrice = prompt('Цена (например, 700 руб.):', item.price);
+  if (newPrice === null) return;
+
+  const { error } = await db.from('market_items').update({
+    title: newTitle,
+    description: newDesc,
+    price: newPrice
+  }).eq('id', id);
+
+  if (error) return alert('Ошибка: ' + error.message);
+  loadMarket();
 }
 
 // --- ПРОФИЛЬ ---
