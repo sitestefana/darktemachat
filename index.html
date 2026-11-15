@@ -153,9 +153,10 @@
   .install-btn { position: fixed; bottom: 25px; right: 15px; z-index: 200; border: 1px solid rgba(0, 229, 255, 0.6); color: #00e5ff; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); padding: 6px 10px; font-size: 0.75rem; width: auto; margin-bottom: 0; opacity: 0.7; transition: all 0.2s ease; }
   .install-btn:hover { opacity: 1; background: rgba(0, 229, 255, 0.9); color: #000; box-shadow: 0 0 20px #00e5ff; border-color: #00e5ff; }
 
-  /* МОДАЛЬНЫЕ ОКНА — с правильными z-index */
   #createGroupModal, #groupActionModal, #groupBannerModal, #groupInviteModal, #profileModal, #postModal, #marketModal, #marketEditModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
   #itemDescriptionModal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 60000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(6px); }
+  #marketReviewsModal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 61000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(6px); }
+  #shopInfoModal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 62000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(6px); }
   #marketEditModal { z-index: 65000; }
 
   .modal-content { background: #000; border: 1px solid #ffd700; max-width: 400px; width: 100%; padding: 20px; box-shadow: 0 0 30px rgba(255,215,0,0.2); max-height: 90vh; overflow-y: auto;}
@@ -188,6 +189,27 @@
   .market-edit-btn { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.8); border: 1px solid #ffd700; color: #ffd700; padding: 2px 6px; font-size: 0.7rem; cursor: pointer; width: auto; margin: 0; z-index: 10;}
   .market-edit-btn:hover { background: #ffd700; color: #000; }
 
+  .market-store-name { font-size: 0.7rem; color: #ffd700; letter-spacing: 1px; text-align: center; padding: 4px 0; border-bottom: 1px dashed rgba(255,215,0,0.4); background: rgba(255,215,0,0.06); text-transform: uppercase; }
+
+  .market-rating { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; color: #ffd700; margin-bottom: 6px; cursor: pointer; }
+  .market-rating .stars { letter-spacing: 1px; }
+  .market-rating .stars .off { color: #444; }
+  .market-rating .count { color: #888; font-size: 0.7rem; }
+
+  .review-item { border-left: 2px solid #ffd700; background: rgba(255,215,0,0.04); padding: 8px; margin-bottom: 8px; font-size: 0.85rem; }
+  .review-item .meta { display: flex; justify-content: space-between; font-size: 0.7rem; opacity: 0.7; margin-bottom: 4px; }
+  .review-item .author { color: #00e5ff; cursor: pointer; text-decoration: underline; }
+  .review-item .stars { color: #ffd700; }
+  .review-item .body { white-space: pre-wrap; word-break: break-word; }
+
+  .review-form { border-top: 1px dashed rgba(255,215,0,0.4); padding-top: 10px; margin-top: 10px; }
+  .review-form .stars-pick { display: flex; gap: 6px; font-size: 1.5rem; margin-bottom: 8px; cursor: pointer; }
+  .review-form .stars-pick span { color: #444; transition: color .15s; }
+  .review-form .stars-pick span.on { color: #ffd700; text-shadow: 0 0 8px #ffd700; }
+
+  .open-shop-btn { background: transparent; border: 1px dashed #ffd700; color: #ffd700; margin-top: 10px; font-size: 0.85rem; }
+  .open-shop-btn:hover { background: rgba(255,215,0,0.15); color: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.4); }
+
   .vpn-warning { margin-top: 20px; text-align: center; font-size: 0.75rem; color: #ff003c; border: 1px dashed #ff003c; padding: 10px; background: rgba(255,0,60,0.05); animation: adBlink 2s infinite; }
 
   @media (max-width: 600px) {
@@ -212,6 +234,42 @@
     <h2 id="itemDescTitle">// ОПИСАНИЕ</h2>
     <p id="itemDescText" style="font-size: 0.9rem; line-height: 1.5; color: #aaa; margin-bottom: 20px;"></p>
     <button class="danger" onclick="document.getElementById('itemDescriptionModal').classList.add('hidden')">[ ЗАКРЫТЬ ]</button>
+  </div>
+</div>
+
+<!-- ПАМЯТКА: ОТКРЫТЬ СВОЙ МАГАЗИН -->
+<div id="shopInfoModal" class="hidden">
+  <div class="modal-content" style="border-color:#ffd700; max-width: 480px;">
+    <h2>// ОТКРЫТИЕ МАГАЗИНА</h2>
+    <div style="border: 2px dashed #ffd700; background: rgba(255,215,0,0.06); padding: 15px; font-size: 0.9rem; line-height: 1.6; color: #ffd700; margin-bottom: 15px; text-align: center;">
+      Стоимость открытия магазина <strong>15 000 рублей</strong>.<br>
+      Условия и получения прав уточняйте у администрации.
+    </div>
+    <button onclick="contactAdminAboutShop()" style="background:#ffd700; color:#000;">[ НАПИСАТЬ АДМИНИСТРАЦИИ ]</button>
+    <button class="danger" onclick="document.getElementById('shopInfoModal').classList.add('hidden')" style="margin-top:5px;">[ ЗАКРЫТЬ ]</button>
+  </div>
+</div>
+
+<!-- ОТЗЫВЫ НА ТОВАР -->
+<div id="marketReviewsModal" class="hidden">
+  <div class="modal-content" style="border-color:#ffd700; max-width: 520px;">
+    <h2 id="reviewItemTitle">// ОТЗЫВЫ</h2>
+    <div id="reviewAvgBlock" style="text-align:center; margin-bottom:15px;"></div>
+    <div id="reviewList" style="max-height: 300px; overflow-y: auto; margin-bottom: 10px;"></div>
+    <div class="review-form" id="reviewFormBlock">
+      <p style="font-size:0.8rem; opacity:0.8; margin-bottom:5px;">Твоя оценка:</p>
+      <div class="stars-pick" id="starPicker">
+        <span data-v="1">★</span>
+        <span data-v="2">★</span>
+        <span data-v="3">★</span>
+        <span data-v="4">★</span>
+        <span data-v="5">★</span>
+      </div>
+      <textarea id="reviewBody" rows="3" maxlength="500" placeholder="> текст отзыва (необязательно)"></textarea>
+      <button onclick="submitReview()" style="background:#ffd700; color:#000;">[ ОТПРАВИТЬ ]</button>
+    </div>
+    <p id="reviewMsg" style="font-size:0.8rem; color:#ff003c; margin-top:5px; text-align:center;"></p>
+    <button class="danger" onclick="document.getElementById('marketReviewsModal').classList.add('hidden')" style="margin-top:5px;">[ ЗАКРЫТЬ ]</button>
   </div>
 </div>
 
@@ -242,6 +300,7 @@
     <button id="addMarketBtn" class="hidden" onclick="openNewMarketItem()"
       style="background:#ffd700; color:#000; margin-bottom:15px;">[ + ДОБАВИТЬ ТОВАР ]</button>
     <div class="market-grid" id="marketGrid"></div>
+    <button class="open-shop-btn" onclick="openShopInfoModal()">[ ОТКРЫТЬ СВОЙ МАГАЗИН ]</button>
     <button class="danger" onclick="document.getElementById('marketModal').classList.add('hidden')" style="margin-top:20px;">[ ЗАКРЫТЬ ]</button>
   </div>
 </div>
@@ -561,6 +620,12 @@ let modalCommentsLimit = 5;
 let currentPage = 1, PAGE_SIZE = 10, totalPosts = 0, currentFilter = 'общее';
 let commentsDisplayLimit = {};
 
+// TM MARKET отзывы
+let currentReviewItemId = null;
+let currentReviewItemTitle = '';
+let selectedStars = 0;
+let reviewsCache = {};
+
 setTimeout(() => { document.getElementById('boot').style.display = 'none'; }, 2000);
 
 document.querySelectorAll('.tab').forEach(t => {
@@ -570,6 +635,13 @@ document.querySelectorAll('.tab').forEach(t => {
     document.getElementById('loginForm').classList.toggle('hidden', t.dataset.tab !== 'login');
     document.getElementById('regForm').classList.toggle('hidden', t.dataset.tab !== 'reg');
   };
+});
+
+document.getElementById('starPicker')?.addEventListener('click', e => {
+  if (e.target.dataset.v) {
+    selectedStars = Number(e.target.dataset.v);
+    renderStarPicker();
+  }
 });
 
 async function doLogin() {
@@ -719,10 +791,37 @@ async function loadMarket() {
     .eq('is_active', true).order('created_at', { ascending: false });
   marketData = data || [];
 
+  await loadAllReviewsMeta();
+
   const addBtn = document.getElementById('addMarketBtn');
   if (addBtn) addBtn.classList.toggle('hidden', !currentProfile?.is_admin);
 
   renderMarket();
+}
+
+async function loadAllReviewsMeta() {
+  const { data } = await db.from('market_reviews').select('item_id, rating');
+  reviewsCache = {};
+  (data || []).forEach(r => {
+    if (!reviewsCache[r.item_id]) reviewsCache[r.item_id] = { sum: 0, count: 0 };
+    reviewsCache[r.item_id].sum += r.rating;
+    reviewsCache[r.item_id].count += 1;
+  });
+}
+
+function getItemRating(itemId) {
+  const c = reviewsCache[itemId];
+  if (!c || !c.count) return { avg: 0, count: 0 };
+  return { avg: c.sum / c.count, count: c.count };
+}
+
+function renderStars(avg) {
+  const full = Math.round(avg);
+  let s = '';
+  for (let i = 1; i <= 5; i++) {
+    s += i <= full ? '★' : '<span class="off">★</span>';
+  }
+  return s;
 }
 
 function renderMarket() {
@@ -731,18 +830,25 @@ function renderMarket() {
     grid.innerHTML = '<div style="text-align:center; opacity:0.5;">// товаров пока нет</div>';
     return;
   }
-  grid.innerHTML = marketData.map(item => `
+  grid.innerHTML = marketData.map(item => {
+    const { avg, count } = getItemRating(item.id);
+    return `
     <div class="market-card">
       ${currentProfile?.is_admin ? `<button class="market-edit-btn" onclick="editMarketItem(${item.id})">[ РЕД ]</button>` : ''}
+      <div class="market-store-name">TM MARKET</div>
       <img src="${escapeHtml(item.image_url || './market-item.png')}" alt="${escapeHtml(item.title)}" onerror="this.src='https://via.placeholder.com/300x200/0a0a0a/00ff41?text=NO+IMAGE'">
       <div class="market-card-body">
         <div class="market-card-title">${escapeHtml(item.title)}</div>
+        <div class="market-rating" onclick="openReviews(${item.id})">
+          <span class="stars">${renderStars(avg)}</span>
+          <span class="count">${count ? `(${count})` : 'нет отзывов'}</span>
+        </div>
         <div class="market-card-desc" onclick="openItemDescById(${item.id})">Показать описание</div>
         <div class="market-card-price">${escapeHtml(item.price)}</div>
         <button onclick="buyItemById(${item.id})">КУПИТЬ</button>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function openMarket() {
@@ -818,6 +924,125 @@ async function deleteMarketItem() {
   if (error) return alert('Ошибка: ' + error.message);
   document.getElementById('marketEditModal').classList.add('hidden');
   await loadMarket();
+}
+
+// --- ОТЗЫВЫ ---
+function openReviews(id) {
+  const item = marketData.find(i => i.id === id);
+  if (!item) return;
+  currentReviewItemId = id;
+  currentReviewItemTitle = item.title;
+  selectedStars = 0;
+  document.getElementById('reviewItemTitle').textContent = '// ОТЗЫВЫ: ' + item.title;
+  document.getElementById('reviewBody').value = '';
+  document.getElementById('reviewMsg').textContent = '';
+  document.getElementById('marketReviewsModal').classList.remove('hidden');
+  renderStarPicker();
+  loadReviews(id);
+}
+
+function renderStarPicker() {
+  document.querySelectorAll('#starPicker span').forEach(s => {
+    s.classList.toggle('on', Number(s.dataset.v) <= selectedStars);
+  });
+}
+
+async function loadReviews(itemId) {
+  const [{ data: reviews }, { data: myReview }] = await Promise.all([
+    db.from('market_reviews').select('*').eq('item_id', itemId).order('created_at', { ascending: false }),
+    db.from('market_reviews').select('*').eq('item_id', itemId).eq('author_id', currentUser.id).maybeSingle()
+  ]);
+
+  const list = reviews || [];
+  const avg = list.length ? (list.reduce((s, r) => s + r.rating, 0) / list.length) : 0;
+
+  document.getElementById('reviewAvgBlock').innerHTML = list.length
+    ? `<div style="font-size:1.6rem; color:#ffd700; text-shadow:0 0 10px #ffd700;">${avg.toFixed(1)}</div>
+       <div style="font-size:1.1rem; color:#ffd700;">${renderStars(avg)}</div>
+       <div style="font-size:0.75rem; opacity:0.6;">${list.length} ${list.length === 1 ? 'отзыв' : 'отзывов'}</div>`
+    : `<div style="opacity:0.5; font-size:0.85rem;">// пока нет отзывов</div>`;
+
+  if (myReview) {
+    selectedStars = myReview.rating;
+    document.getElementById('reviewBody').value = myReview.body || '';
+    renderStarPicker();
+    document.getElementById('reviewMsg').textContent = '// ты уже оставил отзыв — можно изменить';
+    document.getElementById('reviewMsg').style.color = '#ffd700';
+  } else {
+    selectedStars = 0;
+    renderStarPicker();
+    document.getElementById('reviewMsg').textContent = '';
+  }
+
+  const box = document.getElementById('reviewList');
+  if (!list.length) {
+    box.innerHTML = '<div style="opacity:0.4;font-size:0.8rem;text-align:center;padding:10px;">// отзывов нет</div>';
+    return;
+  }
+  box.innerHTML = list.map(r => `
+    <div class="review-item">
+      <div class="meta">
+        <span class="author" onclick="openProfile('${r.author_id}', '${escapeHtml(r.author_name)}')">@${escapeHtml(r.author_name)}</span>
+        <span>${new Date(r.created_at).toLocaleString('ru-RU')}</span>
+      </div>
+      <div class="stars">${renderStars(r.rating)}</div>
+      ${r.body ? `<div class="body">${escapeHtml(r.body)}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+async function submitReview() {
+  if (!selectedStars) {
+    const msg = document.getElementById('reviewMsg');
+    msg.style.color = '#ff003c';
+    msg.textContent = 'Поставь оценку (1–5 звёзд)';
+    return;
+  }
+  const body = document.getElementById('reviewBody').value.trim();
+  const msg = document.getElementById('reviewMsg');
+
+  const { data: existing } = await db.from('market_reviews').select('id')
+    .eq('item_id', currentReviewItemId).eq('author_id', currentUser.id).maybeSingle();
+
+  let error;
+  if (existing) {
+    ({ error } = await db.from('market_reviews').update({
+      rating: selectedStars, body: body || null
+    }).eq('id', existing.id));
+  } else {
+    ({ error } = await db.from('market_reviews').insert({
+      item_id: currentReviewItemId,
+      author_id: currentUser.id,
+      author_name: currentProfile.username,
+      rating: selectedStars,
+      body: body || null
+    }));
+  }
+
+  if (error) {
+    msg.style.color = '#ff003c';
+    msg.textContent = 'Ошибка: ' + error.message;
+    return;
+  }
+
+  msg.style.color = '#00ff41';
+  msg.textContent = '// отзыв сохранён';
+  await loadAllReviewsMeta();
+  await loadReviews(currentReviewItemId);
+  renderMarket();
+}
+
+// --- МАГАЗИН: ОТКРЫТЬ СВОЙ ---
+function openShopInfoModal() {
+  document.getElementById('shopInfoModal').classList.remove('hidden');
+}
+
+async function contactAdminAboutShop() {
+  document.getElementById('shopInfoModal').classList.add('hidden');
+  document.getElementById('marketModal').classList.add('hidden');
+  await startChat('c3b0f0ac-24f8-48fe-acb1-ecd12379e016', 'Majestic');
+  const msgInput = document.getElementById('tmMsgInput');
+  if (msgInput) msgInput.value = 'Здравствуйте! Хочу открыть свой магазин в TM Market (15 000 руб). Подскажите условия.';
 }
 
 // --- ПРОФИЛЬ ---
@@ -1268,7 +1493,6 @@ async function openChat(chatId, peerName, peerId) {
     document.getElementById('tmBackBtn').style.display = 'block';
   }
 
-  // Надёжно определяем поле last_read
   const { data: chat } = await db.from('chats').select('user1_id').eq('id', chatId).single();
   const isU1 = chat && chat.user1_id === currentUser.id;
   await db.from('chats').update(isU1 ? { last_read_user1: new Date() } : { last_read_user2: new Date() }).eq('id', chatId);
