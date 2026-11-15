@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Темщики // darknet.forum</title>
+<title>TM forum // darknet.forum</title>
 <meta name="theme-color" content="#00ff41">
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="./icon-192.png">
@@ -13,20 +13,27 @@
   html, body { width: 100%; max-width: 100vw; overflow-x: hidden; }
   body { font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff41; min-height: 100vh; background-image: linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px); background-size: 30px 30px; padding-bottom: 60px; display: flex; flex-direction: column; align-items: center; }
   body::before { content: ""; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px); pointer-events: none; z-index: 9999; }
+  
   header { width: 100%; border-bottom: 1px solid #00ff41; padding: 15px 10px; background: rgba(0,0,0,0.85); position: sticky; top: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; }
   .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 900px; flex-wrap: wrap; gap: 10px; }
+  
+  .brand { display: flex; align-items: center; gap: 10px; }
+  /* Убираем фон у иконки через mix-blend-mode */
+  .brand img { height: 35px; width: auto; mix-blend-mode: screen; filter: drop-shadow(0 0 5px #00ff41); }
   .glitch-title { font-size: 1.8rem; letter-spacing: 2px; text-transform: uppercase; color: #00ff41; text-shadow: 0 0 8px #00ff41, 0 0 20px #00ff41; position: relative; }
   .glitch-title::before, .glitch-title::after { content: attr(data-text); position: absolute; left: 0; top: 0; width: 100%; }
   .glitch-title::before { color: #ff003c; animation: glitch1 2.5s infinite; clip-path: inset(0 0 60% 0); }
   .glitch-title::after  { color: #00e5ff; animation: glitch2 3s infinite; clip-path: inset(60% 0 0 0); }
   @keyframes glitch1 { 0%,100%{transform:translate(0)} 20%{transform:translate(-3px,1px)} 40%{transform:translate(2px,-1px)} 60%{transform:translate(-2px,0)} }
   @keyframes glitch2 { 0%,100%{transform:translate(0)} 30%{transform:translate(3px,-1px)} 50%{transform:translate(-2px,1px)} 70%{transform:translate(1px,0)} }
+  
   .status { font-size: 0.75rem; color: #0f0; opacity: 0.7; }
   .blink { animation: blink 1s steps(2) infinite; }
   @keyframes blink { 50%{opacity:0} }
   .userbar { display: flex; gap: 10px; align-items: center; font-size: 0.85rem; }
   .userbar .nick-click { cursor: pointer; text-decoration: underline; }
   .userbar .nick-click:hover { color: #fff; }
+  
   main { width: 100%; max-width: 900px; padding: 15px 10px; display: flex; flex-direction: column; gap: 15px; }
   .panel { border: 1px solid #00ff41; background: rgba(0, 20, 5, 0.7); padding: 15px; box-shadow: 0 0 15px rgba(0,255,65,0.15); width: 100%; }
   .panel h2 { font-size: 1rem; letter-spacing: 2px; margin-bottom: 15px; color: #00ff41; }
@@ -95,6 +102,7 @@
   .rules-content ul { margin-left: 20px; margin-bottom: 15px; }
   .rules-content li { margin-bottom: 5px; }
   .rules-content .highlight { color: #ffd700; font-weight: bold; }
+  .rules-warning { border: 2px dashed #ff003c; background: rgba(255,0,60,0.1); padding: 15px; text-align: center; color: #ff003c; font-weight: bold; margin: 20px 0; font-size: 0.9rem; line-height: 1.4; text-transform: uppercase; }
   
   .hidden { display: none !important; }
   .boot { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; font-size: 0.85rem; }
@@ -155,7 +163,7 @@
   .install-btn:hover { opacity: 1; background: rgba(0, 229, 255, 0.9); color: #000; box-shadow: 0 0 20px #00e5ff; border-color: #00e5ff; }
 
   /* МОДАЛЬНЫЕ ОКНА */
-  #createGroupModal, #groupActionModal, #groupBannerModal, #groupInviteModal, #profileModal, #postModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+  #createGroupModal, #groupActionModal, #groupBannerModal, #groupInviteModal, #profileModal, #postModal, #marketModal, #itemDescriptionModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
   .modal-content { background: #000; border: 1px solid #ffd700; max-width: 400px; width: 100%; padding: 20px; box-shadow: 0 0 30px rgba(255,215,0,0.2); max-height: 90vh; overflow-y: auto;}
   .modal-content h2 { color: #ffd700; margin-bottom: 15px; text-align: center; font-size: 1rem; }
   .modal-content input { margin-bottom: 10px; }
@@ -171,7 +179,21 @@
   .profile-post-item { border-bottom: 1px solid rgba(0,255,65,0.1); padding: 8px 0; font-size: 0.85rem; cursor: pointer; }
   .profile-post-item:hover { background: rgba(0,255,65,0.05); }
   .profile-post-item strong { color: #00e5ff; display: block; }
-  
+
+  /* МАРКЕТ */
+  #marketModal .modal-content { max-width: 800px; border-color: #ffd700; box-shadow: 0 0 30px rgba(255,215,0,0.2); }
+  .market-warning { background: rgba(255,0,60,0.1); border: 1px dashed #ff003c; color: #ff003c; text-align: center; padding: 10px; font-size: 0.8rem; margin-bottom: 15px; font-weight: bold; }
+  .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+  .market-card { border: 1px solid #00ff41; background: rgba(0,20,5,0.8); display: flex; flex-direction: column; overflow: hidden; }
+  /* Картинка карточки без фона */
+  .market-card img { width: 100%; height: 120px; object-fit: contain; background: #000; border-bottom: 1px solid #00ff41; padding: 5px; }
+  .market-card-body { padding: 10px; display: flex; flex-direction: column; flex: 1; }
+  .market-card-title { font-weight: bold; color: #00e5ff; font-size: 0.9rem; margin-bottom: 5px; }
+  .market-card-desc { font-size: 0.75rem; color: #888; cursor: pointer; text-decoration: underline; margin-bottom: 10px; flex: 1; }
+  .market-card-desc:hover { color: #fff; }
+  .market-card-price { font-weight: bold; color: #ffd700; font-size: 1rem; margin-bottom: 10px; }
+  .market-card button { margin-bottom: 0; padding: 8px; font-size: 0.8rem; }
+
   /* ПАМЯТКА */
   .vpn-warning { margin-top: 20px; text-align: center; font-size: 0.75rem; color: #ff003c; border: 1px dashed #ff003c; padding: 10px; background: rgba(255,0,60,0.05); animation: adBlink 2s infinite; }
 
@@ -186,9 +208,28 @@
 <body>
 
 <div class="boot" id="boot">
-  <div class="line" style="animation-delay:.1s">[ OK ] Загрузка ТМ...</div>
+  <div class="line" style="animation-delay:.1s">[ OK ] Загрузка TM forum...</div>
   <div class="line" style="animation-delay:.5s">[ OK ] Шифрование каналов...</div>
   <div class="line" style="animation-delay:1s">[ !! ] ДОСТУП РАЗРЕШЁН.</div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО ОПИСАНИЯ ТОВАРА -->
+<div id="itemDescriptionModal" class="hidden">
+  <div class="modal-content" style="max-width: 500px;">
+    <h2 id="itemDescTitle">// ОПИСАНИЕ</h2>
+    <p id="itemDescText" style="font-size: 0.9rem; line-height: 1.5; color: #aaa; margin-bottom: 20px;"></p>
+    <button class="danger" onclick="document.getElementById('itemDescriptionModal').classList.add('hidden')">[ ЗАКРЫТЬ ]</button>
+  </div>
+</div>
+
+<!-- TM MARKET -->
+<div id="marketModal" class="hidden">
+  <div class="modal-content">
+    <h2>// TM MARKET</h2>
+    <div class="market-warning">Платежный шлюз не подключен. Все покупки через администрацию.</div>
+    <div class="market-grid" id="marketGrid"></div>
+    <button class="danger" onclick="document.getElementById('marketModal').classList.add('hidden')" style="margin-top:20px;">[ ЗАКРЫТЬ ]</button>
+  </div>
 </div>
 
 <!-- МОДАЛЬНОЕ ОКНО ПОСТА -->
@@ -279,7 +320,7 @@
   <div class="rules-content">
     <h1>!!!!! ОБЯЗАТЕЛЬНО ПОЛЬЗУЕМСЯ ФОРУМОМ С ПОМОЩЬЮ VPN/PROXY !!!!!</h1>
     <h2>Йоу, народ! 👋</h2>
-    <p>Добро пожаловать на <span class="highlight">Темщики</span> — теневой форум для своих. Мы тут не для галочки, а для реального движа.</p>
+    <p>Добро пожаловать на <span class="highlight">TM forum</span> — теневой форум для своих. Мы тут не для галочки, а для реального движа.</p>
     <h2>Кто мы такие? 🕶</h2>
     <p>Мы — сообщество, которое ценит <span class="highlight">анонимность</span> и свободу общения. Никаких следов, никаких лишних глаз.</p>
     <h2>Инструкция по использованию 📖</h2>
@@ -291,6 +332,13 @@
     </ul>
     <h2>Антиспам и безопасность 🛡</h2>
     <p>У нас работает жесткий фильтр. Если ты пытаешься протащить запрещенную тему — система тебя заблокирует. Мы не предупреждаем, мы просто не даем это выложить.</p>
+    
+    <div class="rules-warning">
+      !!!!!МЫ НЕ ПРОДАЕМ С ЛЕВЫХ АККАУНТОВ И ВНЕ НАШЕГО ФОРУМА!!!!!<br><br>
+      НАРУШИТЕЛЕЙ ПРОПИСЫВАЙТЕ В РАЗДЕЛЕ СКАМ-ЛИСТ!!!!!<br><br>
+      АДМИНИСТРАТОР " TM " @Majestic !!!!!
+    </div>
+
     <h2>Заключение 🖤</h2>
     <p>Спасибо, что ты с нами. Спасибо, что ты с семьей. Приятного пользования!</p>
     <button onclick="document.getElementById('rulesModal').classList.add('hidden')" style="margin-top:20px;">[ ПОНЯЛ, ЗАКРЫТЬ ]</button>
@@ -390,11 +438,8 @@
         
         <hr style="border-color:rgba(0,255,65,0.3); margin:20px 0;">
         
-        <!-- КНОПКА УВЕДОМЛЕНИЙ ПЕРЕНЕСЕНА СЮДА -->
         <button id="pushBtn" style="border:1px solid #00e5ff; color:#00e5ff; background:transparent;" onclick="enablePush()">[ УВЕДОМЛЕНИЯ ]</button>
-
         <button class="danger" onclick="logout()">[ ВЫХОД С УСТР. ]</button>
-
         <button class="danger" onclick="hideSettings()" style="margin-top:10px;">[ НАЗАД ]</button>
       </div>
     </div>
@@ -403,7 +448,10 @@
 
 <header>
   <div class="header-top">
-    <div class="glitch-title" data-text="ТЕМЩИКИ">ТЕМЩИКИ</div>
+    <div class="brand">
+      <img src="./icon-main.png" alt="TM" onerror="this.style.display='none'">
+      <div class="glitch-title" data-text="TM forum">TM forum</div>
+    </div>
     <div class="userbar">
       <span class="status"><span class="blink">●</span> ONLINE</span>
       <span id="userInfo" class="hidden nick-click" onclick="openMyProfile()"></span>
@@ -438,6 +486,13 @@
   </div>
 
   <div id="forumPanel" class="hidden">
+    
+    <div class="panel" style="border-color:#ffd700; padding:10px; position:relative;">
+      <button onclick="openMarket()" style="background:transparent; border:1px solid #ffd700; color:#ffd700; margin:0;">
+        [ ОТКРЫТЬ TM MARKET ]
+      </button>
+    </div>
+
     <div class="panel" style="border-color:#00e5ff; padding:10px; position:relative;">
       <button onclick="openMessenger()" style="background:transparent; border:1px solid #00e5ff; color:#00e5ff; margin:0;">
         [ ОТКРЫТЬ ТМ МЕССЕНДЖЕР ] <span id="globalUnreadBadge" class="badge hidden">0</span>
@@ -490,14 +545,14 @@
     
     <!-- Изображение под лентой -->
     <div class="panel" style="padding: 0; border: none; background: transparent; box-shadow: none; text-align: center; margin-top: 10px;">
-      <img src="./logo.png" alt="Темщики" style="max-width: 100%; height: auto; mix-blend-mode: screen; filter: drop-shadow(0 0 15px rgba(0,255,65,0.3));">
+      <img src="./logo.png" alt="TM forum" style="max-width: 100%; height: auto; mix-blend-mode: screen; filter: drop-shadow(0 0 15px rgba(0,255,65,0.3));">
     </div>
   </div>
 </main>
 
 <button class="install-btn hidden" id="installBtn">[ УСТАНОВИТЬ ]</button>
 
-<footer>// temshiki.supabase.co // никаких логов. никаких следов.</footer>
+<footer>// tmforum.supabase.co // никаких логов. никаких следов.</footer>
 <div class="ad-banner bottom hidden" id="adBottom">◆ здесь могла быть <span>ваша реклама</span> ◆</div>
 
 <script>
@@ -507,7 +562,7 @@ const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null, currentProfile = null;
-let allComments = [], allReactions = [], chatsData = [], groupsData = [], adminIds = new Set();
+let allComments = [], allReactions = [], chatsData = [], groupsData = [], marketData = [], adminIds = new Set();
 let activeChatId = null, activeChatPeerName = null, activeChatPeerId = null;
 let activeGroupId = null, activeGroupName = null, activeGroupCreatorId = null;
 let tmChannel = null, globalMsgChannel = null, groupChannel = null, groupListChannel = null;
@@ -587,6 +642,7 @@ async function enterForum() {
   loadChats();
   loadGroups();
   loadAdminIds();
+  loadMarket();
 }
 
 function openMyProfile() {
@@ -613,46 +669,57 @@ function setFilter(cat, btn) {
   loadAll();
 }
 
-async function loadAll() {
-  const from = (currentPage - 1) * PAGE_SIZE, to = from + PAGE_SIZE - 1;
-  let query = db.from('posts').select('*', { count: 'exact' }).order('is_pinned', { ascending: false }).order('created_at', { ascending: false });
-  if (currentFilter !== 'общее') query = query.eq('category', currentFilter);
-  
-  const [postsRes, commentsRes, reactionsRes, profilesRes] = await Promise.all([
-    query.range(from, to),
-    db.from('comments').select('*').order('created_at', { ascending: true }),
-    db.from('reactions').select('*'),
-    db.from('profiles').select('id, is_admin')
-  ]);
-
-  adminIds.clear();
-  (profilesRes.data || []).forEach(p => { if (p.is_admin) adminIds.add(p.id); });
-
-  totalPosts = postsRes.count || 0;
-  allComments = commentsRes.data || [];
-  allReactions = reactionsRes.data || [];
-  renderPosts(postsRes.data || []);
-  renderPagination();
+// --- TM MARKET ---
+async function loadMarket() {
+  const { data } = await db.from('market_items').select('*').eq('is_active', true).order('created_at', { ascending: false });
+  marketData = data || [];
+  renderMarket();
 }
 
-function renderPagination() {
-  const totalPages = Math.ceil(totalPosts / PAGE_SIZE);
-  const el = document.getElementById('pagination');
-  if (totalPages <= 1) { el.innerHTML = ''; return; }
-  let html = '';
-  if (currentPage > 1) html += `<button onclick="goPage(${currentPage - 1})">← НАЗАД</button>`;
-  html += `<span style="padding:10px; opacity:0.7;">${currentPage} / ${totalPages}</span>`;
-  if (currentPage < totalPages) html += `<button onclick="goPage(${currentPage + 1})">ВПЕРЁД →</button>`;
-  el.innerHTML = html;
+function renderMarket() {
+  const grid = document.getElementById('marketGrid');
+  if (!marketData.length) {
+    grid.innerHTML = '<div style="text-align:center; opacity:0.5;">// товаров пока нет</div>';
+    return;
+  }
+  grid.innerHTML = marketData.map(item => `
+    <div class="market-card">
+      <img src="${item.image_url || './market-item.png'}" alt="${escapeHtml(item.title)}" onerror="this.src='https://via.placeholder.com/300x200/0a0a0a/00ff41?text=NO+IMAGE'">
+      <div class="market-card-body">
+        <div class="market-card-title">${escapeHtml(item.title)}</div>
+        <div class="market-card-desc" onclick="openItemDesc('${escapeHtml(item.title)}', '${escapeHtml(item.description || 'Описание отсутствует')}')">Показать описание</div>
+        <div class="market-card-price">${escapeHtml(item.price)}</div>
+        <button onclick="buyItem('${escapeHtml(item.title)}')">КУПИТЬ</button>
+      </div>
+    </div>
+  `).join('');
 }
 
-function goPage(page) { currentPage = page; window.scrollTo({ top: 0, behavior: 'smooth' }); loadAll(); }
+function openMarket() {
+  document.getElementById('marketModal').classList.remove('hidden');
+  loadMarket();
+}
 
-// ПРОФИЛЬ
+function openItemDesc(title, text) {
+  document.getElementById('itemDescTitle').textContent = '// ' + title;
+  document.getElementById('itemDescText').textContent = text;
+  document.getElementById('itemDescriptionModal').classList.remove('hidden');
+}
+
+async function buyItem(title) {
+  document.getElementById('marketModal').classList.add('hidden');
+  await startChat('c3b0f0ac-24f8-48fe-acb1-ecd12379e016', 'Majestic'); // Твой реальный UUID @Majestic
+  setTimeout(() => {
+    const msgInput = document.getElementById('tmMsgInput');
+    if (msgInput) msgInput.value = `Йоу! Бро! Хочу приобрести товар. ${title}`;
+  }, 1000);
+}
+
+// --- ПРОФИЛЬ ---
 async function openProfile(userId, userName) {
   profileTargetId = userId; profileTargetName = userName;
   document.getElementById('profNick').textContent = userName;
-  modalCommentsLimit = 5; // Сброс пагинации комментов в модалке
+  modalCommentsLimit = 5;
   
   const { data: profile } = await db.from('profiles').select('status_text, about_me, is_admin').eq('id', userId).single();
   
@@ -1413,7 +1480,7 @@ function showSettings() {
   document.getElementById('nameChangeMsg').textContent = '';
   document.getElementById('newPass').value = '';
   document.getElementById('newUsername').value = '';
-  document.getElementById('setUsername').textContent = currentProfile.username; // ПОЛНЫЙ НИК
+  document.getElementById('setUsername').textContent = currentProfile.username;
   if(window.innerWidth <= 600) document.getElementById('tmChatArea').classList.add('active');
 }
 
