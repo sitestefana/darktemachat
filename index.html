@@ -788,12 +788,12 @@ async function enterForum() {
   document.getElementById('adBottom').classList.remove('hidden');
   document.getElementById('setUsername').textContent = profile.username;
 
-  await loadAll();
-  setupGlobalListeners();
-  loadChats();
-  loadGroups();
-  loadAdminIds();
-  loadMarket();
+  await loadAdminIds();
+await loadAll();
+setupGlobalListeners();
+loadChats();
+loadGroups();
+loadMarket();
 }
 
 function openMyProfile() {
